@@ -1,19 +1,9 @@
 import { z } from 'zod'
 
-// Contract types + zod schemas for job configs and the candidate profile.
-// Keys stay snake_case exactly as the README defines them — no renames.
-//
-// These schemas describe a VALID question/job. Recovering from invalid ones
-// (dropping questions, stripping broken rules, deduping IDs) is normalize.ts's
-// job — schemas here reject, they never repair.
-
-/** Authoring limit for recruiter question text. Exceeding it is a warning in
- * normalize.ts, never a rejection — the candidate still sees the question. */
+/** Authoring limit for question text — normalize warns on excess, never drops (DECISIONS #10). */
 export const QUESTION_TEXT_MAX_LENGTH = 255
 
-/** The profile fields the README maps into profile.json. An unknown
- * profile_field keeps its question — it simply never prefills — so the base
- * schema validates it as a plain string and prefill.ts checks membership. */
+/** An unknown profile_field keeps its question; prefill just skips it (DECISIONS #17). */
 export const PROFILE_FIELDS = [
   'notice_period',
   'salary_expectation',
@@ -25,17 +15,23 @@ export const PROFILE_FIELDS = [
 
 export type ProfileField = (typeof PROFILE_FIELDS)[number]
 
+/** Single owner of rule → allowed type + value shape. normalize.ts reads this to
+ * strip misplaced/malformed rules with a warning BEFORE the strict parse below,
+ * which would otherwise swallow or reject them silently (DECISIONS #10, #17). */
+export const SCREENING_RULES = {
+  must_be_at_least: { allowedOn: 'numeric', valueSchema: z.number().int() },
+  must_be_below: { allowedOn: 'numeric', valueSchema: z.number().int() },
+  must_be_true: { allowedOn: 'boolean', valueSchema: z.boolean() },
+} as const
+
+export type ScreeningRuleName = keyof typeof SCREENING_RULES
+
 const baseQuestionFields = {
   id: z.string().min(1),
   question: z.string().min(1),
   required: z.boolean().default(false),
   profile_field: z.string().optional(),
 }
-
-// Unknown keys are stripped by z.object, which is exactly the README's rule
-// "a screening rule on a type it is not allowed on is ignored": must_be_true
-// on a text question simply disappears. Rules are declared only on the types
-// they are allowed on.
 
 export const textQuestionSchema = z.object({
   ...baseQuestionFields,
@@ -51,17 +47,19 @@ export const dateQuestionSchema = z.object({
 export const booleanQuestionSchema = z.object({
   ...baseQuestionFields,
   type: z.literal('boolean'),
-  must_be_true: z.boolean().optional(),
+  must_be_true: SCREENING_RULES.must_be_true.valueSchema.optional(),
 })
 
-export const numericQuestionSchema = z.object({
-  ...baseQuestionFields,
-  type: z.literal('numeric'),
-  min: z.number().int().default(0),
-  max: z.number().int().default(100000000),
-  must_be_at_least: z.number().int().optional(),
-  must_be_below: z.number().int().optional(),
-})
+export const numericQuestionSchema = z
+  .object({
+    ...baseQuestionFields,
+    type: z.literal('numeric'),
+    min: z.number().int().default(0),
+    max: z.number().int().default(100000000),
+    must_be_at_least: SCREENING_RULES.must_be_at_least.valueSchema.optional(),
+    must_be_below: SCREENING_RULES.must_be_below.valueSchema.optional(),
+  })
+  .refine((q) => q.min <= q.max, { message: 'min must be <= max' })
 
 export const selectOptionSchema = z.object({
   label: z.string().min(1),
@@ -107,9 +105,6 @@ export type FileQuestion = z.infer<typeof fileQuestionSchema>
 export type Question = z.infer<typeof questionSchema>
 export type QuestionType = Question['type']
 export type Job = z.infer<typeof jobSchema>
-
-// Candidate profile (profile.json). Only the parts the contract's
-// profile_field table reaches are required; the rest is carried as-is.
 
 export const profileLanguageSchema = z.object({
   language: z.string().min(1),
