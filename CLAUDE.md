@@ -12,7 +12,7 @@ corrected in the same commit.
 
 ```
 src/
-  data/                 # mock jobs + profile
+  data/                 # single import point: root fixtures (jobs/, profile.json) enter here
   domain/               # pure business logic, no React, fully tested
     schema.ts           # zod schemas (job, question types, profile)
     normalize.ts        # per-question safeParse: drop invalid → dedupe IDs → + warnings
