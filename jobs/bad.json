@@ -1,0 +1,160 @@
+{
+  "id": "job-bad",
+  "title": "Senior Frontend Developer (m/w/d)",
+  "company": "Muster Consulting AG",
+  "language": "de",
+  "questions": [
+    {
+      "type": "select",
+      "id": "notice_period",
+      "question": "Kündigungsfrist",
+      "required": true,
+      "profile_field": "notice_period",
+      "options": [
+        {
+          "label": "Sofort",
+          "value": "immediately"
+        },
+        {
+          "label": "1 Monat",
+          "value": "1_month"
+        },
+        {
+          "label": "2 Monate",
+          "value": "2_months"
+        },
+        {
+          "label": "3 Monate",
+          "value": "3_months"
+        },
+        {
+          "label": "Mehr als 3 Monate",
+          "value": "more"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "notice_period",
+      "question": "Wie lange ist Ihre aktuelle Kündigungsfrist (in Wochen/Monaten)?",
+      "required": false
+    },
+    {
+      "type": "select",
+      "id": "salutation",
+      "question": "Anrede",
+      "required": true,
+      "options": [
+        {
+          "label": "Herr",
+          "value": "mr"
+        },
+        {
+          "label": "Frau",
+          "value": "ms"
+        },
+        {
+          "label": "Divers",
+          "value": "diverse"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "country",
+      "question": "Aktueller Wohnsitz (Land)",
+      "required": true,
+      "must_be_true": true
+    },
+    {
+      "type": "numeric",
+      "id": "salary_expectation",
+      "question": "Gehaltsvorstellung (brutto p.a. in EUR)",
+      "required": true,
+      "profile_field": "salary_expectation",
+      "must_be_below": 65000
+    },
+    {
+      "type": "boolean",
+      "id": "onsite",
+      "question": "Haben Sie keine Einwände gegen eine Tätigkeit, die überwiegend nicht remote stattfindet?",
+      "required": true,
+      "must_be_true": true
+    },
+    {
+      "type": "boolean",
+      "id": "driving_license",
+      "question": "Führerschein Klasse B vorhanden?",
+      "required": true,
+      "must_be_true": true
+    },
+    {
+      "type": "file",
+      "id": "cover_letter",
+      "question": "Anschreiben (bitte ausschließlich als PDF)",
+      "required": true
+    },
+    {
+      "type": "text",
+      "id": "safe",
+      "question": "Erfahrung mit SAFe?",
+      "required": true
+    },
+    {
+      "type": "text",
+      "id": "strengths_weaknesses",
+      "question": "Beschreiben Sie Ihre Stärken und Schwächen.",
+      "multiline": true,
+      "required": true
+    },
+    {
+      "type": "numeric",
+      "id": "react_years",
+      "question": "Wie viele Jahre Berufserfahrung haben Sie mit React? (mind. 5 Jahre)",
+      "min": 5,
+      "max": 50,
+      "required": true
+    },
+    {
+      "type": "select",
+      "id": "tech_stack",
+      "question": "Which of the following technologies have you used in production? (multiple answers possible)",
+      "max_choices": 10,
+      "required": true,
+      "options": [
+        {
+          "label": "React",
+          "value": "react"
+        },
+        {
+          "label": "Angular",
+          "value": "angular"
+        },
+        {
+          "label": "Vue",
+          "value": "vue"
+        },
+        {
+          "label": "jQuery",
+          "value": "jquery"
+        },
+        {
+          "label": "SAP UI5",
+          "value": "sap_ui5"
+        }
+      ]
+    },
+    {
+      "type": "boolean",
+      "id": "availability",
+      "question": "Wären Sie grundsätzlich bereit, bei Bedarf gelegentlich auch außerhalb der regulären Arbeitszeiten zur Verfügung zu stehen?",
+      "required": true
+    },
+    {
+      "type": "rating",
+      "id": "typescript_level",
+      "question": "Bitte bewerten Sie Ihre TypeScript-Kenntnisse (1 = Grundkenntnisse, 5 = Experte).",
+      "required": true
+    }
+  ]
+}

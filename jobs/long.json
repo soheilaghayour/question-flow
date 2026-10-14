@@ -1,0 +1,136 @@
+{
+  "id": "job-long",
+  "title": "Senior Frontend Engineer",
+  "company": "Nordlicht Software GmbH",
+  "language": "en",
+  "questions": [
+    {
+      "type": "select",
+      "id": "notice_period",
+      "question": "What is your notice period?",
+      "required": true,
+      "profile_field": "notice_period",
+      "options": [
+        {
+          "label": "Immediately",
+          "value": "immediately"
+        },
+        {
+          "label": "1 month",
+          "value": "1_month"
+        },
+        {
+          "label": "2 months",
+          "value": "2_months"
+        },
+        {
+          "label": "3 months",
+          "value": "3_months"
+        },
+        {
+          "label": "More than 3 months",
+          "value": "more"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "german_level",
+      "question": "How good is your German?",
+      "required": true,
+      "profile_field": "german_level",
+      "options": [
+        {
+          "label": "A1",
+          "value": "A1"
+        },
+        {
+          "label": "A2",
+          "value": "A2"
+        },
+        {
+          "label": "B1",
+          "value": "B1"
+        },
+        {
+          "label": "B2",
+          "value": "B2"
+        },
+        {
+          "label": "C1",
+          "value": "C1"
+        },
+        {
+          "label": "C2",
+          "value": "C2"
+        },
+        {
+          "label": "Native",
+          "value": "native"
+        }
+      ]
+    },
+    {
+      "type": "numeric",
+      "id": "salary_expectation",
+      "question": "What is your yearly salary expectation in EUR?",
+      "required": true,
+      "profile_field": "salary_expectation",
+      "must_be_below": 90000
+    },
+    {
+      "type": "boolean",
+      "id": "eu_work_permit",
+      "question": "Are you allowed to work in the EU?",
+      "required": true,
+      "must_be_true": true
+    },
+    {
+      "type": "date",
+      "id": "starting_date",
+      "question": "Ab wann könnten Sie bei uns starten?",
+      "required": true
+    },
+    {
+      "type": "numeric",
+      "id": "years_of_experience",
+      "question": "How many years of professional frontend experience do you have?",
+      "min": 0,
+      "max": 50,
+      "required": true,
+      "profile_field": "years_of_experience",
+      "must_be_at_least": 5
+    },
+    {
+      "type": "select",
+      "id": "focus_areas",
+      "question": "Which areas would you like to focus on? Pick up to two.",
+      "max_choices": 2,
+      "required": false,
+      "options": [
+        {
+          "label": "Frontend architecture",
+          "value": "frontend"
+        },
+        {
+          "label": "Design systems",
+          "value": "design_systems"
+        },
+        {
+          "label": "Performance",
+          "value": "performance"
+        },
+        {
+          "label": "Accessibility",
+          "value": "accessibility"
+        }
+      ]
+    },
+    {
+      "type": "boolean",
+      "id": "willing_to_relocate",
+      "question": "Are you willing to relocate to Hamburg?",
+      "required": false
+    }
+  ]
+}

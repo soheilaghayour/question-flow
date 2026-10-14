@@ -1,0 +1,31 @@
+{
+  "id": "talent-4711",
+  "first_name": "Mateo",
+  "last_name": "Rossi",
+  "email": "mateo.rossi@example.com",
+  "headline": "Frontend Engineer, React and TypeScript",
+  "location": {
+    "city": "Berlin",
+    "country": "DE"
+  },
+  "citizenship": ["IT"],
+  "salary_expectation": {
+    "amount": 95000,
+    "currency": "EUR",
+    "period": "yearly"
+  },
+  "languages": [
+    { "language": "it", "level": "native" },
+    { "language": "en", "level": "C1" },
+    { "language": "de", "level": "B1" }
+  ],
+  "notice_period": "3_months",
+  "years_of_experience": 6,
+  "cv": {
+    "file_name": "Mateo_Rossi_CV.pdf",
+    "content_type": "application/pdf",
+    "size_bytes": 412345,
+    "uploaded_at": "2025-11-04"
+  },
+  "updated_at": "2025-11-04"
+}
