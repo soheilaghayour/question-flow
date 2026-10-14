@@ -42,22 +42,20 @@ function isNonEmptyString(value: unknown): value is string {
 }
 
 /**
- * Validates a raw job config question by question, so one broken question never
- * rejects the whole job. Policy (DECISIONS #10): drop the smallest broken
- * thing, collect warnings, never invent data. Pure — the caller decides what
- * to do with the warnings (e.g. console.warn in the data layer).
+ * Validates a raw job config question by question, so one broken question
+ * never rejects the whole job.
  */
-export function normalizeJob(raw: unknown): NormalizeResult {
-  if (!isRecord(raw)) return { error: 'job config is not an object' }
+export function normalizeJob(rawJob: unknown): NormalizeResult {
+  if (!isRecord(rawJob)) return { error: 'job config is not an object' }
 
-  const shell = jobShellSchema.safeParse(raw)
+  const shell = jobShellSchema.safeParse(rawJob)
   if (!shell.success) return { error: `invalid job: ${shell.error.message}` }
-  if (!Array.isArray(raw.questions)) return { error: 'job has no questions array' }
+  if (!Array.isArray(rawJob.questions)) return { error: 'job has no questions array' }
 
   const warnings: NormalizeWarning[] = []
   const questions: Question[] = []
 
-  raw.questions.forEach((rawQuestion: unknown, index: number) => {
+  rawJob.questions.forEach((rawQuestion: unknown, index: number) => {
     const fallbackId = `questions[${index}]`
 
     if (!isRecord(rawQuestion)) {
@@ -66,19 +64,19 @@ export function normalizeJob(raw: unknown): NormalizeResult {
     }
 
     const questionId = isNonEmptyString(rawQuestion.id) ? rawQuestion.id : fallbackId
-    const warn = (reason: string) => warnings.push({ questionId, reason })
+    const addWarning = (reason: string) => warnings.push({ questionId, reason })
 
     if (
       !isNonEmptyString(rawQuestion.id) ||
       !isNonEmptyString(rawQuestion.question) ||
       !isNonEmptyString(rawQuestion.type)
     ) {
-      warn('missing id, question or type')
+      addWarning('missing id, question or type')
       return
     }
 
     if (!(rawQuestion.type in QUESTION_SCHEMAS)) {
-      warn(`unknown question type "${rawQuestion.type}"`)
+      addWarning(`unknown question type "${rawQuestion.type}"`)
       return
     }
     const schema = QUESTION_SCHEMAS[rawQuestion.type as QuestionType]
@@ -86,16 +84,18 @@ export function normalizeJob(raw: unknown): NormalizeResult {
     // Pre-clean before the strict parse: zod would strip a misplaced rule
     // silently and reject a whole question over one bad rule value, but the
     // policy is drop-the-smallest-thing-with-a-warning (DECISIONS #10, #17).
+    // Cleaning deletes keys, so it works on a shallow copy — the caller's
+    // config (an imported JSON module) must never be mutated.
     const candidate: Record<string, unknown> = { ...rawQuestion }
 
     for (const [name, rule] of Object.entries(SCREENING_RULES)) {
       if (!(name in candidate)) continue
       if (rule.allowedOn !== candidate.type) {
         delete candidate[name]
-        warn(`rule "${name}" is not allowed on type "${rawQuestion.type}" — ignored`)
+        addWarning(`rule "${name}" is not allowed on type "${rawQuestion.type}" — ignored`)
       } else if (!rule.valueSchema.safeParse(candidate[name]).success) {
         delete candidate[name]
-        warn(`rule "${name}" has an invalid value — ignored`)
+        addWarning(`rule "${name}" has an invalid value — ignored`)
       }
     }
 
@@ -105,30 +105,30 @@ export function normalizeJob(raw: unknown): NormalizeResult {
       for (const rawOption of candidate.options) {
         const option = selectOptionSchema.safeParse(rawOption)
         if (!option.success) {
-          warn('malformed option dropped')
+          addWarning('malformed option dropped')
           continue
         }
         if (seenValues.has(option.data.value)) {
-          warn(`duplicate option value "${option.data.value}" — first wins`)
+          addWarning(`duplicate option value "${option.data.value}" — first wins`)
           continue
         }
         seenValues.add(option.data.value)
         options.push(option.data)
       }
       if (options.length === 0) {
-        warn('no valid options left — question dropped')
+        addWarning('no valid options left — question dropped')
         return
       }
       candidate.options = options
     }
 
     if (rawQuestion.question.length > QUESTION_TEXT_MAX_LENGTH) {
-      warn(`question text exceeds ${QUESTION_TEXT_MAX_LENGTH} characters`)
+      addWarning(`question text exceeds ${QUESTION_TEXT_MAX_LENGTH} characters`)
     }
 
     const parsed = schema.safeParse(candidate)
     if (!parsed.success) {
-      warn(`invalid question: ${parsed.error.issues.map((i) => i.message).join('; ')}`)
+      addWarning(`invalid question: ${parsed.error.issues.map((i) => i.message).join('; ')}`)
       return
     }
 
