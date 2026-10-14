@@ -59,7 +59,12 @@ Every judgment call, with its reason. Authority order: README contract > this fi
 14. **i18n: hand-rolled typed `t(key)` + React context.** ~30 UI strings don't justify i18next.
 15. **V1 submit screen: payload as `<pre>` JSON including `screening`, plus `console.log`.**
     Dev-facing deliverable; humanized in V2.
-16. **Issues on GitHub** (`soheilaghayour/instaffo-question-flow`, private): 10 V1 issues
+16. **TypeScript pinned to the 6.x line (not 7.x).** npm resolves `typescript` to 7.x (the
+    Go-based compiler), but typescript-eslint rejects TS 7.0 at runtime, which breaks
+    `npm run lint`. TS 6 is the API-compatible release typescript-eslint supports.
+    *Revisit:* unpin when typescript-eslint ships TS ≥ 7.1 support
+    (typescript-eslint/typescript-eslint#10940).
+17. **Issues on GitHub** (`soheilaghayour/instaffo-question-flow`, private): 10 V1 issues
     (`v1`, `ready-for-agent`) then 7 V2 issues (`v2`, `needs-triage`), ordered by title prefix.
 
 ## Open PM questions

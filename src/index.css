@@ -1,0 +1,10 @@
+@import 'tailwindcss';
+
+/* Semantic color tokens — the only place palette values may appear.
+   Components use role classes only: text-error, bg-primary, bg-surface, text-muted. */
+@theme {
+  --color-primary: oklch(0.546 0.245 262.881);
+  --color-error: oklch(0.577 0.245 27.325);
+  --color-surface: oklch(1 0 0);
+  --color-muted: oklch(0.551 0.027 264.364);
+}
