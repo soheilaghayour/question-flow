@@ -43,6 +43,9 @@ Every judgment call, with its reason. Authority order: README contract > this fi
       no warning (README's letter says the value is `true`; behavior is identical).
     - Question text > 255 chars → render normally, warn only (authoring limit, not the
       candidate's problem).
+    - Inverted numeric range (`min` > `max`) → drop the question, warn: no answer can
+      satisfy it, so a required one would dead-end submission (decision #5). Enforced by
+      a schema `.refine`, so it rides the normal invalid-question path.
     - **Order: drop invalid questions first, then dedupe IDs** — an ignored question must
       not shadow a valid later question with the same ID.
     - Job-level invalid (no id / zero valid questions) → error/empty state in the UI,
@@ -71,7 +74,12 @@ Every judgment call, with its reason. Authority order: README contract > this fi
     is an exported constant, not a schema rule (normalize warns, never drops — #10);
     misplaced rules are ignored by declaring each rule only on its allowed type and letting
     `z.object` strip unknown keys; profile fields outside the contract's `profile_field`
-    table are optional, so profile.json shape drift outside the contract never breaks parsing.
+    table are optional, so profile.json shape drift outside the contract never breaks
+    parsing (parse output keeps only schema-declared keys). Because zod strips misplaced
+    rules and rejects malformed rule values silently, the rule → allowed-type + value-shape
+    table is exported once as `SCREENING_RULES`: normalize.ts pre-strips those rules from
+    the raw object **with a warning** (per #10) before the strict per-question parse,
+    without duplicating contract knowledge.
 18. **Issues on GitHub** (`soheilaghayour/question-flow`, private): 10 V1 issues
     (`v1`, `ready-for-agent`) then 7 V2 issues (`v2`, `needs-triage`), ordered by title prefix.
 

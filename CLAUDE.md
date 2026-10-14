@@ -42,6 +42,9 @@ src/
 | Types / components    | PascalCase                    | `NumericQuestion`, `AnswerPayload`   |
 | Constants             | UPPER_SNAKE_CASE              | `MAX_FILE_SIZE_BYTES`                |
 
+**Import aliases:** `@/*` → `src/*`; fixtures via `@jobs/*` and `@profile`. Relative
+imports only within the same folder.
+
 **Contract keys stay snake_case.** Keys defined by the README (`job_id`, `profile_field`,
 `max_choices`, `must_be_below`, `content_type`, `file_name`, …) and enum values like
 `3_months` are never renamed. No case-conversion layer. TS types for contract data use
