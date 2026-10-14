@@ -1,0 +1,99 @@
+# question-flow
+
+Read order: this file → `README.md` → `DECISIONS.md`.
+Authority: README contract > `DECISIONS.md` > `CLAUDE.md` — the higher wins; the lower is
+corrected in the same commit.
+
+## Commands
+
+`npm run dev` · `npm test` · `npm run lint` · `npm run typecheck`
+
+## Structure
+
+```
+src/
+  data/                 # mock jobs + profile
+  domain/               # pure business logic, no React, fully tested
+    schema.ts           # zod schemas (job, question types, profile)
+    normalize.ts        # per-question safeParse: drop invalid → dedupe IDs → + warnings
+    prefill.ts          # profile_field → initial answers (only if valid for the question)
+    screening.ts        # evaluate rules → { passed, failed }
+    payload.ts          # answers → exact contract payload
+  components/
+    atoms/              # Button, Input, Radio, Checkbox, ...
+    molecules/          # Field (label + input + error), OptionGroup, FileDrop, ...
+    questions/          # one component per question type + registry.ts
+  pages/
+    JobPage.tsx         # job info + Apply button (job switcher for the 3 configs)
+    ApplyFlow.tsx
+  i18n/                 # en.ts, de.ts (UI text only)
+  utils/                # generic helpers (fileToBase64, parseLocaleNumber)
+```
+
+## Naming conventions
+
+| What                  | Style                         | Example                              |
+| :-------------------- | :---------------------------- | :----------------------------------- |
+| Folders               | lowercase / kebab-case        | `components/atoms`, `question-types` |
+| React component files | PascalCase (= component name) | `JobPage.tsx`, `NumericQuestion.tsx` |
+| Other TS files        | camelCase                     | `screening.ts`, `fileToBase64.ts`    |
+| Tests                 | next to the file, same name   | `screening.test.ts`                  |
+| Variables / functions | camelCase                     | `buildPayload`, `questionId`         |
+| Types / components    | PascalCase                    | `NumericQuestion`, `AnswerPayload`   |
+| Constants             | UPPER_SNAKE_CASE              | `MAX_FILE_SIZE_BYTES`                |
+
+**Contract keys stay snake_case.** Keys defined by the README (`job_id`, `profile_field`,
+`max_choices`, `must_be_below`, `content_type`, `file_name`, …) and enum values like
+`3_months` are never renamed. No case-conversion layer. TS types for contract data use
+the snake_case keys exactly.
+
+## Rules that never change
+
+- `domain/` is pure TypeScript — no React, no DOM, no side effects: logic stays testable without rendering.
+- Every job config goes through `normalizeJob()` before use: raw configs lie.
+- Adding a question type = new component + one registry entry: the flow never switches on type.
+- Colors only by role (`text-error`, `bg-primary`); palette colors like `red-600` exist only inside `@theme`: design changes stay one-line.
+- Raw styling lives in `atoms/` and `molecules/`; pages compose and add only layout classes (`flex`, `gap-4`, `grid`): the atom is the semantic layer.
+- Don't abstract until code is duplicated three times: wrong abstractions cost more than duplication.
+- Implement only what the current issue asks: scope creep hides review surface.
+- The README contract is the source of truth; every rule in it has a test: untested contract rules rot.
+- TypeScript strict, no `any`: the contract types are the safety net.
+
+## Things that will bite you (each has at least one test)
+
+1. **`value` vs `values`.** Shape depends on `max_choices` > 1, NOT on how many options were picked. One selected option in a multi-select is still `values: ["x"]`.
+2. **Base64 prefix.** `readAsDataURL` returns `data:application/pdf;base64,...`. The payload needs plain base64 — strip the prefix.
+3. **Dates shift with timezones.** Never use `toISOString()` for `YYYY-MM-DD`.
+4. **`false` is an answer.** A required boolean has no default; unanswered ≠ false.
+5. **Strict vs inclusive.** `must_be_below` is `<` (90000 fails), `must_be_at_least` is `>=`.
+6. **Missing answer fails the rule** — matters for optional questions with rules.
+7. **German numbers.** `85.000` means 85000, not 85. Integers only.
+8. **Raw configs lie.** Duplicate IDs, unknown types and misplaced rules exist (bad.json). Never render a job config that hasn't gone through `normalizeJob()`.
+9. **Contract keys are snake_case.** Never rename them (see naming conventions).
+10. **Prefill only valid values.** A profile value that is not a valid option (or out of min/max) is not prefilled.
+
+## Frozen
+
+`jobs/*.json`, `profile.json` and the template `README.md` are fixtures — never edit them,
+not even to make a test pass. New test data goes into new files (e.g. `jobs/edge-cases.json`).
+
+## Working agreements
+
+- A product decision is written to `DECISIONS.md` in the same commit as the code that implements it — never later.
+- For tasks with 3+ steps, keep a visible todo list.
+- Every diff is read by a human: explain why a change is needed, not only what changed.
+- Small commits, one issue each, with clear messages.
+
+## Agent skills
+
+### Issue tracker
+
+Issues are tracked as GitHub Issues on `soheilaghayour/question-flow`, via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default label vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
