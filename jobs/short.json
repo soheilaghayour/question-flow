@@ -1,0 +1,51 @@
+{
+  "id": "job-short",
+  "title": "Frontend Developer (React)",
+  "company": "Kranich Health GmbH",
+  "language": "en",
+  "questions": [
+    {
+      "type": "select",
+      "id": "notice_period",
+      "question": "What is your notice period?",
+      "required": true,
+      "profile_field": "notice_period",
+      "options": [
+        {
+          "label": "Immediately",
+          "value": "immediately"
+        },
+        {
+          "label": "1 month",
+          "value": "1_month"
+        },
+        {
+          "label": "2 months",
+          "value": "2_months"
+        },
+        {
+          "label": "3 months",
+          "value": "3_months"
+        },
+        {
+          "label": "More than 3 months",
+          "value": "more"
+        }
+      ]
+    },
+    {
+      "type": "numeric",
+      "id": "salary_expectation",
+      "question": "What is your yearly salary expectation in EUR?",
+      "required": true,
+      "profile_field": "salary_expectation"
+    },
+    {
+      "type": "text",
+      "id": "proud_project",
+      "question": "Which frontend project are you most proud of? 🚀🔥 Tell us what YOU built! 💪",
+      "multiline": true,
+      "required": false
+    }
+  ]
+}
