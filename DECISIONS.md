@@ -89,6 +89,10 @@ Every judgment call, with its reason. Authority order: README contract > this fi
   V1's dev view exposes it in the raw payload.)
 - `bad.json` demands "PDF only" in prose but the contract allows four types — should file
   questions get an `accepted_types` config field? Until then the contract wins.
+- The rule names mislead about their mechanism: `must_be_at_least`/`must_be_below`/
+  `must_be_true` read like input validation, but they gate screening, not submission
+  (an answer that fails them still submits). Names like `screening_min` would say which
+  mechanism fires. Contract keys are frozen, so rename only if the contract ever revs.
 - `min: 5` on `react_years` is a hidden knockout: an honest 3-year candidate can never
   submit. Disallow in config authoring, or auto-convert to `must_be_at_least`?
 - The 255-char question limit: enforce recruiter-side at authoring time? Candidate side
