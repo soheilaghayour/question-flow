@@ -43,6 +43,9 @@ Every judgment call, with its reason. Authority order: README contract > this fi
       no warning (README's letter says the value is `true`; behavior is identical).
     - Question text > 255 chars → render normally, warn only (authoring limit, not the
       candidate's problem).
+    - Inverted numeric range (`min` > `max`) → drop the question, warn: no answer can
+      satisfy it, so a required one would dead-end submission (decision #5). Enforced by
+      a schema `.refine`, so it rides the normal invalid-question path.
     - **Order: drop invalid questions first, then dedupe IDs** — an ignored question must
       not shadow a valid later question with the same ID.
     - Job-level invalid (no id / zero valid questions) → error/empty state in the UI,
@@ -64,7 +67,14 @@ Every judgment call, with its reason. Authority order: README contract > this fi
     `npm run lint`. TS 6 is the API-compatible release typescript-eslint supports.
     *Revisit:* unpin when typescript-eslint ships TS ≥ 7.1 support
     (typescript-eslint/typescript-eslint#10940).
-17. **Issues on GitHub** (`soheilaghayour/question-flow`, private): 10 V1 issues
+17. **Two schema choices a later reader might "fix":** `profile_field` is a plain string,
+    not `z.enum(PROFILE_FIELDS)` — an unknown value must keep its question and simply
+    never prefill, not drop it (the enum lives in `PROFILE_FIELDS` for `prefill.ts`).
+    And `SCREENING_RULES` is exported even though the per-type schemas encode the same
+    facts: #10 demands a *warning* for stripped rules, zod strips/rejects them silently,
+    so normalize pre-checks the raw object against this table — delete it and the
+    warnings lose their only source of rule → type knowledge.
+18. **Issues on GitHub** (`soheilaghayour/question-flow`, private): 10 V1 issues
     (`v1`, `ready-for-agent`) then 7 V2 issues (`v2`, `needs-triage`), ordered by title prefix.
 
 ## Open PM questions
@@ -73,6 +83,10 @@ Every judgment call, with its reason. Authority order: README contract > this fi
   V1's dev view exposes it in the raw payload.)
 - `bad.json` demands "PDF only" in prose but the contract allows four types — should file
   questions get an `accepted_types` config field? Until then the contract wins.
+- The rule names mislead about their mechanism: `must_be_at_least`/`must_be_below`/
+  `must_be_true` read like input validation, but they gate screening, not submission
+  (an answer that fails them still submits). Names like `screening_min` would say which
+  mechanism fires. Contract keys are frozen, so rename only if the contract ever revs.
 - `min: 5` on `react_years` is a hidden knockout: an honest 3-year candidate can never
   submit. Disallow in config authoring, or auto-convert to `must_be_at_least`?
 - The 255-char question limit: enforce recruiter-side at authoring time? Candidate side
