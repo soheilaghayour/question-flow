@@ -67,19 +67,13 @@ Every judgment call, with its reason. Authority order: README contract > this fi
     `npm run lint`. TS 6 is the API-compatible release typescript-eslint supports.
     *Revisit:* unpin when typescript-eslint ships TS ≥ 7.1 support
     (typescript-eslint/typescript-eslint#10940).
-17. **Schemas reject, they never repair — and they stay exactly as lenient as the
-    normalization policy needs.** Consequences in `schema.ts`: `profile_field` is a plain
-    string (an unknown value keeps its question and simply never prefills; the six known
-    fields are exported as `PROFILE_FIELDS` for `prefill.ts`); the 255-char question limit
-    is an exported constant, not a schema rule (normalize warns, never drops — #10);
-    misplaced rules are ignored by declaring each rule only on its allowed type and letting
-    `z.object` strip unknown keys; profile fields outside the contract's `profile_field`
-    table are optional, so profile.json shape drift outside the contract never breaks
-    parsing (parse output keeps only schema-declared keys). Because zod strips misplaced
-    rules and rejects malformed rule values silently, the rule → allowed-type + value-shape
-    table is exported once as `SCREENING_RULES`: normalize.ts pre-strips those rules from
-    the raw object **with a warning** (per #10) before the strict per-question parse,
-    without duplicating contract knowledge.
+17. **Two schema choices a later reader might "fix":** `profile_field` is a plain string,
+    not `z.enum(PROFILE_FIELDS)` — an unknown value must keep its question and simply
+    never prefill, not drop it (the enum lives in `PROFILE_FIELDS` for `prefill.ts`).
+    And `SCREENING_RULES` is exported even though the per-type schemas encode the same
+    facts: #10 demands a *warning* for stripped rules, zod strips/rejects them silently,
+    so normalize pre-checks the raw object against this table — delete it and the
+    warnings lose their only source of rule → type knowledge.
 18. **Issues on GitHub** (`soheilaghayour/instaffo-question-flow`, private): 10 V1 issues
     (`v1`, `ready-for-agent`) then 7 V2 issues (`v2`, `needs-triage`), ordered by title prefix.
 
