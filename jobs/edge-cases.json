@@ -1,0 +1,93 @@
+{
+  "id": "job-edge-cases",
+  "title": "Edge Cases QA Engineer",
+  "company": "Fixture Factory GmbH",
+  "language": "en",
+  "questions": [
+    {
+      "type": "text",
+      "question": "I have no id and must be dropped"
+    },
+    {
+      "type": "text",
+      "id": "no_question_text"
+    },
+    {
+      "id": "no_type",
+      "question": "I have no type and must be dropped"
+    },
+    {
+      "type": "rating",
+      "id": "unknown_type",
+      "question": "Please rate your TypeScript skills (1-5)."
+    },
+    {
+      "type": "rating",
+      "id": "shadowed",
+      "question": "Invalid first occurrence of a duplicated id"
+    },
+    {
+      "type": "text",
+      "id": "shadowed",
+      "question": "Valid later occurrence — must survive"
+    },
+    {
+      "type": "text",
+      "id": "plain_dup",
+      "question": "First valid occurrence wins"
+    },
+    {
+      "type": "text",
+      "id": "plain_dup",
+      "question": "Second valid occurrence is deduped"
+    },
+    {
+      "type": "select",
+      "id": "messy_options",
+      "question": "Which city?",
+      "options": [
+        { "label": "Berlin", "value": "berlin" },
+        { "label": "I have no value" },
+        { "label": "Berlin again", "value": "berlin" },
+        { "label": "Hamburg", "value": "hamburg" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "all_options_bad",
+      "question": "Nothing to pick here",
+      "options": [{ "label": "I have no value" }]
+    },
+    {
+      "type": "text",
+      "id": "misplaced_rule",
+      "question": "Current country of residence?",
+      "must_be_true": true
+    },
+    {
+      "type": "numeric",
+      "id": "bad_rule_value",
+      "question": "Salary expectation (EUR p.a.)?",
+      "must_be_at_least": "five",
+      "must_be_below": 90000
+    },
+    {
+      "type": "boolean",
+      "id": "rule_off",
+      "question": "Are you open to occasional on-site days?",
+      "must_be_true": false
+    },
+    {
+      "type": "text",
+      "id": "long_text",
+      "question": "This question text is deliberately written to exceed the two-hundred-and-fifty-five character authoring limit so that the normalizer keeps it and only emits a warning, because an over-long recruiter question is an authoring problem and never the candidate's problem at all."
+    },
+    {
+      "type": "numeric",
+      "id": "inverted_range",
+      "question": "Years of experience? (broken range)",
+      "min": 10,
+      "max": 5
+    }
+  ]
+}
