@@ -49,7 +49,8 @@ Every judgment call, with its reason. Authority order: README contract > this fi
     - **Order: drop invalid questions first, then dedupe IDs** — an ignored question must
       not shadow a valid later question with the same ID.
     - Job-level invalid (no id / zero valid questions) → error/empty state in the UI,
-      never a crash.
+      never a crash. The job shell (`title`, `company`, `language`) is held to the same
+      bar: a job we can't display honestly is an error result, never invented defaults.
 11. **Date: native `<input type="date">`** (value already `YYYY-MM-DD`, no timezone math);
     `min` = today computed from **local** date parts (never `toISOString`). V1 validation
     is format-only — a hand-typed past date passes (see open questions).
