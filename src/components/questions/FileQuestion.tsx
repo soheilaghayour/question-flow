@@ -2,12 +2,9 @@ import { useState } from 'react'
 import type { FileQuestion as FileQuestionConfig } from '@/domain/schema'
 import type { FileAnswerValue } from '@/domain/payload'
 import { fileToBase64 } from '@/utils/fileToBase64'
+import { MAX_FILE_SIZE_BYTES, type FileRejection } from '@/domain/fileConstraints'
 import { Field } from '@/components/molecules/Field'
-import {
-  FileDrop,
-  MAX_FILE_SIZE_BYTES,
-  type FileSelection,
-} from '@/components/molecules/FileDrop'
+import { FileDrop, type FileSelection } from '@/components/molecules/FileDrop'
 import { useI18n } from '@/i18n/useI18n'
 
 interface FileQuestionProps {
@@ -20,7 +17,7 @@ interface FileQuestionProps {
 export function FileQuestion({ question, value, onChange, error }: FileQuestionProps) {
   // The rejection kind is stored, not the message, so a language toggle
   // re-translates a visible error.
-  const [rejection, setRejection] = useState<'rejected_type' | 'rejected_size' | null>(null)
+  const [rejection, setRejection] = useState<FileRejection | null>(null)
   const { t } = useI18n()
 
   const handleSelect = async (selection: FileSelection) => {
