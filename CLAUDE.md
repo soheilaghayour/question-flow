@@ -23,9 +23,11 @@ src/
     atoms/              # Button, Input, Radio, Checkbox, ...
     molecules/          # Field (label + input + error), OptionGroup, FileDrop, ...
     questions/          # one component per question type + registry.ts
+  routes.tsx            # URL → page (react-router)
   pages/
     JobPage.tsx         # job info + Apply button (job switcher for the 3 configs)
-    ApplyFlow.tsx
+    ApplyFlow.tsx       # the wizard, step in ?step=N
+    AppliedPage.tsx     # confirmation after submit
   i18n/                 # en.ts, de.ts (UI text only)
   utils/                # generic helpers (fileToBase64, parseLocaleNumber)
 ```
