@@ -20,7 +20,6 @@ export const de: Record<TranslationKey, string> = {
     'Vielen Dank für Ihre Bewerbung. Das Unternehmen wird sie prüfen und sich bei Ihnen melden.',
   submitted_screening_note:
     'Hinweis: Ihr Profil erfüllt möglicherweise nicht alle Anforderungen dieser Stelle.',
-  back_to_jobs: 'Zurück zu den Stellen',
   back_to_main: 'Zurück zur Hauptseite',
   choose_file: 'Datei auswählen',
   required_hint: 'Mit * markierte Felder sind Pflichtfelder',
@@ -40,4 +39,6 @@ export const de: Record<TranslationKey, string> = {
   back: 'Zurück',
   review_title: 'Überprüfen Sie Ihre Antworten',
   no_answer: 'Nicht beantwortet',
+  error_review_missing:
+    'Einige Pflichtfragen sind noch unbeantwortet. Bitte gehen Sie zurück und beantworten Sie sie.',
 }

@@ -222,6 +222,22 @@ Every judgment call, with its reason. Authority order: the contract (`docs/task-
     whose growth animates under motion-safe only. Screening still never blocks anything
     (#8), and the submit gate re-checks all questions as a safety net behind the per-step
     gates.
+31. **One back control, backed by the browser history; icon-only step navigation.**
+    Live UX review of #30: the browser's back button left the site entirely, and the
+    header's back icon (exit to overview) disagreed with the wizard's Back (one step).
+    Now every forward step pushes a history entry and all three backs — browser button,
+    header icon, wizard button — are `history.back()`: one step back, exiting the form
+    only from its first step. Consequence accepted: leaving from step N takes N presses.
+    No router still (#4's reasoning holds): no URL state, refresh restarts at the
+    overview. Next/Back are icon buttons (aria-label + title carry the name); Submit
+    keeps its text — an icon-only irreversible action is not self-explanatory. Enter
+    and the Next click share one dispatch through the form's onSubmit, so Enter advances
+    through the same gate and the button's type never swaps under a click (the browser
+    applies a click's default action to the swapped-in type — found live, untestable in
+    jsdom). Steps hide instead of unmounting, so raw not-yet-valid typing (#21) survives
+    Back/Next; the summary's safety net shows a visible role=alert instead of silently
+    doing nothing; review answers wrap (`break-words`) and render dates in the UI
+    locale; the step label is aria-live so step changes are announced.
 
 ## Open PM questions
 

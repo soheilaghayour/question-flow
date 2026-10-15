@@ -10,7 +10,11 @@ export function ProgressBar({ label, fraction }: ProgressBarProps) {
   const percent = Math.round(Math.min(Math.max(fraction, 0), 1) * 100)
   return (
     <div className="flex flex-col gap-1">
-      <p className="text-sm text-muted">{label}</p>
+      {/* aria-live: when the label changes (new wizard step), screen readers
+          hear it — the visual content swap has no other announcement. */}
+      <p aria-live="polite" className="text-sm text-muted">
+        {label}
+      </p>
       <div
         role="progressbar"
         aria-label={label}
