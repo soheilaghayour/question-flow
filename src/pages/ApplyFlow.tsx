@@ -27,14 +27,15 @@ import {
   pushEntry,
   startFormSession,
 } from '@/utils/appHistory'
+import { recordAppliedJob } from '@/utils/appliedJobs'
 
 interface ApplyFlowProps {
   rawJob: unknown
   profile: Profile
   /** Navigates back to the job overview; without it no back control renders. */
   onBack?: () => void
-  /** Fires once on successful submit so the shell can mark the job applied. */
-  onSubmitted?: (jobId: string) => void
+  /** Fires once on successful submit so the shell can switch to result-screen chrome. */
+  onSubmitted?: () => void
 }
 
 export function ApplyFlow({ rawJob, profile, onBack, onSubmitted }: ApplyFlowProps) {
@@ -156,7 +157,10 @@ export function ApplyFlow({ rawJob, profile, onBack, onSubmitted }: ApplyFlowPro
     const nextPayload = buildPayload(job, state.answers, screening)
     console.log(nextPayload)
     setPayload(nextPayload)
-    onSubmitted?.(job.id)
+    // Persisted, not lifted to the shell: the job page reads storage on
+    // render, so "applied" survives a refresh without a callback (#40).
+    recordAppliedJob(job.id)
+    onSubmitted?.()
   }
 
   const progressLabel = t('step_label')
