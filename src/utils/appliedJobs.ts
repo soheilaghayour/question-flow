@@ -13,5 +13,9 @@ export function readAppliedJobIds(): string[] {
 /** Adds `jobId` to the stored applied job ids. */
 export function recordAppliedJob(jobId: string) {
   const ids = readAppliedJobIds()
-  if (!ids.includes(jobId)) localStorage.setItem(STORAGE_KEY, JSON.stringify([...ids, jobId]))
+  try {
+    if (!ids.includes(jobId)) localStorage.setItem(STORAGE_KEY, JSON.stringify([...ids, jobId]))
+  } catch {
+    // storage blocked: the submission still stands
+  }
 }
