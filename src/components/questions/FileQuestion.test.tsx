@@ -4,7 +4,16 @@ import userEvent from '@testing-library/user-event'
 import type { ReactNode } from 'react'
 import { LanguageProvider } from '@/i18n/LanguageProvider'
 import * as build from '@/domain/testBuilders'
+import { fileToBase64 } from '@/utils/fileToBase64'
 import { FileQuestion } from './FileQuestion'
+
+// Spy wrapper keeping the real implementation: most tests read real files,
+// the race/failure tests override a single call.
+vi.mock('@/utils/fileToBase64', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/utils/fileToBase64')>()
+  return { fileToBase64: vi.fn(actual.fileToBase64) }
+})
+const mockFileToBase64 = vi.mocked(fileToBase64)
 
 const wrapper = ({ children }: { children: ReactNode }) => (
   <LanguageProvider>{children}</LanguageProvider>
@@ -87,6 +96,74 @@ describe('FileQuestion', () => {
       ),
     )
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  })
+
+  it('uses the extension to fill content_type when the browser reports none', async () => {
+    const user = userEvent.setup({ applyAccept: false })
+    const onChange = vi.fn()
+    render(<FileQuestion question={question} value={null} onChange={onChange} />, { wrapper })
+    const docx = new File(['word'], 'cv.docx', { type: '' })
+    await user.upload(screen.getByLabelText('Upload your CV'), docx)
+    await waitFor(() =>
+      expect(onChange).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          content_type:
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          file_name: 'cv.docx',
+        }),
+      ),
+    )
+  })
+
+  it('resets the native input after a selection so the same file can be re-picked', async () => {
+    const user = userEvent.setup()
+    render(<FileQuestion question={question} value={null} onChange={() => {}} />, { wrapper })
+    const input = screen.getByLabelText<HTMLInputElement>('Upload your CV')
+    const big = new File([new Uint8Array(5 * 1024 * 1024 + 1)], 'big.pdf', {
+      type: 'application/pdf',
+    })
+    await user.upload(input, big)
+    // A compressed file under the same name must fire a fresh change event —
+    // browsers skip it when the input's value string is unchanged.
+    expect(input.value).toBe('')
+  })
+
+  it('ignores a slow read that resolves after a newer selection (latest wins)', async () => {
+    const user = userEvent.setup({ applyAccept: false })
+    const onChange = vi.fn()
+    let resolveSlowRead: (data: string) => void = () => {}
+    mockFileToBase64.mockImplementationOnce(
+      () => new Promise((resolve) => (resolveSlowRead = resolve)),
+    )
+    render(<FileQuestion question={question} value={null} onChange={onChange} />, { wrapper })
+    const input = screen.getByLabelText('Upload your CV')
+
+    await user.upload(input, new File(['%PDF'], 'slow.pdf', { type: 'application/pdf' }))
+    await user.upload(input, new File(['notes'], 'notes.txt', { type: 'text/plain' }))
+    expect(onChange).toHaveBeenLastCalledWith(null)
+
+    resolveSlowRead('JVBERg==')
+    await Promise.resolve()
+    // The replaced selection must not overwrite the rejection that follows it.
+    expect(onChange).toHaveBeenLastCalledWith(null)
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Only PDF, DOCX, PNG or JPG files are accepted',
+    )
+  })
+
+  it('shows a read error and clears the answer when the file cannot be read', async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    mockFileToBase64.mockRejectedValueOnce(new Error('NotReadableError'))
+    render(<FileQuestion question={question} value={null} onChange={onChange} />, { wrapper })
+    await user.upload(
+      screen.getByLabelText('Upload your CV'),
+      new File(['%PDF'], 'cv.pdf', { type: 'application/pdf' }),
+    )
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'The file could not be read. Please try again',
+    )
+    expect(onChange).toHaveBeenLastCalledWith(null)
   })
 
   it('shows the already-chosen file name', () => {

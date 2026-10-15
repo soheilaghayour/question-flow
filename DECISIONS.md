@@ -111,10 +111,17 @@ Every judgment call, with its reason. Authority order: README contract > this fi
     for range errors, #5), the raw text re-syncs when the value prop changes to
     something other than the echo of its own last emit (external reset, post-mount
     prefill), and `domain/numericAnswer.ts` is the single owner of "integer within
-    bounds" shared with prefill; FileQuestion stores the rejection kind
-    (type/size) so a language toggle re-translates a visible error. FileDrop
-    re-validates every selection — drag & drop and "All files" pickers bypass the
-    browser's `accept` filter. Groups (boolean, select) associate label and error via
+    bounds" shared with prefill; FileQuestion stores the issue kind
+    (type/size/read-failure) so a language toggle re-translates a visible error.
+    File selection is defensive end to end: FileDrop re-validates every selection
+    (drag & drop and "All files" pickers bypass the browser's `accept` filter) and
+    resets the input after each one (same-named re-picks fire no change event
+    otherwise); an empty browser MIME falls back to the file extension — the
+    contract mandates formats, not MIME sniffing as the mechanism, while a reported
+    non-contract type still rejects; a slow base64 read never overwrites a later
+    selection (latest-wins sequence guard); a failed read shows its own retryable
+    error instead of silently keeping the previous file.
+    Groups (boolean, select) associate label and error via
     the OptionGroup molecule (fieldset/legend, #12) since no single input exists for
     a `<label for>`.
 
