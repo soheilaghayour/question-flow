@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/soheilaghayour/instaffo-question-flow/actions/workflows/ci.yml/badge.svg)](https://github.com/soheilaghayour/instaffo-question-flow/actions/workflows/ci.yml)
 
-A candidate-facing application question flow: it loads a recruiter-written job config,
+A candidate-facing application question flow: it loads a job config,
 renders the questions (text, date, boolean, numeric, select, file), prefills answers from
 the candidate profile, evaluates screening rules, and produces the exact answer payload
 defined by the task contract.
