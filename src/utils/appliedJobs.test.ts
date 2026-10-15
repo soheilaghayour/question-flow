@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { readAppliedJobIds, recordAppliedJob } from './appliedJobs'
 
 describe('readAppliedJobIds', () => {
@@ -22,5 +22,12 @@ describe('recordAppliedJob', () => {
     recordAppliedJob('job-long')
     recordAppliedJob('job-short')
     expect(readAppliedJobIds()).toEqual(['job-short', 'job-long'])
+  })
+
+  it('does not throw when storage is blocked', () => {
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementationOnce(() => {
+      throw new DOMException('denied', 'SecurityError')
+    })
+    expect(() => recordAppliedJob('job-short')).not.toThrow()
   })
 })
