@@ -9,4 +9,6 @@ export const de: Record<TranslationKey, string> = {
   no: 'Nein',
   error_required: 'Dieses Feld ist erforderlich',
   error_number_range: 'Geben Sie eine ganze Zahl zwischen {min} und {max} ein',
+  error_file_type: 'Nur PDF-, DOCX-, PNG- oder JPG-Dateien sind erlaubt',
+  error_file_size: 'Die Datei ist größer als {max} MB',
 }
