@@ -100,6 +100,19 @@ Every judgment call, with its reason. Authority order: README contract > this fi
     No CI badge yet — `README.md` is still the frozen template fixture (#28 moves it).
     Deployment is a separate step after v1.
 
+21. **Question components are controlled and share one seam:**
+    `{ question, value, onChange, error? }` (`QuestionComponent` in `registry.ts`).
+    The flow owns answers and required-errors (#1, #2); components emit `null` for
+    "no answer" (cleared text, last pick removed), so form state only ever holds real
+    answers (#19). Two local exceptions, both inherent to the widget: NumericQuestion
+    keeps the raw string ("85." has no number representation; typing is never blocked,
+    #5) and shows parse/range errors itself; FileQuestion stores the rejection kind
+    (type/size) so a language toggle re-translates a visible error. FileDrop
+    re-validates every selection — drag & drop and "All files" pickers bypass the
+    browser's `accept` filter. Groups (boolean, select) associate label and error via
+    the OptionGroup molecule (fieldset/legend, #12) since no single input exists for
+    a `<label for>`.
+
 ## Open PM questions
 
 - Should candidates learn they failed screening, and in what wording? (V2 messaging;
