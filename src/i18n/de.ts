@@ -5,5 +5,12 @@ export const de: Record<TranslationKey, string> = {
   apply: 'Bewerben',
   submit: 'Bewerbung absenden',
   optional: 'optional',
+  yes: 'Ja',
+  no: 'Nein',
   error_required: 'Dieses Feld ist erforderlich',
+  error_number_invalid: 'Geben Sie eine ganze Zahl ein',
+  error_number_range: 'Geben Sie eine ganze Zahl zwischen {min} und {max} ein',
+  error_file_type: 'Nur PDF-, DOCX-, PNG- oder JPG-Dateien sind erlaubt',
+  error_file_size: 'Die Datei ist größer als {max} MB',
+  error_file_read: 'Die Datei konnte nicht gelesen werden. Bitte versuchen Sie es erneut',
 }

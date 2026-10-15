@@ -100,6 +100,34 @@ Every judgment call, with its reason. Authority order: README contract > this fi
     No CI badge yet — `README.md` is still the frozen template fixture (#28 moves it).
     Deployment is a separate step after v1.
 
+21. **Question components are controlled and share one seam:**
+    `{ question, value, onChange, error? }` (`QuestionComponent` in `registry.ts`).
+    The flow owns answers and required-errors (#1, #2); components emit `null` for
+    "no answer" (cleared text, last pick removed), so form state only ever holds real
+    answers (#19). Two local exceptions, both inherent to the widget: NumericQuestion
+    keeps the raw string ("85." has no number representation; typing is never blocked,
+    #5) and shows parse/range errors itself — a parse error says only "enter a whole
+    number" (bounds may be schema defaults the job never set; the range is named only
+    for range errors, #5), the raw text re-syncs when the value prop changes to
+    something other than the echo of its own last emit (external reset, post-mount
+    prefill), and `domain/numericAnswer.ts` is the single owner of "integer within
+    bounds" shared with prefill; FileQuestion stores the issue kind
+    (type/size/read-failure) so a language toggle re-translates a visible error.
+    File selection is defensive end to end: FileDrop re-validates every selection
+    (drag & drop and "All files" pickers bypass the browser's `accept` filter) and
+    resets the input after each one (same-named re-picks fire no change event
+    otherwise); an empty browser MIME falls back to the file extension — the
+    contract mandates formats, not MIME sniffing as the mechanism, while a reported
+    non-contract type still rejects; a slow base64 read never overwrites a later
+    selection (latest-wins sequence guard); a failed read shows its own retryable
+    error instead of silently keeping the previous file.
+    Groups (boolean, select) associate label and error via
+    the OptionGroup molecule (fieldset/legend, #12) since no single input exists for
+    a `<label for>`. The flow renders any Question through `QuestionField`, which owns
+    the single correlated-union cast the registry lookup needs (TS#30581) — call sites
+    never cast and never switch on type; the cast is sound because answers only ever
+    hold what the same question's component emitted, re-checked per type in payload.ts.
+
 ## Open PM questions
 
 - Should candidates learn they failed screening, and in what wording? (V2 messaging;
