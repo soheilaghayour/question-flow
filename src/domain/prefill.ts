@@ -13,7 +13,7 @@ function isProfileField(field: string): field is ProfileField {
   return (PROFILE_FIELDS as readonly string[]).includes(field)
 }
 
-/** Resolves a profile_field to its location in the profile (README table). */
+/** Resolves a profile_field to its location in the profile (contract table). */
 function profileValue(field: ProfileField, profile: Profile): unknown {
   switch (field) {
     case 'notice_period':

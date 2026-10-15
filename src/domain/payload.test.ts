@@ -15,7 +15,7 @@ const focusAreas = (max_choices: number): Question =>
 
 const SCREENING_OK = { passed: true, failed: [] }
 
-describe('buildPayload — envelope and scalar values (README example)', () => {
+describe('buildPayload — envelope and scalar values (contract example)', () => {
   it('emits job_id, one answer object per answered question, and screening verbatim', () => {
     const screening = { passed: false, failed: ['salary_expectation'] }
     const payload = buildPayload(
@@ -75,7 +75,7 @@ describe('buildPayload — value vs values follows max_choices (bite #1)', () =>
   })
 })
 
-describe('buildPayload — unanswered questions are left out (README)', () => {
+describe('buildPayload — unanswered questions are left out (contract)', () => {
   it.each<[string, Question, Record<string, string | string[] | null>]>([
     ['no entry in answers', text({ id: 'cover_note' }), {}],
     ['empty text', text({ id: 'cover_note' }), { cover_note: '' }],
@@ -101,7 +101,7 @@ describe('buildPayload — wrong-shape answers are omitted, never coerced (DECIS
     expect(payload.answers).toEqual([])
   })
 
-  // README: numbers are JSON numbers, integers only — a failed parse (NaN) or a
+  // contract: numbers are JSON numbers, integers only — a failed parse (NaN) or a
   // float is a wrong shape, and NaN would serialize to "value": null.
   it.each([[NaN], [85.5]])('omits a numeric answer of %s', (answer) => {
     const payload = buildPayload(
@@ -135,7 +135,7 @@ describe('buildPayload — text, date and file values', () => {
     expect(payload.answers).toEqual([{ id: 'starting_date', value: '2026-11-01' }])
   })
 
-  // README example: file answers nest { content_type, data, file_name } under value,
+  // contract example: file answers nest { content_type, data, file_name } under value,
   // with data already plain base64 (fileToBase64 strips the data-URL prefix, bite #2).
   it('emits a file answer under value with the contract keys', () => {
     const fileValue = {

@@ -4,7 +4,7 @@ import { evaluateScreening } from './screening'
 import { boolean, numeric } from './testBuilders'
 
 describe('evaluateScreening — numeric boundaries', () => {
-  // README: must_be_at_least passes on >= (bite #5: at_least is inclusive).
+  // contract: must_be_at_least passes on >= (bite #5: at_least is inclusive).
   it.each([
     [3, true],
     [2, false],
@@ -13,7 +13,7 @@ describe('evaluateScreening — numeric boundaries', () => {
     expect(result).toEqual({ passed, failed: passed ? [] : ['q'] })
   })
 
-  // README: must_be_below is strict < (bite #5: the threshold itself fails).
+  // contract: must_be_below is strict < (bite #5: the threshold itself fails).
   it.each([
     [89999, true],
     [90000, false],
@@ -99,7 +99,7 @@ describe('evaluateScreening — missing answers (bite #6)', () => {
 })
 
 describe('evaluateScreening — normalize is the gate for misplaced rules', () => {
-  // README: a rule on a type it is not allowed on is ignored. normalize strips it,
+  // contract: a rule on a type it is not allowed on is ignored. normalize strips it,
   // so this unanswered text question must not fail screening.
   it('a rule on a disallowed type never reaches screening', () => {
     const result = normalizeJob({
