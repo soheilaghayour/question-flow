@@ -164,6 +164,25 @@ Every judgment call, with its reason. Authority order: the contract (`docs/task-
     `console.log`-only as the dev deliverable; tests assert no threshold, rule name, or
     failed-question id is reachable in the rendered UI on the failing path.
 
+25. **Navigation between the two screens, not a modal.** Product feedback: after
+    submitting you were stuck — no way to apply to another job. Rejected the proposed
+    modal variant: a long multi-question form with file uploads inside a modal means
+    scroll-in-scroll, focus-trap work, and an accidental backdrop click losing all
+    answers. Instead `ApplyFlow` takes an optional `onBack` and renders "Back to jobs"
+    on the form and on the result screen; App clears the screen sentinel (#4 stays:
+    plain state, still no router). Back from the form drops unsaved answers without
+    warning — acceptable until drafts (V2-01) exist.
+26. **Required fields are marked with a red `*` plus a one-line legend; screen readers
+    get `aria-required` instead.** The star is `aria-hidden` and lives OUTSIDE the
+    `<label>`/inside the `<legend>` such that accessible names never change — queries
+    and screen-reader announcements stay stable. (No `aria-required` on fieldsets: the
+    `group` role doesn't support it.)
+27. **The native file input is visually hidden behind a "Choose file" button.** Bug:
+    FileDrop resets the input value after every selection (same-file re-pick, #21), so
+    the native widget said "no file chosen" while a file was held in form state. Hiding
+    the input makes the file-name line the single source of truth; the button and the
+    question label both trigger the picker.
+
 ## Open PM questions
 
 - `bad.json` demands "PDF only" in prose but the contract allows four types — should file

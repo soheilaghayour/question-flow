@@ -20,4 +20,7 @@ export const de: Record<TranslationKey, string> = {
     'Vielen Dank für Ihre Bewerbung. Das Unternehmen wird sie prüfen und sich bei Ihnen melden.',
   submitted_screening_note:
     'Hinweis: Ihr Profil erfüllt möglicherweise nicht alle Anforderungen dieser Stelle.',
+  back_to_jobs: 'Zurück zu den Stellen',
+  choose_file: 'Datei auswählen',
+  required_hint: 'Mit * markierte Felder sind Pflichtfelder',
 }
