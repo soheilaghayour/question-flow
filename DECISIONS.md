@@ -67,7 +67,8 @@ Every judgment call, with its reason. Authority order: the contract (`docs/task-
     in `atoms/`/`molecules/`, pages add layout classes only.
 14. **i18n: hand-rolled typed `t(key)` + React context.** ~30 UI strings don't justify i18next.
 15. **V1 submit screen: payload as `<pre>` JSON including `screening`, plus `console.log`.**
-    Dev-facing deliverable; humanized in V2.
+    Dev-facing deliverable; humanized in V2. *Superseded by #24:* the screen is now the
+    candidate-facing confirmation; the payload's dev channel is `console.log` only.
 16. **TypeScript pinned to the 6.x line (not 7.x).** npm resolves `typescript` to 7.x (the
     Go-based compiler), but typescript-eslint rejects TS 7.0 at runtime, which breaks
     `npm run lint`. TS 6 is the API-compatible release typescript-eslint supports.
@@ -136,8 +137,9 @@ Every judgment call, with its reason. Authority order: the contract (`docs/task-
     widget's inline error already told the user, and the payload stays contract-safe
     (it never carries an invalid value). Lifting widget validity into form state was
     rejected — it would reopen the #21 seam for a V2-sized UX refinement.
-    The submit screen renders the payload inside `<output>` (implicit `status` role):
-    accessible announcement for free, and the integration tests read it by role. The
+    The submit screen renders inside `<output>` (implicit `status` role): accessible
+    announcement for free. (Since #24 it carries the human confirmation, not the payload;
+    the contract-fixture tests read the payload from the `console.log` spy instead.) The
     submitted payload lives in a second, phase-local `useState` beside `FormState` —
     #1's "single state object" governs *form* state; the submitted screen is a phase,
     not an answer.
@@ -152,11 +154,18 @@ Every judgment call, with its reason. Authority order: the contract (`docs/task-
     first file a reviewer opens should not be mock-data documentation. All references that
     meant the contract (CLAUDE.md, this file, PRD.md, code comments) now say "contract"
     or name `docs/task-contract.md` explicitly.
+24. **Screening result messaging: candidates get a confirmation; a failed screening adds
+    exactly one generic sentence** ("your profile may not match some of the requirements"),
+    never which rule, threshold, or question — and screening still never blocks submission
+    (#8). This resolves the open PM question "should candidates learn they failed at all":
+    yes, generically. A soft heads-up sets honest expectations (silence followed by a fast
+    rejection reads as ghosting), while naming the rule would leak recruiter thresholds and
+    invite gaming via resubmission. The payload (with full screening detail) stays
+    `console.log`-only as the dev deliverable; tests assert no threshold, rule name, or
+    failed-question id is reachable in the rendered UI on the failing path.
 
 ## Open PM questions
 
-- Should candidates learn they failed screening, and in what wording? (V2 messaging;
-  V1's dev view exposes it in the raw payload.)
 - `bad.json` demands "PDF only" in prose but the contract allows four types — should file
   questions get an `accepted_types` config field? Until then the contract wins.
 - The rule names mislead about their mechanism: `must_be_at_least`/`must_be_below`/

@@ -12,7 +12,7 @@ import {
 import type { Profile } from '@/domain/schema'
 import { QuestionField } from '@/components/questions/QuestionField'
 import { Button } from '@/components/atoms/Button'
-import { CodeBlock } from '@/components/atoms/CodeBlock'
+import { SubmissionResult } from '@/components/molecules/SubmissionResult'
 import { useI18n } from '@/i18n/useI18n'
 
 interface ApplyFlowProps {
@@ -45,12 +45,16 @@ export function ApplyFlow({ rawJob, profile }: ApplyFlowProps) {
   }
   const { job } = result
 
-  // The V1 submit screen: payload as JSON, screening included (DECISIONS #15).
+  // Candidate-facing confirmation; the payload itself is dev-only via
+  // console.log. A failed screening adds one generic sentence — never the
+  // rule, threshold, or question (DECISIONS #24).
   if (payload) {
     return (
-      <output className="block">
-        <CodeBlock>{JSON.stringify(payload, null, 2)}</CodeBlock>
-      </output>
+      <SubmissionResult
+        title={t('submitted_title')}
+        body={t('submitted_body')}
+        note={payload.screening.passed ? undefined : t('submitted_screening_note')}
+      />
     )
   }
 

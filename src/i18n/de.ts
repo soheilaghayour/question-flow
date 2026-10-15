@@ -15,4 +15,9 @@ export const de: Record<TranslationKey, string> = {
   error_file_size: 'Die Datei ist größer als {max} MB',
   error_file_read: 'Die Datei konnte nicht gelesen werden. Bitte versuchen Sie es erneut',
   error_job_invalid: 'Diese Stellenanzeige kann nicht angezeigt werden.',
+  submitted_title: 'Bewerbung abgeschickt',
+  submitted_body:
+    'Vielen Dank für Ihre Bewerbung. Das Unternehmen wird sie prüfen und sich bei Ihnen melden.',
+  submitted_screening_note:
+    'Hinweis: Ihr Profil erfüllt möglicherweise nicht alle Anforderungen dieser Stelle.',
 }
