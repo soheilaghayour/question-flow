@@ -65,6 +65,13 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: 'Back to the main page' }))
     expect(screen.getByRole('button', { name: 'Apply' })).toBeDisabled()
     expect(screen.getByText('You have already applied to this job.')).toBeInTheDocument()
+
+    // The submitted application's step entries are stale history: browser
+    // Back on the overview walks them without a single dead press — the
+    // overview stays, the form never resurrects.
+    history.back()
+    expect(await screen.findByRole('button', { name: 'Apply' })).toBeInTheDocument()
+    expect(screen.queryByText('Fields marked with * are required')).not.toBeInTheDocument()
   })
 
   it('shows the profile that feeds prefill on the job page', () => {

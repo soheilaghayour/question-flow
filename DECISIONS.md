@@ -244,6 +244,19 @@ Every judgment call, with its reason. Authority order: the contract (`docs/task-
     as unclickable. Faded is reserved for the disabled affordance; "not chosen" is
     outline (surface fill, primary text/border) at full opacity. A transparent base
     border keeps every button the same size whether or not the outline shows.
+33. **History entries are session-stamped; stale ones are walked, never obeyed.** Review
+    of #31's history integration: entries outlive the application that wrote them, so a
+    submitted job's `{step: 3}` could drive a different job's 2-step wizard into a broken
+    "Step 4 of 3", and Back after submitting was N silent no-op presses across the dead
+    entries. Now `utils/appHistory.ts` is the single owner of the entry shape (both
+    writers and both listeners go through it — no duck-typed casts), each ApplyFlow mount
+    stamps its entries with a fresh session id (ended on submit or unmount), the form
+    obeys only its own live entries (step clamped as a belt), and the shell treats any
+    stale form entry as "show the overview and keep walking" (`history.back()` chain,
+    which always terminates on the app's initial jobs entry). Accepted: browser Forward
+    may restore a previously reached step without re-passing the Next gate — standard
+    browser behavior; a gap created that way is caught visibly by the summary's safety
+    net (#31), which this makes reachable, not just theoretical.
 
 ## Open PM questions
 

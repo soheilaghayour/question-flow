@@ -6,6 +6,7 @@ import { JobPage } from '@/pages/JobPage'
 import { ApplyFlow } from '@/pages/ApplyFlow'
 import { Button } from '@/components/atoms/Button'
 import { ArrowLeftIcon, GlobeIcon } from '@/components/atoms/Icons'
+import { entryOf, isLiveFormEntry, pushEntry, replaceEntry } from '@/utils/appHistory'
 
 function LanguageToggle() {
   const { language, toggleLanguage } = useI18n()
@@ -31,18 +32,21 @@ function AppShell() {
   const [submitted, setSubmitted] = useState(false)
   const [appliedJobIds, setAppliedJobIds] = useState<readonly string[]>([])
 
-  // The shell owns the history boundary: opening the form pushes an entry,
-  // and any entry that is not a form step means "show the overview" — this is
-  // what makes the browser's back button leave the wizard instead of the site
-  // (DECISIONS #31). No router: no URL state, refresh restarts at the overview.
+  // The shell owns the history boundary: any popped entry that is not a LIVE
+  // form step means "show the overview" — this is what makes the browser's
+  // back button leave the wizard instead of the site (DECISIONS #31). Stale
+  // form entries (a submitted or abandoned application) are walked through
+  // automatically so no Back press is ever a silent no-op; the walk always
+  // ends on a jobs entry because the app's first entry is one (DECISIONS
+  // #33). No router: no URL state, refresh restarts at the overview.
   useEffect(() => {
-    history.replaceState({ screen: 'jobs' }, '')
+    replaceEntry({ screen: 'jobs' })
     const onPopState = (event: PopStateEvent) => {
-      const state = event.state as { screen?: string } | null
-      if (state?.screen !== 'form') {
-        setApplying(null)
-        setSubmitted(false)
-      }
+      const entry = entryOf(event)
+      if (isLiveFormEntry(entry)) return // the form's own listener moves the step
+      setApplying(null)
+      setSubmitted(false)
+      if (entry?.screen === 'form') history.back()
     }
     window.addEventListener('popstate', onPopState)
     return () => window.removeEventListener('popstate', onPopState)
@@ -51,10 +55,11 @@ function AppShell() {
   // The result screen's own button: forward to a fresh overview entry, never
   // back through the submitted form's steps.
   const goHome = () => {
-    history.pushState({ screen: 'jobs' }, '')
+    pushEntry({ screen: 'jobs' })
     setApplying(null)
     setSubmitted(false)
   }
+
 
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-6 p-6">
@@ -78,10 +83,7 @@ function AppShell() {
           configs={rawJobConfigs}
           profile={profile}
           appliedJobIds={appliedJobIds}
-          onApply={(config) => {
-            history.pushState({ screen: 'form', step: 0 }, '')
-            setApplying({ config })
-          }}
+          onApply={(config) => setApplying({ config })}
         />
       ) : (
         <ApplyFlow
