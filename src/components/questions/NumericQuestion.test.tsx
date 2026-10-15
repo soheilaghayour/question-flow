@@ -37,7 +37,7 @@ describe('NumericQuestion', () => {
     expect(onChange).toHaveBeenLastCalledWith(85000)
   })
 
-  it('never blocks typing: non-numeric text stays visible, emits null, names the bounds', async () => {
+  it('never blocks typing: non-numeric text stays visible and emits null', async () => {
     const user = userEvent.setup()
     const onChange = vi.fn()
     render(
@@ -52,9 +52,20 @@ describe('NumericQuestion', () => {
     await user.type(input, 'abc')
     expect(input).toHaveValue('abc')
     expect(onChange).toHaveBeenLastCalledWith(null)
-    expect(screen.getByRole('alert')).toHaveTextContent(
-      'Enter a whole number between 0 and 100',
+  })
+
+  // A parse failure must not name the bounds: on questions without a
+  // configured range they are schema defaults (0–100000000) the job never set.
+  it('shows a plain whole-number error for unparseable input, without bounds', async () => {
+    const user = userEvent.setup()
+    render(
+      <NumericQuestion question={build.numeric()} value={null} onChange={() => {}} />,
+      { wrapper },
     )
+    await user.type(screen.getByRole('textbox'), '85,5')
+    const alert = screen.getByRole('alert')
+    expect(alert).toHaveTextContent('Enter a whole number')
+    expect(alert).not.toHaveTextContent('100000000')
   })
 
   it('rejects an out-of-range value with an error naming the bounds', async () => {
@@ -84,6 +95,30 @@ describe('NumericQuestion', () => {
     await user.clear(screen.getByRole('textbox'))
     expect(onChange).toHaveBeenLastCalledWith(null)
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  })
+
+  // The seam promises a controlled component: an external value change
+  // (reset, post-mount prefill) must reach the display.
+  it('re-syncs the displayed text when the value prop changes externally', () => {
+    const { rerender } = render(
+      <NumericQuestion question={build.numeric()} value={42} onChange={() => {}} />,
+      { wrapper },
+    )
+    rerender(<NumericQuestion question={build.numeric()} value={7} onChange={() => {}} />)
+    expect(screen.getByRole('textbox')).toHaveValue('7')
+  })
+
+  it('keeps the raw text while typing, when re-renders echo the emitted value', async () => {
+    const user = userEvent.setup()
+    const { rerender } = render(
+      <NumericQuestion question={build.numeric()} value={null} onChange={() => {}} />,
+      { wrapper },
+    )
+    await user.type(screen.getByRole('textbox'), '85.')
+    // The parent stored null (unparseable) and re-renders with it — the
+    // half-typed text must not be wiped mid-entry.
+    rerender(<NumericQuestion question={build.numeric()} value={null} onChange={() => {}} />)
+    expect(screen.getByRole('textbox')).toHaveValue('85.')
   })
 
   it('shows the error passed from the flow when the input itself is fine', () => {

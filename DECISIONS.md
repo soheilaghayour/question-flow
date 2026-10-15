@@ -106,7 +106,12 @@ Every judgment call, with its reason. Authority order: README contract > this fi
     "no answer" (cleared text, last pick removed), so form state only ever holds real
     answers (#19). Two local exceptions, both inherent to the widget: NumericQuestion
     keeps the raw string ("85." has no number representation; typing is never blocked,
-    #5) and shows parse/range errors itself; FileQuestion stores the rejection kind
+    #5) and shows parse/range errors itself — a parse error says only "enter a whole
+    number" (bounds may be schema defaults the job never set; the range is named only
+    for range errors, #5), the raw text re-syncs when the value prop changes to
+    something other than the echo of its own last emit (external reset, post-mount
+    prefill), and `domain/numericAnswer.ts` is the single owner of "integer within
+    bounds" shared with prefill; FileQuestion stores the rejection kind
     (type/size) so a language toggle re-translates a visible error. FileDrop
     re-validates every selection — drag & drop and "All files" pickers bypass the
     browser's `accept` filter. Groups (boolean, select) associate label and error via
