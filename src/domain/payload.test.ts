@@ -86,7 +86,18 @@ describe('buildPayload — envelope and scalar values (README example)', () => {
     ['empty text', text('cover_note'), { cover_note: '' }],
     ['whitespace-only text', text('cover_note'), { cover_note: '   \n\t' }],
     ['multi-select with nothing picked', select('focus_areas', 3), { focus_areas: [] }],
+    ['single-select stored as empty string', select('focus_areas', 1), { focus_areas: '' }],
   ])('omits an optional question with %s', (_name, question, answers) => {
+    const payload = buildPayload(job([question]), answers, SCREENING_OK)
+    expect(payload.answers).toEqual([])
+  })
+
+  // Each arm accepts only its own value type: a wiring bug must not put a
+  // boolean on the wire for a numeric question, or vice versa.
+  it.each<[string, Question, Record<string, number | boolean>]>([
+    ['a boolean under a numeric question', numeric('salary_expectation'), { salary_expectation: true }],
+    ['a number under a boolean question', boolean('eu_work_permit'), { eu_work_permit: 42 }],
+  ])('omits %s', (_name, question, answers) => {
     const payload = buildPayload(job([question]), answers, SCREENING_OK)
     expect(payload.answers).toEqual([])
   })

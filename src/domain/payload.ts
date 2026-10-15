@@ -1,3 +1,4 @@
+import { assertNever } from '@/utils/assertNever'
 import type { Job, Question } from './schema'
 import type { ScreeningResult } from './screening'
 
@@ -13,20 +14,21 @@ export type AnswerValue = string | number | boolean | string[] | FileAnswerValue
 /** Form state at submit: question id → answer value. */
 export type Answers = Record<string, AnswerValue | undefined>
 
-export type PayloadAnswer =
+/** One item in the payload's `answers` array. */
+export type PayloadEntry =
   | { id: string; value: string | number | boolean | FileAnswerValue }
   | { id: string; values: string[] }
 
-export interface AnswerPayload {
+/** The whole submitted payload (README contract). */
+export interface ApplicationPayload {
   job_id: string
-  answers: PayloadAnswer[]
+  answers: PayloadEntry[]
   screening: ScreeningResult
 }
 
-function toPayloadAnswer(
-  question: Question,
-  value: AnswerValue,
-): PayloadAnswer | undefined {
+// Each arm accepts only its own value type: payload is the last line before
+// the wire, so a wrong-shape value is omitted, never coerced.
+function toPayloadEntry(question: Question, value: AnswerValue): PayloadEntry | undefined {
   switch (question.type) {
     case 'select':
       // Shape follows max_choices, never the picked count (bite #1).
@@ -34,7 +36,10 @@ function toPayloadAnswer(
         return Array.isArray(value) && value.length > 0
           ? { id: question.id, values: value }
           : undefined
-      return typeof value === 'string' ? { id: question.id, value } : undefined
+      // '' is how an unselected single-select may sit in form state — no answer.
+      return typeof value === 'string' && value !== ''
+        ? { id: question.id, value }
+        : undefined
     case 'text':
     case 'date':
       // Whitespace-only is "no answer" (README: leave out unanswered optionals).
@@ -42,14 +47,17 @@ function toPayloadAnswer(
         ? { id: question.id, value }
         : undefined
     case 'numeric':
+      return typeof value === 'number' ? { id: question.id, value } : undefined
     case 'boolean':
-      return typeof value === 'number' || typeof value === 'boolean'
-        ? { id: question.id, value }
-        : undefined
+      return typeof value === 'boolean' ? { id: question.id, value } : undefined
     case 'file':
       return typeof value === 'object' && !Array.isArray(value)
         ? { id: question.id, value }
         : undefined
+    default:
+      // A question type added to the schema but not handled here must fail to
+      // compile, not silently drop every answer of that type.
+      return assertNever(question)
   }
 }
 
@@ -58,13 +66,11 @@ export function buildPayload(
   job: Job,
   answers: Answers,
   screening: ScreeningResult,
-): AnswerPayload {
-  const payloadAnswers: PayloadAnswer[] = []
-  for (const question of job.questions) {
+): ApplicationPayload {
+  const payloadAnswers = job.questions.flatMap((question) => {
     const value = answers[question.id]
-    if (value === undefined) continue
-    const answer = toPayloadAnswer(question, value)
-    if (answer !== undefined) payloadAnswers.push(answer)
-  }
+    const entry = value === undefined ? undefined : toPayloadEntry(question, value)
+    return entry ? [entry] : []
+  })
   return { job_id: job.id, answers: payloadAnswers, screening }
 }
