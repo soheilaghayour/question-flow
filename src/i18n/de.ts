@@ -34,5 +34,10 @@ export const de: Record<TranslationKey, string> = {
   job_description:
     'Wir suchen Verstärkung für unser Team. Die Bewerbung dauert nur wenige Minuten — viele Antworten sind bereits aus Ihrem Profil vorausgefüllt, Sie müssen sie meist nur bestätigen.',
   applied_note: 'Sie haben sich auf diese Stelle bereits beworben.',
-  progress_label: '{answered} von {total} Fragen beantwortet',
+  step_label: 'Schritt {current} von {total}',
+  from_profile: 'Bereits aus Ihrem Profil ausgefüllt',
+  next: 'Weiter',
+  back: 'Zurück',
+  review_title: 'Überprüfen Sie Ihre Antworten',
+  no_answer: 'Nicht beantwortet',
 }
