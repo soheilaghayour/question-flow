@@ -123,7 +123,10 @@ Every judgment call, with its reason. Authority order: README contract > this fi
     error instead of silently keeping the previous file.
     Groups (boolean, select) associate label and error via
     the OptionGroup molecule (fieldset/legend, #12) since no single input exists for
-    a `<label for>`.
+    a `<label for>`. The flow renders any Question through `QuestionField`, which owns
+    the single correlated-union cast the registry lookup needs (TS#30581) — call sites
+    never cast and never switch on type; the cast is sound because answers only ever
+    hold what the same question's component emitted, re-checked per type in payload.ts.
 
 ## Open PM questions
 
