@@ -24,10 +24,12 @@ export function submitAttempted(state: FormState): FormState {
   return { ...state, submitAttempted: true }
 }
 
+/** Whether a form-state value counts as an answer. */
 // Mirrors payload's "no substance" rule (#19): whitespace-only text and a
 // zero-pick list would be omitted from the payload, so a required question
-// holding one is unanswered. false is an answer (bite #4).
-function hasAnswer(value: Answers[string]): boolean {
+// holding one is unanswered. false is an answer (bite #4). Exported so the
+// progress bar counts exactly what the submit gate and payload count.
+export function hasAnswer(value: Answers[string]): boolean {
   if (value == null) return false
   if (typeof value === 'string') return value.trim() !== ''
   if (Array.isArray(value)) return value.length > 0

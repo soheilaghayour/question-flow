@@ -42,7 +42,12 @@ export function NumericQuestion({ question, value, onChange, error }: NumericQue
         : undefined
 
   return (
-    <Field id={question.id} label={question.question} error={localError ?? error}>
+    <Field
+      id={question.id}
+      label={question.question}
+      required={question.required}
+      error={localError ?? error}
+    >
       {(inputProps) => (
         <Input
           {...inputProps}

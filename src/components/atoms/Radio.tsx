@@ -5,7 +5,7 @@ export function Radio({ className = '', ...props }: Omit<ComponentProps<'input'>
     <input
       {...props}
       type="radio"
-      className={`size-4 accent-primary focus-ring ${className}`}
+      className={`size-4 cursor-pointer accent-primary focus-ring ${className}`}
     />
   )
 }

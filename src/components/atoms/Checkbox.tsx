@@ -5,7 +5,7 @@ export function Checkbox({ className = '', ...props }: Omit<ComponentProps<'inpu
     <input
       {...props}
       type="checkbox"
-      className={`size-4 accent-primary focus-ring ${className}`}
+      className={`size-4 cursor-pointer accent-primary focus-ring disabled:cursor-default ${className}`}
     />
   )
 }

@@ -164,6 +164,50 @@ Every judgment call, with its reason. Authority order: the contract (`docs/task-
     `console.log`-only as the dev deliverable; tests assert no threshold, rule name, or
     failed-question id is reachable in the rendered UI on the failing path.
 
+25. **Navigation between the two screens, not a modal.** Product feedback: after
+    submitting you were stuck — no way to apply to another job. Rejected the proposed
+    modal variant: a long multi-question form with file uploads inside a modal means
+    scroll-in-scroll, focus-trap work, and an accidental backdrop click losing all
+    answers. Instead `ApplyFlow` takes an optional `onBack` and renders "Back to jobs"
+    on the form and on the result screen; App clears the screen sentinel (#4 stays:
+    plain state, still no router). Back from the form drops unsaved answers without
+    warning — acceptable until drafts (V2-01) exist.
+26. **Required fields are marked with a red `*` plus a one-line legend; screen readers
+    get `aria-required` instead.** The star is `aria-hidden` and lives OUTSIDE the
+    `<label>`/inside the `<legend>` such that accessible names never change — queries
+    and screen-reader announcements stay stable. (No `aria-required` on fieldsets: the
+    `group` role doesn't support it.)
+27. **The native file input is visually hidden behind a "Choose file" button.** Bug:
+    FileDrop resets the input value after every selection (same-file re-pick, #21), so
+    the native widget said "no file chosen" while a file was held in form state. Hiding
+    the input makes the file-name line the single source of truth; the button and the
+    question label both trigger the picker.
+
+28. **Icon polish round.** The focus ring fires on `:focus-visible` only — a mouse click
+    was painting it on radios/checkboxes, which read as a stray border; keyboard focus
+    keeps the ring. The back control is icon-only (`ArrowLeftIcon`, with `aria-label` +
+    `title` carrying "Back to jobs"); the language toggle gets a globe icon but KEEPS its
+    text — icon-only could not say which language it switches to. Feedback asking to
+    translate the whole form on toggle was declined: #3 stands — Yes/No is our chrome and
+    translates, but question and option texts are recruiter-authored content rendered
+    verbatim; translating them would invent data (and the payload carries the original
+    option values regardless).
+
+29. **Job page becomes three columns; the shell owns navigation; submit-once per job.**
+    Product feedback: prefill looked like magic because the profile was invisible, and
+    the overview page was bare. Left column lists the jobs, center shows the selected
+    job (title, company, static description, Apply), right shows a `ProfileCard` — the
+    candidate sees WHERE prefilled answers come from before the form. The back control
+    moves into the header (left of the app title) and only renders while filling the
+    form; the result screen navigates via one centered "Back to the main page" button.
+    `AppShell` tracks `appliedJobIds` (session state only, not persisted — V2-01 drafts
+    would own storage): an applied job's Apply button is disabled with a note, since
+    re-submitting the same application would be a duplicate on the receiving end.
+    Completion motivation (task objective "the form should be finished"): an
+    answered/total `ProgressBar` above the form — prefill means it starts part-full,
+    which is itself the "most of this is already done" message — and a centered
+    check-circle celebration on the result screen.
+
 ## Open PM questions
 
 - `bad.json` demands "PDF only" in prose but the contract allows four types — should file
