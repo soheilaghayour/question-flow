@@ -32,7 +32,12 @@ export const en = {
   job_description:
     'We are looking for someone great to join the team. Applying only takes a few minutes — many answers are already prefilled from your profile, so you mostly just confirm them.',
   applied_note: 'You have already applied to this job.',
-  progress_label: '{answered} of {total} questions answered',
+  step_label: 'Step {current} of {total}',
+  from_profile: 'Already filled from your profile',
+  next: 'Next',
+  back: 'Back',
+  review_title: 'Review your answers',
+  no_answer: 'Not answered',
 }
 
 export type TranslationKey = keyof typeof en

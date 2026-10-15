@@ -20,6 +20,7 @@ Every judgment call, with its reason. Authority order: the contract (`docs/task-
    silently — the toggle still switches, only the saved choice is lost — never a crash.
 4. **V1 is a single-page form.** Cheapest correct thing; the wizard question belongs to V2
    together with reorder/progress. No router — two screens via plain state.
+   *Superseded by #30:* the apply form is now a wizard.
 5. **Numeric input: `type="text" inputMode="numeric"`; typing is never blocked;
    validation gates submission** (and step-advance in V2). Out-of-range shows an error
    naming the range; a payload may never contain an out-of-range value (contract).
@@ -207,6 +208,20 @@ Every judgment call, with its reason. Authority order: the contract (`docs/task-
     answered/total `ProgressBar` above the form — prefill means it starts part-full,
     which is itself the "most of this is already done" message — and a centered
     check-circle celebration on the result screen.
+30. **The apply form is a wizard: prefill confirm first, 3 questions per step, light
+    summary before submit** (#36, supersedes #4 — the planned V2 revisit). The lesson from
+    the rejected focus mode (see Rejected approaches): prefilled answers must read as
+    completed work, so they lead as one editable "Already filled from your profile" step
+    (absent when nothing is prefilled); the open questions follow in config order, three
+    per step; the last step is a read-only check-your-answers list showing candidate
+    language (option labels, Yes/No, file names — never wire values) plus the only Submit
+    button. "Next" is hard-gated on the current step's required answers with errors shown
+    in place (the step-advance gating #5 planned); Back and typing are never gated, and
+    answers survive navigation because form state never left the single `FormState`
+    object (#1). Progress is a step line ("Step X of Y", the summary counts as a step)
+    whose growth animates under motion-safe only. Screening still never blocks anything
+    (#8), and the submit gate re-checks all questions as a safety net behind the per-step
+    gates.
 
 ## Open PM questions
 
@@ -226,6 +241,12 @@ Every judgment call, with its reason. Authority order: the contract (`docs/task-
   meaning `true` loses their knockout without a trace. Authoring-side validation?
 
 ## Rejected approaches
+
+- **Focus mode: spotlight the active question, dim the rest to ~45%** (#33–#35) — built,
+  trialed live, discarded. Dimming fights prefill: exactly the questions the profile
+  already answered rendered de-emphasized, so the top of the form read as disabled
+  rather than done. Replaced by the wizard (#30), which frames prefill as a completed
+  step instead of dimmed noise.
 
 - **react-hook-form + zod resolver** — would generate a runtime schema per job and
   duplicate `domain/` validation; two brains to keep in sync.

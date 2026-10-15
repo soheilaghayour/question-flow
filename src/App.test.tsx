@@ -44,10 +44,12 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: 'Back to jobs' }))
     expect(screen.getByRole('button', { name: 'Apply' })).toBeInTheDocument()
 
-    // After submitting (short.json is fully prefilled): the header back button
-    // disappears, the centered result button leads back to the overview, and
-    // the applied job cannot be applied to again.
+    // After submitting (short.json: prefill step → optional step → summary):
+    // the header back button disappears, the centered result button leads back
+    // to the overview, and the applied job cannot be applied to again.
     await user.click(screen.getByRole('button', { name: 'Apply' }))
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    await user.click(screen.getByRole('button', { name: 'Next' }))
     await user.click(screen.getByRole('button', { name: 'Submit application' }))
     expect(screen.getByText('Application submitted')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Back to jobs' })).not.toBeInTheDocument()
