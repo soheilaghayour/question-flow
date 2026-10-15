@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ReactNode } from 'react'
 import { LanguageProvider } from '@/i18n/LanguageProvider'
@@ -55,6 +55,35 @@ describe('FileQuestion', () => {
         file_name: 'cv.pdf',
       }),
     )
+  })
+
+  // The visible control must stay a drop target: the native input (the
+  // original one) is visually hidden and unreachable by mouse.
+  it('accepts a file dropped onto the control and re-validates it', async () => {
+    const onChange = vi.fn()
+    render(<FileQuestion question={question} value={null} onChange={onChange} />, { wrapper })
+    const pdf = new File(['%PDF'], 'dropped.pdf', { type: 'application/pdf' })
+    fireEvent.drop(screen.getByRole('button', { name: 'Choose file' }), {
+      dataTransfer: { files: [pdf] },
+    })
+    await waitFor(() =>
+      expect(onChange).toHaveBeenLastCalledWith(
+        expect.objectContaining({ file_name: 'dropped.pdf' }),
+      ),
+    )
+  })
+
+  it('rejects a dropped file of a disallowed type', () => {
+    const onChange = vi.fn()
+    render(<FileQuestion question={question} value={null} onChange={onChange} />, { wrapper })
+    const exe = new File(['MZ'], 'virus.exe', { type: 'application/x-msdownload' })
+    fireEvent.drop(screen.getByRole('button', { name: 'Choose file' }), {
+      dataTransfer: { files: [exe] },
+    })
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Only PDF, DOCX, PNG or JPG files are accepted',
+    )
+    expect(onChange).toHaveBeenCalledWith(null)
   })
 
   it('rejects a disallowed type with a clear message and emits null', async () => {
