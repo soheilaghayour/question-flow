@@ -12,6 +12,7 @@ import {
 import type { Profile } from '@/domain/schema'
 import { QuestionField } from '@/components/questions/QuestionField'
 import { Button } from '@/components/atoms/Button'
+import { ArrowLeftIcon } from '@/components/atoms/Icons'
 import { JobSummary } from '@/components/molecules/JobSummary'
 import { SubmissionResult } from '@/components/molecules/SubmissionResult'
 import { useI18n } from '@/i18n/useI18n'
@@ -61,7 +62,9 @@ export function ApplyFlow({ rawJob, profile, onBack }: ApplyFlowProps) {
         />
         {onBack && (
           <div>
-            <Button onClick={onBack}>{t('back_to_jobs')}</Button>
+            <Button aria-label={t('back_to_jobs')} title={t('back_to_jobs')} onClick={onBack}>
+              <ArrowLeftIcon />
+            </Button>
           </div>
         )}
       </div>
@@ -83,7 +86,9 @@ export function ApplyFlow({ rawJob, profile, onBack }: ApplyFlowProps) {
     <div className="flex flex-col gap-6">
       {onBack && (
         <nav>
-          <Button onClick={onBack}>{t('back_to_jobs')}</Button>
+          <Button aria-label={t('back_to_jobs')} title={t('back_to_jobs')} onClick={onBack}>
+            <ArrowLeftIcon />
+          </Button>
         </nav>
       )}
       <JobSummary title={job.title} company={job.company} />

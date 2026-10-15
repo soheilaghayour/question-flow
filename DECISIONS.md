@@ -183,6 +183,16 @@ Every judgment call, with its reason. Authority order: the contract (`docs/task-
     the input makes the file-name line the single source of truth; the button and the
     question label both trigger the picker.
 
+28. **Icon polish round.** The focus ring fires on `:focus-visible` only — a mouse click
+    was painting it on radios/checkboxes, which read as a stray border; keyboard focus
+    keeps the ring. The back control is icon-only (`ArrowLeftIcon`, with `aria-label` +
+    `title` carrying "Back to jobs"); the language toggle gets a globe icon but KEEPS its
+    text — icon-only could not say which language it switches to. Feedback asking to
+    translate the whole form on toggle was declined: #3 stands — Yes/No is our chrome and
+    translates, but question and option texts are recruiter-authored content rendered
+    verbatim; translating them would invent data (and the payload carries the original
+    option values regardless).
+
 ## Open PM questions
 
 - `bad.json` demands "PDF only" in prose but the contract allows four types — should file
