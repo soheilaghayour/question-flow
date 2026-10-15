@@ -1,12 +1,18 @@
-// TZ is fixed before anything touches Date: the min-attribute test needs a
-// timezone behind UTC, where late-evening local time already IS tomorrow in
-// UTC — exactly where a toISOString() implementation shifts the date (bite #3).
-process.env.TZ = 'America/New_York'
-
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen } from '@testing-library/react'
 import * as build from '@/domain/testBuilders'
 import { DateQuestion } from './DateQuestion'
+
+// TZ fixed for the whole file: the min-attribute test needs a timezone behind
+// UTC, where late-evening local time already IS tomorrow in UTC — exactly
+// where a toISOString() implementation shifts the date (bite #3).
+beforeAll(() => {
+  vi.stubEnv('TZ', 'America/New_York')
+})
+
+afterAll(() => {
+  vi.unstubAllEnvs()
+})
 
 afterEach(() => {
   vi.useRealTimers()
