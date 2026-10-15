@@ -128,6 +128,24 @@ Every judgment call, with its reason. Authority order: README contract > this fi
     never cast and never switch on type; the cast is sound because answers only ever
     hold what the same question's component emitted, re-checked per type in payload.ts.
 
+22. **The submit gate is required-missing only.** Components hold invalid input as
+    `null` (#21), so an invalid required field blocks through the same check as an
+    empty one — `missingRequired` in `formState.ts` mirrors payload's no-substance
+    rule (#19: whitespace-only text and zero-pick lists don't count; `false` does).
+    An optional field with unparseable input submits with that answer omitted: the
+    widget's inline error already told the user, and the payload stays contract-safe
+    (it never carries an invalid value). Lifting widget validity into form state was
+    rejected — it would reopen the #21 seam for a V2-sized UX refinement.
+    The submit screen renders the payload inside `<output>` (implicit `status` role):
+    accessible announcement for free, and the integration tests read it by role. The
+    submitted payload lives in a second, phase-local `useState` beside `FormState` —
+    #1's "single state object" governs *form* state; the submitted screen is a phase,
+    not an answer.
+    The language toggle UI ships with V1-10, not V1-08: the i18n machinery (#3)
+    had no page to live on until the first page existed. The toggle is labeled
+    with the language it switches TO, in that language — readable exactly when
+    the current UI language is the wrong one.
+
 ## Open PM questions
 
 - Should candidates learn they failed screening, and in what wording? (V2 messaging;

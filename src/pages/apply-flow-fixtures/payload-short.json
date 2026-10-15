@@ -1,0 +1,8 @@
+{
+  "job_id": "job-short",
+  "answers": [
+    { "id": "notice_period", "value": "3_months" },
+    { "id": "salary_expectation", "value": 95000 }
+  ],
+  "screening": { "passed": true, "failed": [] }
+}
