@@ -9,6 +9,7 @@ import {
   type Question,
   type SelectQuestion,
 } from './schema'
+import * as build from './testBuilders'
 
 const profile = profileSchema.parse(profileJson)
 
@@ -18,27 +19,12 @@ function longJobQuestions(): Question[] {
   return result.job.questions
 }
 
-const select = (overrides: Partial<SelectQuestion> = {}): SelectQuestion => ({
-  type: 'select',
-  id: 'q',
-  question: 'Q?',
-  required: false,
-  max_choices: 1,
-  options: [{ label: 'B1', value: 'B1' }],
-  profile_field: 'german_level',
-  ...overrides,
-})
+// Shared builders with this file's default profile_field baked in.
+const select = (overrides: Partial<SelectQuestion> = {}): SelectQuestion =>
+  build.select({ profile_field: 'german_level', ...overrides })
 
-const numeric = (overrides: Partial<NumericQuestion> = {}): NumericQuestion => ({
-  type: 'numeric',
-  id: 'q',
-  question: 'Q?',
-  required: false,
-  min: 0,
-  max: 100000000,
-  profile_field: 'salary_expectation',
-  ...overrides,
-})
+const numeric = (overrides: Partial<NumericQuestion> = {}): NumericQuestion =>
+  build.numeric({ profile_field: 'salary_expectation', ...overrides })
 
 describe('buildPrefillAnswers — real fixtures (long.json + profile.json)', () => {
   it('prefills salary 95000 despite must_be_below 90000 — screening never gates prefill', () => {
@@ -81,17 +67,14 @@ describe('buildPrefillAnswers — input validation gates prefill', () => {
     ['numeric value below min', numeric({ min: 100000 })],
     [
       'value of the wrong type for the question',
-      { type: 'text', id: 'q', question: 'Q?', required: false, multiline: false, profile_field: 'salary_expectation' },
+      build.text({ profile_field: 'salary_expectation' }),
     ],
   ])('does not prefill: %s', (_name, question) => {
     expect(buildPrefillAnswers([question], profile)).toEqual({})
   })
 
   it('prefills a text question with a string profile value', () => {
-    const question: Question = {
-      type: 'text', id: 'city', question: 'Where do you live?',
-      required: false, multiline: false, profile_field: 'city',
-    }
+    const question = build.text({ id: 'city', profile_field: 'city' })
     expect(buildPrefillAnswers([question], profile)).toEqual({ city: 'Berlin' })
   })
 
