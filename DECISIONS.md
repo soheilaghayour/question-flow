@@ -137,9 +137,14 @@ Every judgment call, with its reason. Authority order: README contract > this fi
     (it never carries an invalid value). Lifting widget validity into form state was
     rejected — it would reopen the #21 seam for a V2-sized UX refinement.
     The submit screen renders the payload inside `<output>` (implicit `status` role):
-    accessible announcement for free, and the integration tests read it by role.
-    The language toggle is labeled with the language it switches TO, in that
-    language — readable exactly when the current UI language is the wrong one.
+    accessible announcement for free, and the integration tests read it by role. The
+    submitted payload lives in a second, phase-local `useState` beside `FormState` —
+    #1's "single state object" governs *form* state; the submitted screen is a phase,
+    not an answer.
+    The language toggle UI ships with V1-10, not V1-08: the i18n machinery (#3)
+    had no page to live on until the first page existed. The toggle is labeled
+    with the language it switches TO, in that language — readable exactly when
+    the current UI language is the wrong one.
 
 ## Open PM questions
 
