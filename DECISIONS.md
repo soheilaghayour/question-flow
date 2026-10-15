@@ -20,6 +20,7 @@ Every judgment call, with its reason. Authority order: the contract (`docs/task-
    silently — the toggle still switches, only the saved choice is lost — never a crash.
 4. **V1 is a single-page form.** Cheapest correct thing; the wizard question belongs to V2
    together with reorder/progress. No router — two screens via plain state.
+   *Superseded by #30:* the apply form is now a wizard.
 5. **Numeric input: `type="text" inputMode="numeric"`; typing is never blocked;
    validation gates submission** (and step-advance in V2). Out-of-range shows an error
    naming the range; a payload may never contain an out-of-range value (contract).
@@ -207,6 +208,55 @@ Every judgment call, with its reason. Authority order: the contract (`docs/task-
     answered/total `ProgressBar` above the form — prefill means it starts part-full,
     which is itself the "most of this is already done" message — and a centered
     check-circle celebration on the result screen.
+30. **The apply form is a wizard: prefill confirm first, 3 questions per step, light
+    summary before submit** (#36, supersedes #4 — the planned V2 revisit). The lesson from
+    the rejected focus mode (see Rejected approaches): prefilled answers must read as
+    completed work, so they lead as one editable "Already filled from your profile" step
+    (absent when nothing is prefilled); the open questions follow in config order, three
+    per step; the last step is a read-only check-your-answers list showing candidate
+    language (option labels, Yes/No, file names — never wire values) plus the only Submit
+    button. "Next" is hard-gated on the current step's required answers with errors shown
+    in place (the step-advance gating #5 planned); Back and typing are never gated, and
+    answers survive navigation because form state never left the single `FormState`
+    object (#1). Progress is a step line ("Step X of Y", the summary counts as a step)
+    whose growth animates under motion-safe only. Screening still never blocks anything
+    (#8), and the submit gate re-checks all questions as a safety net behind the per-step
+    gates.
+31. **One back control, backed by the browser history; icon-only step navigation.**
+    Live UX review of #30: the browser's back button left the site entirely, and the
+    header's back icon (exit to overview) disagreed with the wizard's Back (one step).
+    Now every forward step pushes a history entry and all three backs — browser button,
+    header icon, wizard button — are `history.back()`: one step back, exiting the form
+    only from its first step. Consequence accepted: leaving from step N takes N presses.
+    No router still (#4's reasoning holds): no URL state, refresh restarts at the
+    overview. Next/Back are icon buttons (aria-label + title carry the name); Submit
+    keeps its text — an icon-only irreversible action is not self-explanatory. Enter
+    and the Next click share one dispatch through the form's onSubmit, so Enter advances
+    through the same gate and the button's type never swaps under a click (the browser
+    applies a click's default action to the swapped-in type — found live, untestable in
+    jsdom). Steps hide instead of unmounting, so raw not-yet-valid typing (#21) survives
+    Back/Next; the summary's safety net shows a visible role=alert instead of silently
+    doing nothing; review answers wrap (`break-words`) and render dates in the UI
+    locale; the step label is aria-live so step changes are announced.
+32. **Unselected toggle buttons are a full-opacity outline, never a faded fill.** UX
+    review: the job switcher's unselected options (`aria-pressed=false`, opacity-60)
+    were nearly indistinguishable from disabled (opacity-50), so enabled options read
+    as unclickable. Faded is reserved for the disabled affordance; "not chosen" is
+    outline (surface fill, primary text/border) at full opacity. A transparent base
+    border keeps every button the same size whether or not the outline shows.
+33. **History entries are session-stamped; stale ones are walked, never obeyed.** Review
+    of #31's history integration: entries outlive the application that wrote them, so a
+    submitted job's `{step: 3}` could drive a different job's 2-step wizard into a broken
+    "Step 4 of 3", and Back after submitting was N silent no-op presses across the dead
+    entries. Now `utils/appHistory.ts` is the single owner of the entry shape (both
+    writers and both listeners go through it — no duck-typed casts), each ApplyFlow mount
+    stamps its entries with a fresh session id (ended on submit or unmount), the form
+    obeys only its own live entries (step clamped as a belt), and the shell treats any
+    stale form entry as "show the overview and keep walking" (`history.back()` chain,
+    which always terminates on the app's initial jobs entry). Accepted: browser Forward
+    may restore a previously reached step without re-passing the Next gate — standard
+    browser behavior; a gap created that way is caught visibly by the summary's safety
+    net (#31), which this makes reachable, not just theoretical.
 
 ## Open PM questions
 
@@ -226,6 +276,12 @@ Every judgment call, with its reason. Authority order: the contract (`docs/task-
   meaning `true` loses their knockout without a trace. Authoring-side validation?
 
 ## Rejected approaches
+
+- **Focus mode: spotlight the active question, dim the rest to ~45%** (#33–#35) — built,
+  trialed live, discarded. Dimming fights prefill: exactly the questions the profile
+  already answered rendered de-emphasized, so the top of the form read as disabled
+  rather than done. Replaced by the wizard (#30), which frames prefill as a completed
+  step instead of dimmed noise.
 
 - **react-hook-form + zod resolver** — would generate a runtime schema per job and
   duplicate `domain/` validation; two brains to keep in sync.

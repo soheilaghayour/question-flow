@@ -29,6 +29,15 @@ export function ArrowLeftIcon() {
   )
 }
 
+export function ArrowRightIcon() {
+  return (
+    <Icon>
+      <path d="M5 12h14" />
+      <path d="m12 5 7 7-7 7" />
+    </Icon>
+  )
+}
+
 export function CheckCircleIcon() {
   return (
     <Icon className="size-12">

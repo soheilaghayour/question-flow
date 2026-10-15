@@ -32,17 +32,132 @@ function answerBoolean(groupName: string, option: 'Yes' | 'No') {
     .click(within(screen.getByRole('group', { name: groupName })).getByRole('radio', { name: option }))
 }
 
+function clickNext() {
+  return userEvent.setup().click(screen.getByRole('button', { name: 'Next' }))
+}
+
+describe('ApplyFlow wizard steps (#36)', () => {
+  it('opens on the prefill confirm step and renders only its questions', () => {
+    render(<ApplyFlow rawJob={longJson} profile={profile} />, { wrapper })
+
+    // long.json: 4 prefilled + 4 open questions → prefill step, 3+1, summary.
+    expect(screen.getByText('Already filled from your profile')).toBeInTheDocument()
+    expect(screen.getByRole('progressbar', { name: 'Step 1 of 4' })).toBeInTheDocument()
+
+    // The prefilled questions are here, filled in and editable.
+    expect(screen.getByRole('radio', { name: '3 months' })).toBeChecked()
+    expect(screen.getByRole('radio', { name: 'B1' })).toBeChecked()
+    expect(
+      screen.getByLabelText('What is your yearly salary expectation in EUR?'),
+    ).toHaveValue('95000')
+
+    // Open questions belong to later steps; submitting is the summary's job.
+    expect(
+      screen.queryByRole('group', { name: 'Are you allowed to work in the EU?' }),
+    ).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Submit application' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Next' })).toBeInTheDocument()
+  })
+
+  it('keeps typed-but-invalid input alive across step navigation', async () => {
+    // New test data: the optional numeric lands alone on step 2, after three
+    // required texts fill step 1.
+    const job = {
+      id: 'job-wizard-roundtrip',
+      title: 'T',
+      company: 'C',
+      language: 'en',
+      questions: [
+        { type: 'text', id: 'a', question: 'A?', required: true },
+        { type: 'text', id: 'b', question: 'B?', required: true },
+        { type: 'text', id: 'c', question: 'C?', required: true },
+        { type: 'numeric', id: 'n', question: 'N?' },
+      ],
+    }
+    const user = userEvent.setup()
+    render(<ApplyFlow rawJob={job} profile={profile} />, { wrapper })
+
+    for (const label of ['A?', 'B?', 'C?']) await user.type(screen.getByLabelText(label), 'x')
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+
+    // 'abc' is held by the widget as raw text (form state stays null, the
+    // widget shows its own error). The optional gate lets Next pass — but the
+    // candidate's typing must survive the round trip, not be reset by a
+    // remount (steps hide, they never unmount).
+    await user.type(screen.getByLabelText('N?'), 'abc')
+    await user.click(screen.getByRole('button', { name: 'Back' }))
+    await screen.findByRole('progressbar', { name: 'Step 1 of 3' })
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    expect(screen.getByLabelText('N?')).toHaveValue('abc')
+    expect(screen.getByRole('alert')).toHaveTextContent('Enter a whole number')
+  })
+
+  it('ignores popstate entries from another application session', async () => {
+    const user = userEvent.setup()
+    render(<ApplyFlow rawJob={longJson} profile={profile} />, { wrapper })
+    expect(screen.getByRole('progressbar', { name: 'Step 1 of 4' })).toBeInTheDocument()
+
+    // A stale entry left behind by a previous (submitted or abandoned)
+    // application — possibly for a DIFFERENT job with more steps — must never
+    // move this form's step: out-of-range it would render an empty broken step.
+    fireEvent.popState(window, { state: { screen: 'form', session: 9999, step: 7 } })
+    expect(screen.getByRole('progressbar', { name: 'Step 1 of 4' })).toBeInTheDocument()
+
+    // The form's own live entries still navigate.
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    expect(screen.getByRole('progressbar', { name: 'Step 2 of 4' })).toBeInTheDocument()
+  })
+
+  it('gates Next on the step’s required answers and keeps answers across Back', async () => {
+    const user = userEvent.setup()
+    render(<ApplyFlow rawJob={longJson} profile={profile} />, { wrapper })
+
+    // Prefill confirm step → step 2: eu_work_permit, starting_date (required),
+    // focus_areas (optional).
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    expect(screen.getByRole('progressbar', { name: 'Step 2 of 4' })).toBeInTheDocument()
+
+    // Next with the step's required questions unanswered stays put and shows
+    // the errors in place; the optional focus_areas never gates.
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    expect(screen.getByRole('progressbar', { name: 'Step 2 of 4' })).toBeInTheDocument()
+    expect(screen.getAllByText('This field is required')).toHaveLength(2)
+
+    await answerBoolean('Are you allowed to work in the EU?', 'Yes')
+    fireEvent.change(screen.getByLabelText('Ab wann könnten Sie bei uns starten?'), {
+      target: { value: '2027-01-01' },
+    })
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    expect(screen.getByRole('progressbar', { name: 'Step 3 of 4' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('group', { name: 'Are you willing to relocate to Hamburg?' }),
+    ).toBeInTheDocument()
+
+    // Back is never gated, answers survive the round trip, and the old
+    // errors are gone.
+    await user.click(screen.getByRole('button', { name: 'Back' }))
+    expect(screen.getByRole('progressbar', { name: 'Step 2 of 4' })).toBeInTheDocument()
+    expect(
+      within(screen.getByRole('group', { name: 'Are you allowed to work in the EU?' })).getByRole(
+        'radio',
+        { name: 'Yes' },
+      ),
+    ).toBeChecked()
+    expect(screen.getByLabelText('Ab wann könnten Sie bei uns starten?')).toHaveValue('2027-01-01')
+    expect(screen.queryByText('This field is required')).not.toBeInTheDocument()
+  })
+})
+
 describe('ApplyFlow with long.json', () => {
-  it('runs every question type and reports failed screening in the payload', async () => {
+  it('walks every question type through the wizard, reviews, and submits the contract payload', async () => {
     const user = userEvent.setup()
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
     render(<ApplyFlow rawJob={longJson} profile={profile} />, { wrapper })
 
-    // Prefilled: notice_period 3_months, german_level B1 (profile de level),
-    // salary 95000 — against must_be_below 90000, prefilled anyway (DECISIONS
-    // #7) — and years_of_experience 6. Left untouched on purpose.
-    expect(screen.getByRole('radio', { name: '3 months' })).toBeChecked()
-    expect(screen.getByRole('radio', { name: 'B1' })).toBeChecked()
+    // Step 1 is the prefill confirm step (notice_period 3_months, german_level
+    // B1, salary 95000 against must_be_below 90000 — prefilled anyway, DECISIONS
+    // #7 — and years_of_experience 6). Left untouched on purpose.
+    await user.click(screen.getByRole('button', { name: 'Next' }))
 
     await answerBoolean('Are you allowed to work in the EU?', 'Yes')
     fireEvent.change(screen.getByLabelText('Ab wann könnten Sie bei uns starten?'), {
@@ -50,9 +165,22 @@ describe('ApplyFlow with long.json', () => {
     })
     await user.click(screen.getByRole('checkbox', { name: 'Frontend architecture' }))
     await user.click(screen.getByRole('checkbox', { name: 'Performance' }))
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+
     // Optional boolean answered No: false is an answer and must land in the
     // payload — unanswered ≠ false (bite #4).
     await answerBoolean('Are you willing to relocate to Hamburg?', 'No')
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+
+    // The summary shows candidate-readable answers: option labels, never raw
+    // values; a multi-select joins its labels.
+    expect(screen.getByText('Review your answers')).toBeInTheDocument()
+    expect(screen.getByRole('progressbar', { name: 'Step 4 of 4' })).toBeInTheDocument()
+    const answers = screen.getAllByRole('definition').map((d) => d.textContent)
+    expect(answers).toContain('3 months')
+    expect(answers).toContain('Frontend architecture, Performance')
+    // The date renders for the UI locale, not in the YYYY-MM-DD wire format.
+    expect(answers).toContain('1/1/2027')
 
     await user.click(screen.getByRole('button', { name: 'Submit application' }))
 
@@ -64,12 +192,13 @@ describe('ApplyFlow with long.json', () => {
 })
 
 describe('ApplyFlow with bad.json', () => {
-  it('renders only the normalized questions and logs the warnings', () => {
+  it('renders only the normalized questions and logs the warnings', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     render(<ApplyFlow rawJob={badJson} profile={profile} />, { wrapper })
 
     // Dropped by normalize: the duplicate-id text question and the unknown
-    // rating type (bite #8). The kept select under the same id still renders.
+    // rating type (bite #8). The kept select under the same id still renders —
+    // prefilled from the profile's notice period, so it leads on step 1.
     expect(
       screen.queryByText('Wie lange ist Ihre aktuelle Kündigungsfrist (in Wochen/Monaten)?'),
     ).not.toBeInTheDocument()
@@ -78,7 +207,9 @@ describe('ApplyFlow with bad.json', () => {
     ).not.toBeInTheDocument()
     expect(screen.getByRole('group', { name: 'Kündigungsfrist' })).toBeInTheDocument()
 
-    // The misplaced must_be_true on a text question renders the question, rule stripped.
+    // The misplaced must_be_true on a text question renders the question, rule
+    // stripped — it lives on the first open-questions step.
+    await clickNext()
     expect(screen.getByLabelText('Aktueller Wohnsitz (Land)')).toBeInTheDocument()
 
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('rating'))
@@ -92,21 +223,25 @@ describe('ApplyFlow with bad.json', () => {
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
     render(<ApplyFlow rawJob={badJson} profile={profile} />, { wrapper })
 
+    // Step 1: prefill confirm (Kündigungsfrist select + salary), untouched.
+    await clickNext()
     await user.click(screen.getByRole('radio', { name: 'Herr' }))
     await user.type(screen.getByLabelText('Aktueller Wohnsitz (Land)'), 'Deutschland')
     await answerBoolean(
       'Haben Sie keine Einwände gegen eine Tätigkeit, die überwiegend nicht remote stattfindet?',
       'Yes',
     )
+    await clickNext()
     await answerBoolean('Führerschein Klasse B vorhanden?', 'Yes')
     await user.upload(
       screen.getByLabelText('Anschreiben (bitte ausschließlich als PDF)'),
       new File(['%PDF'], 'anschreiben.pdf', { type: 'application/pdf' }),
     )
     // The shown file name confirms the async base64 conversion landed in form
-    // state — submitting earlier would race it.
+    // state — advancing earlier would race it.
     await screen.findByText('anschreiben.pdf')
     await user.type(screen.getByLabelText('Erfahrung mit SAFe?'), 'Ja, 2 Jahre')
+    await clickNext()
     await user.type(
       screen.getByLabelText('Beschreiben Sie Ihre Stärken und Schwächen.'),
       'Stärken: Testen.',
@@ -116,10 +251,12 @@ describe('ApplyFlow with bad.json', () => {
       '7',
     )
     await user.click(screen.getByRole('checkbox', { name: 'React' }))
+    await clickNext()
     await answerBoolean(
       'Wären Sie grundsätzlich bereit, bei Bedarf gelegentlich auch außerhalb der regulären Arbeitszeiten zur Verfügung zu stehen?',
       'No',
     )
+    await clickNext()
 
     await user.click(screen.getByRole('button', { name: 'Submit application' }))
 
@@ -156,6 +293,8 @@ describe('ApplyFlow result screen on failed screening (#16)', () => {
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
     render(<ApplyFlow rawJob={failingJob} profile={profile} />, { wrapper })
 
+    // Prefill confirm step → summary → submit.
+    await clickNext()
     await user.click(screen.getByRole('button', { name: 'Submit application' }))
 
     // Submission is never blocked by screening; the payload records the failure.
@@ -193,10 +332,13 @@ describe('ApplyFlow with short.json', () => {
     const salary = screen.getByLabelText('What is your yearly salary expectation in EUR?')
     expect(salary).toHaveValue('95000')
 
-    // Prefilled values stay editable (acceptance criterion).
+    // Prefilled values stay editable on the confirm step (acceptance criterion).
     await user.clear(salary)
     await user.type(salary, '100.000')
 
+    // Confirm step → optional question step (skipped) → summary → submit.
+    await clickNext()
+    await clickNext()
     await user.click(screen.getByRole('button', { name: 'Submit application' }))
 
     // Expected payload is a literal from the contract (docs/task-contract.md), not recomputed:
@@ -214,23 +356,26 @@ describe('ApplyFlow with short.json', () => {
     expect(log).toHaveBeenCalledWith(expected)
   })
 
-  it('blocks submission accessibly while a required answer is missing', async () => {
+  it('blocks advancing accessibly while a required answer is missing', async () => {
     const user = userEvent.setup()
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
     render(<ApplyFlow rawJob={shortJson} profile={profile} />, { wrapper })
 
     const salary = screen.getByLabelText('What is your yearly salary expectation in EUR?')
     await user.clear(salary)
-    await user.click(screen.getByRole('button', { name: 'Submit application' }))
+    await clickNext()
 
-    // No payload view, no log — the form stays up with the error tied to the field.
+    // The step gate holds: still step 1, no payload, the error tied to the field.
+    expect(screen.getByRole('progressbar', { name: 'Step 1 of 3' })).toBeInTheDocument()
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
     expect(log).not.toHaveBeenCalled()
     expect(salary).toHaveAccessibleDescription('This field is required')
     expect(salary).toHaveAttribute('aria-invalid', 'true')
 
-    // Answering clears the error and unblocks the submit.
+    // Answering clears the error and unblocks the step — through to submit.
     await user.type(salary, '90000')
+    await clickNext()
+    await clickNext()
     await user.click(screen.getByRole('button', { name: 'Submit application' }))
     expect(screen.getByRole('status')).toBeInTheDocument()
   })
@@ -243,10 +388,49 @@ describe('ApplyFlow with short.json', () => {
     ).not.toBeInTheDocument()
   })
 
+  it('treats a form submission on a question step as Next, never as submit', () => {
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    render(<ApplyFlow rawJob={shortJson} profile={profile} />, { wrapper })
+
+    // Enter in an input (implicit submission) dispatches through the same
+    // step gate as the Next button — it advances, it never sends the
+    // application. Only the summary's Submit button may.
+    fireEvent.submit(screen.getByRole('button', { name: 'Next' }).closest('form')!)
+
+    expect(screen.getByRole('progressbar', { name: 'Step 2 of 3' })).toBeInTheDocument()
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    expect(log).not.toHaveBeenCalled()
+  })
+
+  it('refuses to submit from the summary with a visible alert when an answer went missing', async () => {
+    const user = userEvent.setup()
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    render(<ApplyFlow rawJob={shortJson} profile={profile} />, { wrapper })
+
+    await clickNext()
+    await clickNext()
+
+    // The per-step gates make this unreachable by normal interaction; the
+    // safety net still exists for it — and must never be a silent no-op.
+    // Clearing the (hidden but mounted) required salary simulates the gap.
+    fireEvent.change(screen.getByLabelText('What is your yearly salary expectation in EUR?'), {
+      target: { value: '' },
+    })
+    await user.click(screen.getByRole('button', { name: 'Submit application' }))
+
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    expect(log).not.toHaveBeenCalled()
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Some required questions are still unanswered',
+    )
+  })
+
   it('submits the untouched prefill as-is', async () => {
     const user = userEvent.setup()
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
     render(<ApplyFlow rawJob={shortJson} profile={profile} />, { wrapper })
+    await clickNext()
+    await clickNext()
     await user.click(screen.getByRole('button', { name: 'Submit application' }))
     expect(submittedPayload(log)).toEqual(expectedShortPayload)
   })
@@ -269,6 +453,8 @@ describe('ApplyFlow with short.json', () => {
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
     render(<ApplyFlow rawJob={shortJson} profile={profile} />, { wrapper })
 
+    await clickNext()
+    await clickNext()
     await user.click(screen.getByRole('button', { name: 'Submit application' }))
 
     const status = screen.getByRole('status')
@@ -279,10 +465,10 @@ describe('ApplyFlow with short.json', () => {
     expect(submittedPayload(log)).toEqual(expectedShortPayload)
   })
 
-  // The "invalid" half of the submit gate: unparseable input in a REQUIRED
-  // field is held as null by the widget (DECISIONS #21/#22), so it blocks
-  // exactly like an empty one — with the widget's own error visible.
-  it('blocks submission while a required field holds invalid input', async () => {
+  // The "invalid" half of the step gate: unparseable input in a REQUIRED
+  // field is held as null by the widget (DECISIONS #21/#22), so Next blocks
+  // exactly like on an empty one — with the widget's own error visible.
+  it('blocks advancing while a required field holds invalid input', async () => {
     const user = userEvent.setup()
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
     render(<ApplyFlow rawJob={shortJson} profile={profile} />, { wrapper })
@@ -290,8 +476,9 @@ describe('ApplyFlow with short.json', () => {
     const salary = screen.getByLabelText('What is your yearly salary expectation in EUR?')
     await user.clear(salary)
     await user.type(salary, 'abc')
-    await user.click(screen.getByRole('button', { name: 'Submit application' }))
+    await clickNext()
 
+    expect(screen.getByRole('progressbar', { name: 'Step 1 of 3' })).toBeInTheDocument()
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
     expect(log).not.toHaveBeenCalled()
     expect(salary).toHaveAttribute('aria-invalid', 'true')
