@@ -147,7 +147,7 @@ describe('ApplyFlow with short.json', () => {
 
     await user.click(screen.getByRole('button', { name: 'Submit application' }))
 
-    // Expected payload is a literal from the README contract, not recomputed:
+    // Expected payload is a literal from the contract (docs/task-contract.md), not recomputed:
     // the optional unanswered question is left out, select shape is `value`
     // (max_choices 1), screening passes with no rules configured.
     const expected = {

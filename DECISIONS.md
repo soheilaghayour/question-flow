@@ -1,6 +1,6 @@
 # DECISIONS
 
-Every judgment call, with its reason. Authority order: README contract > this file >
+Every judgment call, with its reason. Authority order: the contract (`docs/task-contract.md`) > this file >
 `CLAUDE.md` — if they disagree, the higher wins and the lower is corrected in the same commit.
 
 ## Decisions
@@ -35,7 +35,7 @@ Every judgment call, with its reason. Authority order: README contract > this fi
    `must_be_below: 90000`, editable, and may fail screening at submit. Keeps `prefill.ts`
    and `screening.ts` independent and avoids leaking thresholds.
 8. **Screening never blocks input, pages, or submission.** Evaluated at submit into the
-   payload — the README's own example is a submitted payload with `passed: false`.
+   payload — the contract's own example is a submitted payload with `passed: false`.
 9. **File types: contract wins.** PDF/DOCX/PNG/JPG ≤ 5 MB everywhere; recruiter prose
    ("bitte ausschließlich als PDF") renders as written but is never parsed for intent.
 10. **Normalization policy: drop the smallest broken thing, console-warn, never invent data.**
@@ -45,7 +45,7 @@ Every judgment call, with its reason. Authority order: README contract > this fi
     - Rule value failing its documented type (`must_be_at_least: "five"`) → drop the rule,
       keep the question.
     - `must_be_true` is `z.boolean()`: `false` means "rule off" — legitimate semantics,
-      no warning (README's letter says the value is `true`; behavior is identical).
+      no warning (the contract's letter says the value is `true`; behavior is identical).
     - Question text > 255 chars → render normally, warn only (authoring limit, not the
       candidate's problem).
     - Inverted numeric range (`min` > `max`) → drop the question, warn: no answer can
@@ -84,11 +84,11 @@ Every judgment call, with its reason. Authority order: README contract > this fi
     (`v1`, `ready-for-agent`) then 7 V2 issues (`v2`, `needs-triage`), ordered by title prefix.
 19. **Payload omission policy: a value with no substance is "no answer", and a wrong-shape
     value is omitted, never coerced.** Whitespace-only text/date, `''` from an unselected
-    single-select and a zero-pick multi-select are all left out (README: leave out optional
+    single-select and a zero-pick multi-select are all left out (contract: leave out optional
     questions that have no answer). Each payload arm accepts only its own value type — a
     boolean under a numeric question (or any other cross-type wiring bug) is dropped rather
     than shipped, because the payload is the last line before the backend and must never
-    invent or reinterpret data. Numeric answers must be integers (README: integers only;
+    invent or reinterpret data. Numeric answers must be integers (contract: integers only;
     NaN would serialize to `null`), a cleared input may hold `null` (= no answer), and
     text/date answers are emitted trimmed — padding never reaches the wire, dates must be
     exactly `YYYY-MM-DD`. Silent (no console warning), unlike normalize #10: config
@@ -97,8 +97,8 @@ Every judgment call, with its reason. Authority order: README contract > this fi
 20. **CI with GitHub Actions on push to `main` and every PR: typecheck, lint, test, build.**
     Single job, no matrix: one Node version is enough for a browser app. Superseded runs
     are cancelled on PRs only, never on `main`, so every main commit gets a full run.
-    No CI badge yet — `README.md` is still the frozen template fixture (#28 moves it).
-    Deployment is a separate step after v1.
+    The CI badge landed with #28, once `README.md` stopped being the frozen template
+    fixture (see #23). Deployment is a separate step after v1.
 
 21. **Question components are controlled and share one seam:**
     `{ question, value, onChange, error? }` (`QuestionComponent` in `registry.ts`).
@@ -145,6 +145,13 @@ Every judgment call, with its reason. Authority order: README contract > this fi
     had no page to live on until the first page existed. The toggle is labeled
     with the language it switches TO, in that language — readable exactly when
     the current UI language is the wrong one.
+23. **The task contract moved verbatim from `README.md` to `docs/task-contract.md`** (#28,
+    `git mv`, byte-identical — it stays a frozen fixture). Only its path changed, never its
+    content or authority: it remains the top of the authority order. This frees `README.md`
+    to be a real project README (what this is, how to run it, CI badge, doc links) — the
+    first file a reviewer opens should not be mock-data documentation. All references that
+    meant the contract (CLAUDE.md, this file, PRD.md, code comments) now say "contract"
+    or name `docs/task-contract.md` explicitly.
 
 ## Open PM questions
 

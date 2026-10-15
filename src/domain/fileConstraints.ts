@@ -1,4 +1,4 @@
-/** Contract limits (README): PDF, DOCX, PNG, JPG up to 5 MB — question prose
+/** Contract limits (docs/task-contract.md): PDF, DOCX, PNG, JPG up to 5 MB — question prose
  * never changes them (DECISIONS #9). */
 export const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024
 

@@ -16,12 +16,12 @@ candidates. V1 solves correctness; V2 solves completion.
   already holds, no lost work, clear errors, their own language for the UI.
 - **Company / recruiter** — wants structured, comparable answers plus an automatic
   screening verdict in the payload; their configs must work even when messy.
-- **Platform developers (secondary)** — consume the payload; the README contract is the API.
+- **Platform developers (secondary)** — consume the payload; the contract (docs/task-contract.md) is the API.
 
 ## V1 scope — it just works
 
 1. All 6 question types render via a type → component registry (no `switch` in the flow).
-2. `normalizeJob()` per README + agreed policy: per-question `safeParse`, drop invalid
+2. `normalizeJob()` per the contract + agreed policy: per-question `safeParse`, drop invalid
    first then dedupe IDs, drop broken options/rules, console warnings; an invalid job
    (no id / zero valid questions) shows an error state, never crashes.
 3. Prefill from `profile_field` only when the value is valid for the question
@@ -52,7 +52,7 @@ candidates. V1 solves correctness; V2 solves completion.
 | P2 | Intro screen, honest effort ("N questions, about X min") | Sets expectations before investment; estimate derived from normalized config. Cheap. |
 | P3 | Prefill summary card (confirm, don't re-ask) | Biggest perceived-effort cut on prefilled jobs. Trade-off: rubber-stamping stale data — card shows values, one tap to edit. |
 | P4 | Progress indicator + optionals clearly marked/skippable | Reduces mid-form abandonment; pairs with the step/page decision. |
-| P5 | Reorder by effort (quick/knockout first, text/file last) | Sunk-cost momentum; knockouts first means less wasted effort before a likely rejection. Trade-off: overrides recruiter order (README permits). |
+| P5 | Reorder by effort (quick/knockout first, text/file last) | Sunk-cost momentum; knockouts first means less wasted effort before a likely rejection. Trade-off: overrides recruiter order (the contract permits). |
 | P6 | Screening result messaging | Generic wording only — never reveal thresholds, never block submission. |
 | P7 | Mobile-first, keyboard nav, accessible error summary | Continuous quality bar; dedicated audit at the end. |
 

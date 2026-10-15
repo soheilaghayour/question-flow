@@ -20,7 +20,7 @@ export type PayloadEntry =
   | { id: string; value: string | number | boolean | FileAnswerValue }
   | { id: string; values: string[] }
 
-/** The whole submitted payload (README contract). */
+/** The whole submitted payload (contract). */
 export interface ApplicationPayload {
   job_id: string
   answers: PayloadEntry[]
@@ -44,13 +44,13 @@ function toPayloadEntry(question: Question, value: AnswerValue): PayloadEntry | 
     case 'text':
     case 'date': {
       if (typeof value !== 'string') return undefined
-      // Whitespace-only is "no answer" (README: leave out unanswered optionals),
+      // Whitespace-only is "no answer" (contract: leave out unanswered optionals),
       // and padding never reaches the wire — dates must be exactly YYYY-MM-DD.
       const trimmed = value.trim()
       return trimmed !== '' ? { id: question.id, value: trimmed } : undefined
     }
     case 'numeric':
-      // Integers only (README) — and NaN would serialize to "value": null.
+      // Integers only (contract) — and NaN would serialize to "value": null.
       return typeof value === 'number' && Number.isInteger(value)
         ? { id: question.id, value }
         : undefined
@@ -67,7 +67,7 @@ function toPayloadEntry(question: Question, value: AnswerValue): PayloadEntry | 
   }
 }
 
-/** Builds the exact README contract payload from the normalized job and submitted answers. */
+/** Builds the exact contract payload from the normalized job and submitted answers. */
 export function buildPayload(
   job: Job,
   answers: Answers,

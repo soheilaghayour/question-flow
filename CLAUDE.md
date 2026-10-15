@@ -1,8 +1,8 @@
 # instaffo-question-flow
 
-Read order: this file → `README.md` → `DECISIONS.md`.
-Authority: README contract > `DECISIONS.md` > `CLAUDE.md` — the higher wins; the lower is
-corrected in the same commit.
+Read order: this file → `docs/task-contract.md` → `DECISIONS.md`.
+Authority: `docs/task-contract.md` (the contract) > `DECISIONS.md` > `CLAUDE.md` — the
+higher wins; the lower is corrected in the same commit.
 
 ## Commands
 
@@ -45,7 +45,7 @@ src/
 **Import aliases:** `@/*` → `src/*`; fixtures via `@jobs/*` and `@profile`. Relative
 imports only within the same folder.
 
-**Contract keys stay snake_case.** Keys defined by the README (`job_id`, `profile_field`,
+**Contract keys stay snake_case.** Keys defined by the contract (`job_id`, `profile_field`,
 `max_choices`, `must_be_below`, `content_type`, `file_name`, …) and enum values like
 `3_months` are never renamed. No case-conversion layer. TS types for contract data use
 the snake_case keys exactly.
@@ -59,7 +59,7 @@ the snake_case keys exactly.
 - Raw styling lives in `atoms/` and `molecules/`; pages compose and add only layout classes (`flex`, `gap-4`, `grid`): the atom is the semantic layer.
 - Don't abstract until code is duplicated three times: wrong abstractions cost more than duplication.
 - Implement only what the current issue asks: scope creep hides review surface.
-- The README contract is the source of truth; every rule in it has a test: untested contract rules rot.
+- The contract (`docs/task-contract.md`) is the source of truth; every rule in it has a test: untested contract rules rot.
 - TypeScript strict, no `any`: the contract types are the safety net.
 
 ## Things that will bite you (each has at least one test)
@@ -77,8 +77,9 @@ the snake_case keys exactly.
 
 ## Frozen
 
-`jobs/*.json`, `profile.json` and the template `README.md` are fixtures — never edit them,
-not even to make a test pass. New test data goes into new files (e.g. `jobs/edge-cases.json`).
+`jobs/*.json`, `profile.json` and the contract `docs/task-contract.md` are fixtures — never
+edit them, not even to make a test pass. New test data goes into new files (e.g.
+`jobs/edge-cases.json`).
 
 ## Working agreements
 
