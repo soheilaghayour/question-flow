@@ -23,8 +23,6 @@ export function JobPage({ configs, profile, onApply }: JobPageProps) {
     [configs],
   )
   const selected = jobs[selectedIndex]
-  // Read on render, not held in state: the page remounts whenever the shell
-  // returns to it, so storage is the single source of "applied" (#40).
   const applied =
     selected !== undefined &&
     'job' in selected.result &&

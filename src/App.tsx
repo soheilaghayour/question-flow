@@ -23,7 +23,6 @@ function LanguageToggle() {
 }
 
 // One shell owns navigation: which screen shows and the header back button.
-// Applied jobs are not shell state — they live in localStorage (#40).
 // The wrapper object is the screen sentinel: `null` means "job page",
 // independent of what the raw config itself is (DECISIONS #4: no router).
 function AppShell() {

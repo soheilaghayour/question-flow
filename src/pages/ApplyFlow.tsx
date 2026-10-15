@@ -157,8 +157,6 @@ export function ApplyFlow({ rawJob, profile, onBack, onSubmitted }: ApplyFlowPro
     const nextPayload = buildPayload(job, state.answers, screening)
     console.log(nextPayload)
     setPayload(nextPayload)
-    // Persisted, not lifted to the shell: the job page reads storage on
-    // render, so "applied" survives a refresh without a callback (#40).
     recordAppliedJob(job.id)
     onSubmitted?.()
   }
