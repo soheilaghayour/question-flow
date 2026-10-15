@@ -22,15 +22,13 @@ function LanguageToggle() {
   )
 }
 
-// One shell owns navigation: which screen shows, the header back button, and
-// which jobs were applied to (session-only — not persisted until drafts, V2-01).
+// One shell owns navigation: which screen shows and the header back button.
 // The wrapper object is the screen sentinel: `null` means "job page",
 // independent of what the raw config itself is (DECISIONS #4: no router).
 function AppShell() {
   const { t } = useI18n()
   const [applying, setApplying] = useState<{ config: unknown } | null>(null)
   const [submitted, setSubmitted] = useState(false)
-  const [appliedJobIds, setAppliedJobIds] = useState<readonly string[]>([])
 
   // The shell owns the history boundary: any popped entry that is not a LIVE
   // form step means "show the overview" — this is what makes the browser's
@@ -82,7 +80,6 @@ function AppShell() {
         <JobPage
           configs={rawJobConfigs}
           profile={profile}
-          appliedJobIds={appliedJobIds}
           onApply={(config) => setApplying({ config })}
         />
       ) : (
@@ -90,10 +87,7 @@ function AppShell() {
           rawJob={applying.config}
           profile={profile}
           onBack={goHome}
-          onSubmitted={(jobId) => {
-            setSubmitted(true)
-            setAppliedJobIds((ids) => (ids.includes(jobId) ? ids : [...ids, jobId]))
-          }}
+          onSubmitted={() => setSubmitted(true)}
         />
       )}
     </main>
