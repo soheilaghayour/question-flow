@@ -25,8 +25,9 @@ export type QuestionComponent<Config, Value> = ComponentType<{
   error?: string
 }>
 
-/** Type → component. The flow renders questionRegistry[question.type] and
- * never switches on type; a new question type is one component + one entry. */
+/** Type → component. The flow renders a Question via QuestionField (which owns
+ * the one correlated-union cast this record needs) and never switches on type;
+ * a new question type is one component + one entry. */
 export const questionRegistry: {
   text: QuestionComponent<TextQuestionConfig, string>
   numeric: QuestionComponent<NumericQuestionConfig, number>
