@@ -144,7 +144,7 @@ D25. **Navigation between the two screens, not a modal.** After submitting, ther
      Instead, `ApplyFlow` takes an optional `onBack` and renders "Back to jobs" on the form
      and on the result screen; `AppShell` clears the screen sentinel (D4 stays: plain state,
      still no router). Trade-off: Back from the form drops unsaved answers without warning —
-     acceptable until drafts exist.
+     acceptable until drafts exist. *Superseded by D35.*
 
 D26. **Required fields are marked with a red `*` plus a one-line legend; screen readers
      get `aria-required` instead.** The star is `aria-hidden` and lives OUTSIDE the
@@ -164,7 +164,8 @@ D29. **Job page becomes three columns; the shell owns navigation; submit-once pe
      in the center, and a `ProfileCard` on the right so candidates see where prefilled values come from.
      Applied job ids are stored in localStorage to survive a refresh.
      Back control moved to the header while filling the form, with a centered return button on the
-     result screen. *(The initial answered/total ProgressBar here is superseded by D30's step progress.)*
+     result screen. *(The initial answered/total ProgressBar here is superseded by D30's step progress;
+     the header back control by D35.)*
 
 D30. **The apply form is a wizard: prefill confirm first, 3 questions per step, light
      summary before submit** (#36, supersedes D4). The lesson from rejected focus mode (see
@@ -183,6 +184,7 @@ D31. **One back control, backed by the browser history; icon-only step navigatio
      forward step pushing a history entry; Back exits the form only from step 1. Next/Back are
      icon buttons (`aria-label` + `title`), while Submit retains text because an irreversible action
      must be explicit. Trade-off: leaving from step N takes N Back presses. Still no router (D4 holds).
+     *History part superseded by D35; icon-only navigation still holds.*
      Implementation mechanics (Enter/onSubmit dispatch, hidden steps, text wrapping, aria-live)
      are documented in code comments.
 
@@ -193,7 +195,15 @@ D33. **History entries are session-stamped; stale ones are walked, never obeyed.
      the entry protocol; each `ApplyFlow` mount stamps entries with a session ID, the form obeys
      only live session entries, and the shell walks stale entries back to the overview. Trade-off:
      browser Forward can restore a reached step without re-passing Next gates, which is safely
-     caught by the summary safety net (D31).
+     caught by the summary safety net (D31). *Superseded by D35.*
+
+D35. **Every screen has a URL (react-router)** (#41, supersedes D25, D33 and D31's history
+     part). `/jobs/:jobId`, `/jobs/:jobId/apply?step=N`, `/jobs/:jobId/applied`; pages read
+     the job from the URL. Next pushes a step, Back is browser Back. A step past the furthest
+     one reached in this mount (refresh, shared link) restarts at step 1, since answers live
+     only in memory. Submit replaces the step with `/applied`, and opening the form of an
+     applied job redirects to its job page. Trade-off: Back after submitting passes through
+     the old steps, each redirecting to the job page.
 
 ### Styling & i18n
 
@@ -284,7 +294,6 @@ D20. **CI with GitHub Actions on push to `main` and every PR: typecheck, lint, t
 - **`<input type="number">`** — cross-browser separator behavior is untestable.
 - **CSS modules + tokens.css** — equivalent power, but atoms-as-role-layer + `@theme`
   semantic tokens give the same single-point changes with co-located styling.
-- **react-router** — no deep-link or URL-state requirement in V1.
 - **i18next** — library weight for ~30 strings.
 
 ## Left out and why

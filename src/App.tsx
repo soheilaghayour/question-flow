@@ -1,12 +1,7 @@
-import { useEffect, useState } from 'react'
-import { LanguageProvider } from '@/i18n/LanguageProvider'
+import { Outlet } from 'react-router'
 import { useI18n } from '@/i18n/useI18n'
-import { profile, rawJobConfigs } from '@/data'
-import { JobPage } from '@/pages/JobPage'
-import { ApplyFlow } from '@/pages/ApplyFlow'
 import { Button } from '@/components/atoms/Button'
-import { ArrowLeftIcon, GlobeIcon } from '@/components/atoms/Icons'
-import { entryOf, isLiveFormEntry, pushEntry, replaceEntry } from '@/utils/appHistory'
+import { GlobeIcon } from '@/components/atoms/Icons'
 
 function LanguageToggle() {
   const { language, toggleLanguage } = useI18n()
@@ -22,82 +17,15 @@ function LanguageToggle() {
   )
 }
 
-// One shell owns navigation: which screen shows and the header back button.
-// The wrapper object is the screen sentinel: `null` means "job page",
-// independent of what the raw config itself is (DECISIONS #4: no router).
-function AppShell() {
-  const { t } = useI18n()
-  const [applying, setApplying] = useState<{ config: unknown } | null>(null)
-  const [submitted, setSubmitted] = useState(false)
-
-  // The shell owns the history boundary: any popped entry that is not a LIVE
-  // form step means "show the overview" — this is what makes the browser's
-  // back button leave the wizard instead of the site (DECISIONS #31). Stale
-  // form entries (a submitted or abandoned application) are walked through
-  // automatically so no Back press is ever a silent no-op; the walk always
-  // ends on a jobs entry because the app's first entry is one (DECISIONS
-  // #33). No router: no URL state, refresh restarts at the overview.
-  useEffect(() => {
-    replaceEntry({ screen: 'jobs' })
-    const onPopState = (event: PopStateEvent) => {
-      const entry = entryOf(event)
-      if (isLiveFormEntry(entry)) return // the form's own listener moves the step
-      setApplying(null)
-      setSubmitted(false)
-      if (entry?.screen === 'form') history.back()
-    }
-    window.addEventListener('popstate', onPopState)
-    return () => window.removeEventListener('popstate', onPopState)
-  }, [])
-
-  // The result screen's own button: forward to a fresh overview entry, never
-  // back through the submitted form's steps.
-  const goHome = () => {
-    pushEntry({ screen: 'jobs' })
-    setApplying(null)
-    setSubmitted(false)
-  }
-
-
+/** The shell around every route: header with the language toggle, then the page. */
+export function App() {
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-6 p-6">
       <header className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          {/* Only while filling the form: the result screen navigates via its
-              own centered button, and re-submitting is a closed door anyway. */}
-          {/* Same control as the wizard's Back and the browser button: one
-              history step back, exiting the form only from its first step. */}
-          {applying !== null && !submitted && (
-            <Button aria-label={t('back')} title={t('back')} onClick={() => history.back()}>
-              <ArrowLeftIcon />
-            </Button>
-          )}
-          <h1 className="text-2xl font-semibold text-primary">Instaffo Question Flow</h1>
-        </div>
+        <h1 className="text-2xl font-semibold text-primary">Instaffo Question Flow</h1>
         <LanguageToggle />
       </header>
-      {applying === null ? (
-        <JobPage
-          configs={rawJobConfigs}
-          profile={profile}
-          onApply={(config) => setApplying({ config })}
-        />
-      ) : (
-        <ApplyFlow
-          rawJob={applying.config}
-          profile={profile}
-          onBack={goHome}
-          onSubmitted={() => setSubmitted(true)}
-        />
-      )}
+      <Outlet />
     </main>
-  )
-}
-
-export function App() {
-  return (
-    <LanguageProvider>
-      <AppShell />
-    </LanguageProvider>
   )
 }
