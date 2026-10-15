@@ -5,6 +5,8 @@ export const de: Record<TranslationKey, string> = {
   apply: 'Bewerben',
   submit: 'Bewerbung absenden',
   optional: 'optional',
+  yes: 'Ja',
+  no: 'Nein',
   error_required: 'Dieses Feld ist erforderlich',
   error_number_range: 'Geben Sie eine ganze Zahl zwischen {min} und {max} ein',
 }

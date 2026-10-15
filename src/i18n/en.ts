@@ -3,6 +3,8 @@ export const en = {
   apply: 'Apply',
   submit: 'Submit application',
   optional: 'optional',
+  yes: 'Yes',
+  no: 'No',
   error_required: 'This field is required',
   error_number_range: 'Enter a whole number between {min} and {max}',
 }
