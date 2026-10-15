@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { NumericQuestion as NumericQuestionConfig } from '@/domain/schema'
-import { parseLocaleNumber } from '@/utils/parseLocaleNumber'
+import { classifyNumericInput } from '@/domain/numericAnswer'
 import { Input } from '@/components/atoms/Input'
 import { Field } from '@/components/molecules/Field'
 import { useI18n } from '@/i18n/useI18n'
@@ -17,16 +17,29 @@ export function NumericQuestion({ question, value, onChange, error }: NumericQue
   // representation, and typing is never blocked (DECISIONS #5). Form state only
   // ever receives a valid in-range integer, or null.
   const [raw, setRaw] = useState(value === null ? '' : String(value))
+  // Render-time re-sync keeps the seam controlled: when the value prop CHANGES
+  // to something that is not the echo of our own last emit (external reset,
+  // post-mount prefill), it replaces the text. Both conditions matter — "not
+  // the echo" alone wipes half-typed text under parents that don't echo, and
+  // "changed" alone wipes it under parents that do.
+  const [lastEmitted, setLastEmitted] = useState(value)
+  const [prevValue, setPrevValue] = useState(value)
+  if (value !== prevValue) {
+    setPrevValue(value)
+    if (value !== lastEmitted) setRaw(value === null ? '' : String(value))
+    setLastEmitted(value)
+  }
   const { t } = useI18n()
 
-  const parsed = parseLocaleNumber(raw)
-  const inRange = 'value' in parsed && parsed.value >= question.min && parsed.value <= question.max
+  const result = classifyNumericInput(raw, question)
   const localError =
-    raw !== '' && !inRange
-      ? t('error_number_range')
-          .replace('{min}', String(question.min))
-          .replace('{max}', String(question.max))
-      : undefined
+    result.kind === 'not_integer'
+      ? t('error_number_invalid')
+      : result.kind === 'out_of_range'
+        ? t('error_number_range')
+            .replace('{min}', String(question.min))
+            .replace('{max}', String(question.max))
+        : undefined
 
   return (
     <Field id={question.id} label={question.question} error={localError ?? error}>
@@ -39,12 +52,10 @@ export function NumericQuestion({ question, value, onChange, error }: NumericQue
           onChange={(event) => {
             const text = event.target.value
             setRaw(text)
-            const next = parseLocaleNumber(text)
-            onChange(
-              'value' in next && next.value >= question.min && next.value <= question.max
-                ? next.value
-                : null,
-            )
+            const next = classifyNumericInput(text, question)
+            const answer = next.kind === 'valid' ? next.value : null
+            setLastEmitted(answer)
+            onChange(answer)
           }}
         />
       )}

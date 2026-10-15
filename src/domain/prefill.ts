@@ -4,6 +4,7 @@ import {
   type ProfileField,
   type Question,
 } from './schema'
+import { isValidNumericAnswer } from './numericAnswer'
 
 export type PrefillValue = string | number | string[]
 export type PrefillAnswers = Record<string, PrefillValue>
@@ -36,10 +37,7 @@ function profileValue(field: ProfileField, profile: Profile): unknown {
 function validPrefill(question: Question, value: unknown): PrefillValue | undefined {
   switch (question.type) {
     case 'numeric':
-      return typeof value === 'number' &&
-        Number.isInteger(value) &&
-        value >= question.min &&
-        value <= question.max
+      return typeof value === 'number' && isValidNumericAnswer(value, question)
         ? value
         : undefined
     case 'select': {
