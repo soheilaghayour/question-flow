@@ -4,6 +4,7 @@ export const en = {
   submit: 'Submit application',
   optional: 'optional',
   error_required: 'This field is required',
+  error_number_range: 'Enter a whole number between {min} and {max}',
 }
 
 export type TranslationKey = keyof typeof en
