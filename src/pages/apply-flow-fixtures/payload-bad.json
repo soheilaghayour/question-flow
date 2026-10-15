@@ -1,0 +1,25 @@
+{
+  "job_id": "job-bad",
+  "answers": [
+    { "id": "notice_period", "value": "3_months" },
+    { "id": "salutation", "value": "mr" },
+    { "id": "country", "value": "Deutschland" },
+    { "id": "salary_expectation", "value": 95000 },
+    { "id": "onsite", "value": true },
+    { "id": "driving_license", "value": true },
+    {
+      "id": "cover_letter",
+      "value": {
+        "content_type": "application/pdf",
+        "data": "JVBERg==",
+        "file_name": "anschreiben.pdf"
+      }
+    },
+    { "id": "safe", "value": "Ja, 2 Jahre" },
+    { "id": "strengths_weaknesses", "value": "Stärken: Testen." },
+    { "id": "react_years", "value": 7 },
+    { "id": "tech_stack", "values": ["react"] },
+    { "id": "availability", "value": false }
+  ],
+  "screening": { "passed": false, "failed": ["salary_expectation"] }
+}
