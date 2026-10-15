@@ -15,13 +15,15 @@ function LanguageToggle() {
   )
 }
 
-// Two screens via plain state — no router in V1 (DECISIONS #4).
+// Two screens via plain state — no router in V1 (DECISIONS #4). The wrapper
+// object is the screen sentinel: `null` means "job page", independent of what
+// the raw config itself is (unknown | null would collapse to unknown).
 function Screens() {
-  const [applyingTo, setApplyingTo] = useState<unknown | null>(null)
-  return applyingTo === null ? (
-    <JobPage configs={rawJobConfigs} onApply={setApplyingTo} />
+  const [applying, setApplying] = useState<{ config: unknown } | null>(null)
+  return applying === null ? (
+    <JobPage configs={rawJobConfigs} onApply={(config) => setApplying({ config })} />
   ) : (
-    <ApplyFlow rawJob={applyingTo} profile={profile} />
+    <ApplyFlow rawJob={applying.config} profile={profile} />
   )
 }
 
