@@ -4,7 +4,6 @@ export const en = {
   submit: 'Submit application',
   optional: 'optional',
   error_required: 'This field is required',
-  language_name: 'English',
 }
 
 export type TranslationKey = keyof typeof en
