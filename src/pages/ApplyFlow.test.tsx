@@ -52,6 +52,35 @@ describe('ApplyFlow with short.json', () => {
     expect(log).toHaveBeenCalledWith(expected)
   })
 
+  it('blocks submission accessibly while a required answer is missing', async () => {
+    const user = userEvent.setup()
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    render(<ApplyFlow rawJob={shortJson} profile={profile} />, { wrapper })
+
+    const salary = screen.getByLabelText('What is your yearly salary expectation in EUR?')
+    await user.clear(salary)
+    await user.click(screen.getByRole('button', { name: 'Submit application' }))
+
+    // No payload view, no log — the form stays up with the error tied to the field.
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    expect(log).not.toHaveBeenCalled()
+    expect(salary).toHaveAccessibleDescription('This field is required')
+    expect(salary).toHaveAttribute('aria-invalid', 'true')
+
+    // Answering clears the error and unblocks the submit.
+    await user.type(salary, '90000')
+    await user.click(screen.getByRole('button', { name: 'Submit application' }))
+    expect(screen.getByRole('status')).toBeInTheDocument()
+  })
+
+  it('renders an error state for a config that cannot be normalized, never a crash', () => {
+    render(<ApplyFlow rawJob={{ id: '', questions: 'nope' }} profile={profile} />, { wrapper })
+    expect(screen.getByRole('alert')).toHaveTextContent('This job posting cannot be displayed.')
+    expect(
+      screen.queryByRole('button', { name: 'Submit application' }),
+    ).not.toBeInTheDocument()
+  })
+
   it('submits the untouched prefill as-is', async () => {
     const user = userEvent.setup()
     vi.spyOn(console, 'log').mockImplementation(() => {})
