@@ -227,9 +227,11 @@ D32. **Unselected toggle buttons are a full-opacity outline, never a faded fill.
 
 D34. **Icons are `.svg` assets imported as components via `vite-plugin-svgr` (#43).** Each icon
      lives in `components/atoms/icons/*.svg` and is imported with `?react`, so it renders inline
-     and inherits text color through `stroke="currentColor"`. Each file carries its own
-     `aria-hidden` and Tailwind size class (`size-5`, check `size-12`): icons stay decorative and
-     call sites add no raw styling. Tailwind scans `.svg` sources, so classes there are generated.
+     and inherits text color through `stroke="currentColor"`. The `.svg` files hold only geometry;
+     `aria-hidden` and the shared stroke attributes are injected once via svgr `svgProps` in
+     `vite.config.ts`, so a new icon can't forget them. Size is placement, not glyph: `Button`
+     sizes any icon child (`[&>svg]:size-5`) and `SubmissionResult` sets `size-12`, so pages add
+     no raw styling and no class depends on Tailwind scanning `.svg` files.
 
 ### Engineering
 

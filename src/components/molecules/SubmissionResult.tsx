@@ -13,7 +13,7 @@ export function SubmissionResult({ title, body, note }: SubmissionResultProps) {
   return (
     <output className="flex flex-col items-center gap-3 text-center">
       <span className="text-primary">
-        <CheckCircleIcon />
+        <CheckCircleIcon className="size-12" />
       </span>
       <h2 className="text-2xl font-semibold">{title}</h2>
       <p>{body}</p>
