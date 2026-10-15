@@ -225,6 +225,12 @@ D32. **Unselected toggle buttons are a full-opacity outline, never a faded fill.
      outline (surface fill, primary text/border). A transparent base border preserves button
      dimensions across states.
 
+D34. **Icons are `.svg` assets imported as components via `vite-plugin-svgr` (#43).** Each icon
+     lives in `components/atoms/icons/*.svg` and is imported with `?react`, so it renders inline
+     and inherits text color through `stroke="currentColor"`. Each file carries its own
+     `aria-hidden` and Tailwind size class (`size-5`, check `size-12`): icons stay decorative and
+     call sites add no raw styling. Tailwind scans `.svg` sources, so classes there are generated.
+
 ### Engineering
 
 D16. **TypeScript pinned to the 6.x line (not 7.x).** npm resolves `typescript` to 7.x (the
