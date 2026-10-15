@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { normalizeJob } from '@/domain/normalize'
 import { buildPrefillAnswers } from '@/domain/prefill'
 import { evaluateScreening } from '@/domain/screening'
@@ -20,6 +20,13 @@ import { JobSummary } from '@/components/molecules/JobSummary'
 import { ProgressBar } from '@/components/molecules/ProgressBar'
 import { SubmissionResult } from '@/components/molecules/SubmissionResult'
 import { useI18n } from '@/i18n/useI18n'
+import {
+  endFormSession,
+  entryOf,
+  isLiveFormEntry,
+  pushEntry,
+  startFormSession,
+} from '@/utils/appHistory'
 
 interface ApplyFlowProps {
   rawJob: unknown
@@ -62,17 +69,31 @@ export function ApplyFlow({ rawJob, profile, onBack, onSubmitted }: ApplyFlowPro
   // Every step is one browser-history entry, so the browser button, the
   // header icon and the wizard's own Back are the same control (DECISIONS
   // #31): forward navigation pushes, every back flavor is history.back().
+  // Entries are stamped with this mount's session so stale history from a
+  // submitted or abandoned application — possibly a different job with a
+  // different step count — can never drive this form (DECISIONS #33).
+  const sessionRef = useRef(0)
+  // Ref, not a dependency: the popstate listener must see the current step
+  // count without re-subscribing (and re-stamping a session) when it changes.
+  const stepCountRef = useRef(0)
   useEffect(() => {
-    history.replaceState({ screen: 'form', step: 0 }, '')
+    stepCountRef.current = steps.length
+  }, [steps])
+  useEffect(() => {
+    sessionRef.current = startFormSession()
+    pushEntry({ screen: 'form', session: sessionRef.current, step: 0 })
     const onPopState = (event: PopStateEvent) => {
-      const state = event.state as { screen?: string; step?: number } | null
-      if (state?.screen === 'form') {
-        setStepAttempted(false)
-        setStepIndex(state.step ?? 0)
-      }
+      const entry = entryOf(event)
+      if (entry?.screen !== 'form' || !isLiveFormEntry(entry)) return // shell's job
+      setStepAttempted(false)
+      // Clamp as a belt: the session check already rejects foreign entries.
+      setStepIndex(Math.min(entry.step, stepCountRef.current))
     }
     window.addEventListener('popstate', onPopState)
-    return () => window.removeEventListener('popstate', onPopState)
+    return () => {
+      window.removeEventListener('popstate', onPopState)
+      endFormSession()
+    }
   }, [])
 
   if ('error' in result) {
@@ -104,8 +125,10 @@ export function ApplyFlow({ rawJob, profile, onBack, onSubmitted }: ApplyFlowPro
   const onSummary = stepIndex === steps.length
   const step = steps[stepIndex]
 
-  // Per-step gates make reaching the summary with gaps impossible through the
-  // UI, so the full-form re-check runs only there — a safety net, not a gate.
+  // The full-form re-check runs only on the summary — a safety net, not a
+  // gate. It is reachable: browser Forward restores a previously reached step
+  // without passing handleNext, so a required answer cleared after advancing
+  // arrives here as a gap the net must catch (visibly, via the alert below).
   const missing = onSummary ? missingRequired(job.questions, state.answers) : []
   // Hard gate (DECISIONS #5): Next never advances past an unanswered required
   // question on the current step — the errors appear on the fields in view.
@@ -117,7 +140,7 @@ export function ApplyFlow({ rawJob, profile, onBack, onSubmitted }: ApplyFlowPro
       setStepAttempted(true)
       return
     }
-    history.pushState({ screen: 'form', step: stepIndex + 1 }, '')
+    pushEntry({ screen: 'form', session: sessionRef.current, step: stepIndex + 1 })
     setStepAttempted(false)
     setStepIndex(stepIndex + 1)
   }
@@ -125,6 +148,10 @@ export function ApplyFlow({ rawJob, profile, onBack, onSubmitted }: ApplyFlowPro
   const submitApplication = () => {
     setState(submitAttempted)
     if (missing.length > 0) return
+    // The application is sent: its history entries are stale from here on, so
+    // browser Back on the result screen exits to the overview, never into the
+    // submitted form.
+    endFormSession()
     const screening = evaluateScreening(job.questions, state.answers)
     const nextPayload = buildPayload(job, state.answers, screening)
     console.log(nextPayload)

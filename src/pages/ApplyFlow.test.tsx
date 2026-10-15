@@ -92,6 +92,22 @@ describe('ApplyFlow wizard steps (#36)', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Enter a whole number')
   })
 
+  it('ignores popstate entries from another application session', async () => {
+    const user = userEvent.setup()
+    render(<ApplyFlow rawJob={longJson} profile={profile} />, { wrapper })
+    expect(screen.getByRole('progressbar', { name: 'Step 1 of 4' })).toBeInTheDocument()
+
+    // A stale entry left behind by a previous (submitted or abandoned)
+    // application — possibly for a DIFFERENT job with more steps — must never
+    // move this form's step: out-of-range it would render an empty broken step.
+    fireEvent.popState(window, { state: { screen: 'form', session: 9999, step: 7 } })
+    expect(screen.getByRole('progressbar', { name: 'Step 1 of 4' })).toBeInTheDocument()
+
+    // The form's own live entries still navigate.
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    expect(screen.getByRole('progressbar', { name: 'Step 2 of 4' })).toBeInTheDocument()
+  })
+
   it('gates Next on the step’s required answers and keeps answers across Back', async () => {
     const user = userEvent.setup()
     render(<ApplyFlow rawJob={longJson} profile={profile} />, { wrapper })
