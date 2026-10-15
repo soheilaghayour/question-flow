@@ -68,7 +68,14 @@ export function FileDrop({ inputProps, chooseLabel, fileName, onSelect }: FileDr
           if (file) handleFile(file)
         }}
       />
-      <Button className="self-start" onClick={() => inputRef.current?.click()}>
+      {/* The hidden input keeps the id (label association + tests target it),
+          but it is unreachable by keyboard/mouse — so the visible button also
+          carries the describedby: whoever focuses it hears hint and error. */}
+      <Button
+        className="self-start"
+        aria-describedby={inputProps['aria-describedby']}
+        onClick={() => inputRef.current?.click()}
+      >
         {chooseLabel}
       </Button>
       {fileName && <p className="text-sm text-muted">{fileName}</p>}

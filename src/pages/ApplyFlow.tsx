@@ -6,6 +6,7 @@ import { buildPayload, type ApplicationPayload } from '@/domain/payload'
 import {
   answerChanged,
   createFormState,
+  hasAnswer,
   missingRequired,
   submitAttempted,
 } from '@/domain/formState'
@@ -79,7 +80,7 @@ export function ApplyFlow({ rawJob, profile, onBack, onSubmitted }: ApplyFlowPro
     onSubmitted?.(job.id)
   }
 
-  const answeredCount = job.questions.filter((q) => state.answers[q.id] != null).length
+  const answeredCount = job.questions.filter((q) => hasAnswer(state.answers[q.id])).length
   const progressLabel = t('progress_label')
     .replace('{answered}', String(answeredCount))
     .replace('{total}', String(job.questions.length))
@@ -88,7 +89,9 @@ export function ApplyFlow({ rawJob, profile, onBack, onSubmitted }: ApplyFlowPro
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
       <JobSummary title={job.title} company={job.company} />
       <ProgressBar label={progressLabel} fraction={answeredCount / job.questions.length} />
-      <p className="text-sm text-muted">{t('required_hint')}</p>
+      {job.questions.some((q) => q.required) && (
+        <p className="text-sm text-muted">{t('required_hint')}</p>
+      )}
       <form
         noValidate
         onSubmit={(event) => {
