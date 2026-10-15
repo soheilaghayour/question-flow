@@ -11,8 +11,9 @@ export interface FileAnswerValue {
 
 export type AnswerValue = string | number | boolean | string[] | FileAnswerValue
 
-/** Form state at submit: question id → answer value. */
-export type Answers = Record<string, AnswerValue | undefined>
+/** Form state at submit: question id → answer value. A cleared input may
+ * legitimately hold null; both nullish values mean "no answer". */
+export type Answers = Record<string, AnswerValue | null | undefined>
 
 /** One item in the payload's `answers` array. */
 export type PayloadEntry =
@@ -41,13 +42,18 @@ function toPayloadEntry(question: Question, value: AnswerValue): PayloadEntry | 
         ? { id: question.id, value }
         : undefined
     case 'text':
-    case 'date':
-      // Whitespace-only is "no answer" (README: leave out unanswered optionals).
-      return typeof value === 'string' && value.trim() !== ''
+    case 'date': {
+      if (typeof value !== 'string') return undefined
+      // Whitespace-only is "no answer" (README: leave out unanswered optionals),
+      // and padding never reaches the wire — dates must be exactly YYYY-MM-DD.
+      const trimmed = value.trim()
+      return trimmed !== '' ? { id: question.id, value: trimmed } : undefined
+    }
+    case 'numeric':
+      // Integers only (README) — and NaN would serialize to "value": null.
+      return typeof value === 'number' && Number.isInteger(value)
         ? { id: question.id, value }
         : undefined
-    case 'numeric':
-      return typeof value === 'number' ? { id: question.id, value } : undefined
     case 'boolean':
       return typeof value === 'boolean' ? { id: question.id, value } : undefined
     case 'file':
@@ -69,7 +75,7 @@ export function buildPayload(
 ): ApplicationPayload {
   const payloadAnswers = job.questions.flatMap((question) => {
     const value = answers[question.id]
-    const entry = value === undefined ? undefined : toPayloadEntry(question, value)
+    const entry = value == null ? undefined : toPayloadEntry(question, value)
     return entry ? [entry] : []
   })
   return { job_id: job.id, answers: payloadAnswers, screening }
