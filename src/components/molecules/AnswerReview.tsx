@@ -10,7 +10,9 @@ export function AnswerReview({ items }: AnswerReviewProps) {
       {items.map((item) => (
         <div key={item.id} className="flex flex-col gap-0.5 border-b border-muted/30 pb-3">
           <dt className="text-sm text-muted">{item.question}</dt>
-          <dd className="font-medium">{item.answer}</dd>
+          {/* break-words: a long unbroken answer must wrap, never push the
+              page into horizontal overflow. */}
+          <dd className="font-medium break-words">{item.answer}</dd>
         </div>
       ))}
     </dl>

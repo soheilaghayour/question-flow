@@ -14,6 +14,7 @@ import { answerText } from '@/domain/answerText'
 import type { Profile } from '@/domain/schema'
 import { QuestionField } from '@/components/questions/QuestionField'
 import { Button } from '@/components/atoms/Button'
+import { ArrowLeftIcon, ArrowRightIcon } from '@/components/atoms/Icons'
 import { AnswerReview } from '@/components/molecules/AnswerReview'
 import { JobSummary } from '@/components/molecules/JobSummary'
 import { ProgressBar } from '@/components/molecules/ProgressBar'
@@ -43,11 +44,12 @@ export function ApplyFlow({ rawJob, profile, onBack, onSubmitted }: ApplyFlowPro
     [result, initialAnswers],
   )
   const [stepIndex, setStepIndex] = useState(0)
-  // Next-gate errors are per step and per attempt: answering or navigating
-  // clears them, so a step never opens pre-littered with error text.
+  // Latches on a failed Next and resets only on navigation: after one failed
+  // attempt the step validates live (a re-emptied field errors immediately),
+  // but a freshly entered step never opens pre-littered with error text.
   const [stepAttempted, setStepAttempted] = useState(false)
   const [payload, setPayload] = useState<ApplicationPayload | null>(null)
-  const { t } = useI18n()
+  const { t, language } = useI18n()
 
   // Config problems are the recruiter's bug to hear about (DECISIONS #10) —
   // once per config, not per render.
@@ -56,6 +58,22 @@ export function ApplyFlow({ rawJob, profile, onBack, onSubmitted }: ApplyFlowPro
       for (const warning of result.warnings)
         console.warn(`[${warning.questionId}] ${warning.reason}`)
   }, [result])
+
+  // Every step is one browser-history entry, so the browser button, the
+  // header icon and the wizard's own Back are the same control (DECISIONS
+  // #31): forward navigation pushes, every back flavor is history.back().
+  useEffect(() => {
+    history.replaceState({ screen: 'form', step: 0 }, '')
+    const onPopState = (event: PopStateEvent) => {
+      const state = event.state as { screen?: string; step?: number } | null
+      if (state?.screen === 'form') {
+        setStepAttempted(false)
+        setStepIndex(state.step ?? 0)
+      }
+    }
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
 
   if ('error' in result) {
     return (
@@ -86,30 +104,25 @@ export function ApplyFlow({ rawJob, profile, onBack, onSubmitted }: ApplyFlowPro
   const onSummary = stepIndex === steps.length
   const step = steps[stepIndex]
 
-  const missing = missingRequired(job.questions, state.answers)
+  // Per-step gates make reaching the summary with gaps impossible through the
+  // UI, so the full-form re-check runs only there — a safety net, not a gate.
+  const missing = onSummary ? missingRequired(job.questions, state.answers) : []
   // Hard gate (DECISIONS #5): Next never advances past an unanswered required
   // question on the current step — the errors appear on the fields in view.
   // Back and typing are never gated.
   const stepMissing = step ? missingRequired(step.questions, state.answers) : []
-
-  const goToStep = (index: number) => {
-    setStepAttempted(false)
-    setStepIndex(index)
-  }
 
   const handleNext = () => {
     if (stepMissing.length > 0) {
       setStepAttempted(true)
       return
     }
-    goToStep(stepIndex + 1)
+    history.pushState({ screen: 'form', step: stepIndex + 1 }, '')
+    setStepAttempted(false)
+    setStepIndex(stepIndex + 1)
   }
 
-  const handleSubmit = () => {
-    // Only the summary's Submit button sends the application. Implicit form
-    // submission (Enter in an input on a question step) lands here too and
-    // must be ignored — the candidate hasn't reviewed yet.
-    if (!onSummary) return
+  const submitApplication = () => {
     setState(submitAttempted)
     if (missing.length > 0) return
     const screening = evaluateScreening(job.questions, state.answers)
@@ -130,35 +143,49 @@ export function ApplyFlow({ rawJob, profile, onBack, onSubmitted }: ApplyFlowPro
       {step && step.questions.some((q) => q.required) && (
         <p className="text-sm text-muted">{t('required_hint')}</p>
       )}
+      {/* One submit path for click and Enter alike: on question steps it IS
+          the Next action (same gate), on the summary it sends — so the
+          button's type never has to swap under a click. */}
       <form
         noValidate
         onSubmit={(event) => {
           event.preventDefault()
-          handleSubmit()
+          if (onSummary) submitApplication()
+          else handleNext()
         }}
         className="flex flex-col gap-6"
       >
-        {step && (
-          <>
-            {step.prefilled && <h2 className="font-medium">{t('from_profile')}</h2>}
-            {step.questions.map((question) => (
+        {/* Inactive steps hide, they never unmount: a widget holding raw
+            not-yet-valid typing (DECISIONS #21) must survive Back/Next, not
+            be reset by a remount. */}
+        {steps.map((wizardStep, index) => (
+          <div key={index} hidden={index !== stepIndex} className="flex flex-col gap-6">
+            {wizardStep.prefilled && <h2 className="font-medium">{t('from_profile')}</h2>}
+            {wizardStep.questions.map((question) => (
               <QuestionField
                 key={question.id}
                 question={question}
                 value={state.answers[question.id] ?? null}
                 onChange={(value) => setState((s) => answerChanged(s, question.id, value))}
                 error={
-                  stepAttempted && stepMissing.includes(question.id)
+                  index === stepIndex && stepAttempted && stepMissing.includes(question.id)
                     ? t('error_required')
                     : undefined
                 }
               />
             ))}
-          </>
-        )}
+          </div>
+        ))}
         {onSummary && (
           <>
             <h2 className="font-medium">{t('review_title')}</h2>
+            {/* The safety net behind the per-step gates must never be a
+                silent no-op: a blocked Submit says so, audibly (role=alert). */}
+            {state.submitAttempted && missing.length > 0 && (
+              <p role="alert" className="text-sm text-error">
+                {t('error_review_missing')}
+              </p>
+            )}
             <AnswerReview
               items={job.questions.map((question) => ({
                 id: question.id,
@@ -167,6 +194,7 @@ export function ApplyFlow({ rawJob, profile, onBack, onSubmitted }: ApplyFlowPro
                   yes: t('yes'),
                   no: t('no'),
                   missing: t('no_answer'),
+                  locale: language,
                 }),
               }))}
             />
@@ -174,23 +202,22 @@ export function ApplyFlow({ rawJob, profile, onBack, onSubmitted }: ApplyFlowPro
         )}
         <div className="flex justify-between gap-4">
           {stepIndex > 0 ? (
-            <Button type="button" onClick={() => goToStep(stepIndex - 1)}>
-              {t('back')}
+            <Button
+              type="button"
+              aria-label={t('back')}
+              title={t('back')}
+              onClick={() => history.back()}
+            >
+              <ArrowLeftIcon />
             </Button>
           ) : (
             <span />
           )}
-          {/* Distinct keys force a fresh DOM node: if React reused the Next
-              button for Submit, the browser would apply the click's default
-              action to the NEW type and submit the form in the same click
-              that reached the summary. */}
           {onSummary ? (
-            <Button key="submit" type="submit">
-              {t('submit')}
-            </Button>
+            <Button type="submit">{t('submit')}</Button>
           ) : (
-            <Button key="next" type="button" onClick={handleNext}>
-              {t('next')}
+            <Button type="submit" aria-label={t('next')} title={t('next')}>
+              <ArrowRightIcon />
             </Button>
           )}
         </div>

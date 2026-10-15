@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { LanguageProvider } from '@/i18n/LanguageProvider'
 import { useI18n } from '@/i18n/useI18n'
 import { profile, rawJobConfigs } from '@/data'
@@ -30,7 +30,28 @@ function AppShell() {
   const [applying, setApplying] = useState<{ config: unknown } | null>(null)
   const [submitted, setSubmitted] = useState(false)
   const [appliedJobIds, setAppliedJobIds] = useState<readonly string[]>([])
+
+  // The shell owns the history boundary: opening the form pushes an entry,
+  // and any entry that is not a form step means "show the overview" — this is
+  // what makes the browser's back button leave the wizard instead of the site
+  // (DECISIONS #31). No router: no URL state, refresh restarts at the overview.
+  useEffect(() => {
+    history.replaceState({ screen: 'jobs' }, '')
+    const onPopState = (event: PopStateEvent) => {
+      const state = event.state as { screen?: string } | null
+      if (state?.screen !== 'form') {
+        setApplying(null)
+        setSubmitted(false)
+      }
+    }
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
+
+  // The result screen's own button: forward to a fresh overview entry, never
+  // back through the submitted form's steps.
   const goHome = () => {
+    history.pushState({ screen: 'jobs' }, '')
     setApplying(null)
     setSubmitted(false)
   }
@@ -41,8 +62,10 @@ function AppShell() {
         <div className="flex items-center gap-3">
           {/* Only while filling the form: the result screen navigates via its
               own centered button, and re-submitting is a closed door anyway. */}
+          {/* Same control as the wizard's Back and the browser button: one
+              history step back, exiting the form only from its first step. */}
           {applying !== null && !submitted && (
-            <Button aria-label={t('back_to_jobs')} title={t('back_to_jobs')} onClick={goHome}>
+            <Button aria-label={t('back')} title={t('back')} onClick={() => history.back()}>
               <ArrowLeftIcon />
             </Button>
           )}
@@ -55,7 +78,10 @@ function AppShell() {
           configs={rawJobConfigs}
           profile={profile}
           appliedJobIds={appliedJobIds}
-          onApply={(config) => setApplying({ config })}
+          onApply={(config) => {
+            history.pushState({ screen: 'form', step: 0 }, '')
+            setApplying({ config })
+          }}
         />
       ) : (
         <ApplyFlow
