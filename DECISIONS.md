@@ -193,6 +193,21 @@ Every judgment call, with its reason. Authority order: the contract (`docs/task-
     verbatim; translating them would invent data (and the payload carries the original
     option values regardless).
 
+29. **Job page becomes three columns; the shell owns navigation; submit-once per job.**
+    Product feedback: prefill looked like magic because the profile was invisible, and
+    the overview page was bare. Left column lists the jobs, center shows the selected
+    job (title, company, static description, Apply), right shows a `ProfileCard` — the
+    candidate sees WHERE prefilled answers come from before the form. The back control
+    moves into the header (left of the app title) and only renders while filling the
+    form; the result screen navigates via one centered "Back to the main page" button.
+    `AppShell` tracks `appliedJobIds` (session state only, not persisted — V2-01 drafts
+    would own storage): an applied job's Apply button is disabled with a note, since
+    re-submitting the same application would be a duplicate on the receiving end.
+    Completion motivation (task objective "the form should be finished"): an
+    answered/total `ProgressBar` above the form — prefill means it starts part-full,
+    which is itself the "most of this is already done" message — and a centered
+    check-circle celebration on the result screen.
+
 ## Open PM questions
 
 - `bad.json` demands "PDF only" in prose but the contract allows four types — should file

@@ -12,8 +12,8 @@ import {
 import type { Profile } from '@/domain/schema'
 import { QuestionField } from '@/components/questions/QuestionField'
 import { Button } from '@/components/atoms/Button'
-import { ArrowLeftIcon } from '@/components/atoms/Icons'
 import { JobSummary } from '@/components/molecules/JobSummary'
+import { ProgressBar } from '@/components/molecules/ProgressBar'
 import { SubmissionResult } from '@/components/molecules/SubmissionResult'
 import { useI18n } from '@/i18n/useI18n'
 
@@ -22,9 +22,11 @@ interface ApplyFlowProps {
   profile: Profile
   /** Navigates back to the job overview; without it no back control renders. */
   onBack?: () => void
+  /** Fires once on successful submit so the shell can mark the job applied. */
+  onSubmitted?: (jobId: string) => void
 }
 
-export function ApplyFlow({ rawJob, profile, onBack }: ApplyFlowProps) {
+export function ApplyFlow({ rawJob, profile, onBack, onSubmitted }: ApplyFlowProps) {
   const result = useMemo(() => normalizeJob(rawJob), [rawJob])
   const [state, setState] = useState(() =>
     createFormState('job' in result ? buildPrefillAnswers(result.job.questions, profile) : {}),
@@ -54,19 +56,13 @@ export function ApplyFlow({ rawJob, profile, onBack }: ApplyFlowProps) {
   // rule, threshold, or question (DECISIONS #24).
   if (payload) {
     return (
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col items-center gap-6 py-10">
         <SubmissionResult
           title={t('submitted_title')}
           body={t('submitted_body')}
           note={payload.screening.passed ? undefined : t('submitted_screening_note')}
         />
-        {onBack && (
-          <div>
-            <Button aria-label={t('back_to_jobs')} title={t('back_to_jobs')} onClick={onBack}>
-              <ArrowLeftIcon />
-            </Button>
-          </div>
-        )}
+        {onBack && <Button onClick={onBack}>{t('back_to_main')}</Button>}
       </div>
     )
   }
@@ -80,18 +76,18 @@ export function ApplyFlow({ rawJob, profile, onBack }: ApplyFlowProps) {
     const nextPayload = buildPayload(job, state.answers, screening)
     console.log(nextPayload)
     setPayload(nextPayload)
+    onSubmitted?.(job.id)
   }
 
+  const answeredCount = job.questions.filter((q) => state.answers[q.id] != null).length
+  const progressLabel = t('progress_label')
+    .replace('{answered}', String(answeredCount))
+    .replace('{total}', String(job.questions.length))
+
   return (
-    <div className="flex flex-col gap-6">
-      {onBack && (
-        <nav>
-          <Button aria-label={t('back_to_jobs')} title={t('back_to_jobs')} onClick={onBack}>
-            <ArrowLeftIcon />
-          </Button>
-        </nav>
-      )}
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
       <JobSummary title={job.title} company={job.company} />
+      <ProgressBar label={progressLabel} fraction={answeredCount / job.questions.length} />
       <p className="text-sm text-muted">{t('required_hint')}</p>
       <form
         noValidate

@@ -44,13 +44,22 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: 'Back to jobs' }))
     expect(screen.getByRole('button', { name: 'Apply' })).toBeInTheDocument()
 
-    // After submitting (short.json is fully prefilled): result screen → overview,
-    // ready to apply to another job.
+    // After submitting (short.json is fully prefilled): the header back button
+    // disappears, the centered result button leads back to the overview, and
+    // the applied job cannot be applied to again.
     await user.click(screen.getByRole('button', { name: 'Apply' }))
     await user.click(screen.getByRole('button', { name: 'Submit application' }))
     expect(screen.getByText('Application submitted')).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: 'Back to jobs' }))
-    expect(screen.getByRole('button', { name: 'Apply' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Back to jobs' })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Back to the main page' }))
+    expect(screen.getByRole('button', { name: 'Apply' })).toBeDisabled()
+    expect(screen.getByText('You have already applied to this job.')).toBeInTheDocument()
+  })
+
+  it('shows the profile that feeds prefill on the job page', () => {
+    render(<App />)
+    expect(screen.getByText('Your profile')).toBeInTheDocument()
+    expect(screen.getByText('Mateo Rossi')).toBeInTheDocument()
   })
 
   it('shows which job the form belongs to', async () => {
