@@ -86,7 +86,10 @@ Every judgment call, with its reason. Authority order: README contract > this fi
     questions that have no answer). Each payload arm accepts only its own value type — a
     boolean under a numeric question (or any other cross-type wiring bug) is dropped rather
     than shipped, because the payload is the last line before the backend and must never
-    invent or reinterpret data. Silent (no console warning), unlike normalize #10: config
+    invent or reinterpret data. Numeric answers must be integers (README: integers only;
+    NaN would serialize to `null`), a cleared input may hold `null` (= no answer), and
+    text/date answers are emitted trimmed — padding never reaches the wire, dates must be
+    exactly `YYYY-MM-DD`. Silent (no console warning), unlike normalize #10: config
     problems are the recruiter's bug to hear about; form-state problems are ours, caught
     by tests.
 
