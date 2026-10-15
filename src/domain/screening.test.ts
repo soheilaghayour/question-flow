@@ -42,6 +42,44 @@ describe('evaluateScreening — numeric boundaries', () => {
   })
 })
 
+describe('evaluateScreening — wrong-shape answers fail like missing ones', () => {
+  // NaN is typeof 'number' but compares false against every threshold — without
+  // an explicit guard it would silently PASS both numeric rules.
+  it('NaN fails a numeric rule', () => {
+    const result = evaluateScreening([numeric({ must_be_at_least: 3 })], { q: NaN })
+    expect(result).toEqual({ passed: false, failed: ['q'] })
+  })
+
+  it.each<[string, Record<string, unknown>]>([
+    ['a string against a numeric rule', { q: '85000' }],
+    ['an object against a numeric rule', { q: { amount: 85000 } }],
+  ])('%s fails', (_name, answers) => {
+    const result = evaluateScreening([numeric({ must_be_below: 90000 })], answers)
+    expect(result).toEqual({ passed: false, failed: ['q'] })
+  })
+
+  it('a non-boolean answer fails must_be_true', () => {
+    const result = evaluateScreening([boolean({ must_be_true: true })], { q: 'true' })
+    expect(result).toEqual({ passed: false, failed: ['q'] })
+  })
+})
+
+describe('evaluateScreening — combined rules on one question', () => {
+  // Guards the rule-combination path: inverting its || to && would still pass
+  // the single-rule suites above.
+  const question = numeric({ must_be_at_least: 3, must_be_below: 90000 })
+
+  it.each([
+    [2, false],
+    [3, true],
+    [89999, true],
+    [90000, false],
+  ])('must_be_at_least: 3 + must_be_below: 90000 — answer %d → passed %s', (answer, passed) => {
+    const result = evaluateScreening([question], { q: answer })
+    expect(result).toEqual({ passed, failed: passed ? [] : ['q'] })
+  })
+})
+
 describe('evaluateScreening — must_be_true', () => {
   it.each<[string, Record<string, unknown>, boolean]>([
     ['true passes', { q: true }, true],

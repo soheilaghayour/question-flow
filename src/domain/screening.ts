@@ -12,7 +12,9 @@ function failsRules(question: Question, answer: unknown): boolean {
     case 'numeric': {
       const { must_be_at_least, must_be_below } = question
       if (must_be_at_least === undefined && must_be_below === undefined) return false
-      if (typeof answer !== 'number') return true
+      // NaN is typeof 'number' but compares false against every threshold,
+      // so without this guard it would pass both rules.
+      if (typeof answer !== 'number' || Number.isNaN(answer)) return true
       return (
         (must_be_at_least !== undefined && answer < must_be_at_least) ||
         (must_be_below !== undefined && answer >= must_be_below)
