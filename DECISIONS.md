@@ -5,7 +5,7 @@ Every judgment call, with its reason. Authority order: the contract (`docs/task-
 
 ## What I built
 
-The application is an end-to-end candidate application flow that normalizes raw job configs, prefills matching candidate profile fields, and guides the candidate through a multi-step wizard. Prefilled answers lead as an editable confirmation step, followed by open questions chunked three per step in config order, and conclude with a read-only review step. Submitting logs the contract-compliant JSON payload (including screening results) to the browser console and renders a candidate-facing confirmation screen with generic messaging if requirements are unmet. The interface supports English and German with a manual toggle falling back to browser language. Core domain logic (normalization, validation, prefill, screening, and payload generation) is pure and verified by 242 tests across 25 test files, automated via GitHub Actions CI (typecheck, lint, test, build).
+The application is an end-to-end candidate application flow that normalizes raw job configs, prefills matching candidate profile fields, and guides the candidate through a multi-step wizard. Prefilled answers lead as an editable confirmation step, followed by open questions chunked three per step in config order, and conclude with a read-only review step. Submitting logs the contract-compliant JSON payload (including screening results) to the browser console and renders a candidate-facing confirmation screen with generic messaging if requirements are unmet. The interface supports English and German with a manual toggle falling back to browser language. Core domain logic (normalization, validation, prefill, screening, and payload generation) is pure and verified by 246 tests across 25 test files, automated via GitHub Actions CI (typecheck, lint, test, build).
 
 ## Decisions
 
@@ -162,7 +162,11 @@ D29. **Job page becomes three columns; the shell owns navigation; submit-once pe
      Clicking through, prefill looked like magic: the profile was invisible, and the overview
      page was bare. I gave the job page three columns: job list on the left, selected job details
      in the center, and a `ProfileCard` on the right so candidates see where prefilled values come from.
-     The shell tracks `appliedJobIds` in session state to disable re-applying to the same job.
+     Applied job ids are persisted in localStorage (#40) and read by the job page on render,
+     so re-applying stays disabled across refreshes and sessions — no shell state, no
+     callback from the apply flow carries them. Missing or malformed storage means "nothing
+     applied", never a crash (same degrade-silently stance as D3). No reset control: to
+     re-apply (e.g. to demo the flow again), clear the site's data (README).
      Back control moved to the header while filling the form, with a centered return button on the
      result screen. *(The initial answered/total ProgressBar here is superseded by D30's step progress.)*
 
@@ -292,7 +296,7 @@ D20. **CI with GitHub Actions on push to `main` and every PR: typecheck, lint, t
 - **Backend / real submission** — payload in console + candidate confirmation is the contract deliverable.
 - **`rating` question type** — unknown type per contract; dropped by normalize, by design.
 - **Case-conversion layer** — forbidden; contract keys stay snake_case end to end.
-- **Drafts in localStorage** — helps only people who leave and return; lowest impact per hour. Back currently drops answers (see D25).
+- **Drafts in localStorage** — helps only people who leave and return; lowest impact per hour. Back currently drops answers (see D25). localStorage holds only the UI language (D3) and applied job ids (D29) — never answers.
 - **Reorder by effort** — the prefill step already puts the easiest answers first; open questions keep the recruiter's config order.
 - **Intro screen** — the step line ("Step X of Y") already sets expectations.
 - **Numeric display formatting (#21)** — formatting while typing moves the cursor; would format on blur only.

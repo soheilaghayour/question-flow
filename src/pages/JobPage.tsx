@@ -5,16 +5,15 @@ import { Button } from '@/components/atoms/Button'
 import { JobSummary } from '@/components/molecules/JobSummary'
 import { ProfileCard } from '@/components/molecules/ProfileCard'
 import { useI18n } from '@/i18n/useI18n'
+import { readAppliedJobIds } from '@/utils/appliedJobs'
 
 interface JobPageProps {
   configs: readonly unknown[]
   profile: Profile
-  /** Jobs already applied to in this session — their Apply button is disabled. */
-  appliedJobIds: readonly string[]
   onApply: (config: unknown) => void
 }
 
-export function JobPage({ configs, profile, appliedJobIds, onApply }: JobPageProps) {
+export function JobPage({ configs, profile, onApply }: JobPageProps) {
   const [selectedIndex, setSelectedIndex] = useState(0)
   const { t } = useI18n()
   // Normalized here only for the shell (title/company); ApplyFlow re-normalizes
@@ -24,10 +23,12 @@ export function JobPage({ configs, profile, appliedJobIds, onApply }: JobPagePro
     [configs],
   )
   const selected = jobs[selectedIndex]
+  // Read on render, not held in state: the page remounts whenever the shell
+  // returns to it, so storage is the single source of "applied" (#40).
   const applied =
     selected !== undefined &&
     'job' in selected.result &&
-    appliedJobIds.includes(selected.result.job.id)
+    readAppliedJobIds().includes(selected.result.job.id)
 
   return (
     <div className="grid gap-6 md:grid-cols-[14rem_1fr_16rem]">

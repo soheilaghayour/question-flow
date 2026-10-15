@@ -74,6 +74,33 @@ describe('App', () => {
     expect(screen.queryByText('Fields marked with * are required')).not.toBeInTheDocument()
   })
 
+  it('remembers an applied job across a page refresh', async () => {
+    const user = userEvent.setup()
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+    const { unmount } = render(<App />)
+    // short.json: prefill step → optional step → summary.
+    await user.click(screen.getByRole('button', { name: 'Apply' }))
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    await user.click(screen.getByRole('button', { name: 'Submit application' }))
+    unmount()
+
+    // A fresh mount stands in for the refresh: no React state survives it.
+    render(<App />)
+    expect(screen.getByRole('button', { name: 'Apply' })).toBeDisabled()
+    expect(screen.getByText('You have already applied to this job.')).toBeInTheDocument()
+  })
+
+  // A bare string would pass a naive `.includes('job-short')` as a substring.
+  it.each(['{not json', '"job-short"', '{"job-short":true}'])(
+    'treats malformed stored applications (%s) as nothing applied',
+    (stored) => {
+      localStorage.setItem('applied-job-ids', stored)
+      render(<App />)
+      expect(screen.getByRole('button', { name: 'Apply' })).toBeEnabled()
+    },
+  )
+
   it('shows the profile that feeds prefill on the job page', () => {
     render(<App />)
     expect(screen.getByText('Your profile')).toBeInTheDocument()
