@@ -238,6 +238,12 @@ Every judgment call, with its reason. Authority order: the contract (`docs/task-
     Back/Next; the summary's safety net shows a visible role=alert instead of silently
     doing nothing; review answers wrap (`break-words`) and render dates in the UI
     locale; the step label is aria-live so step changes are announced.
+32. **Unselected toggle buttons are a full-opacity outline, never a faded fill.** UX
+    review: the job switcher's unselected options (`aria-pressed=false`, opacity-60)
+    were nearly indistinguishable from disabled (opacity-50), so enabled options read
+    as unclickable. Faded is reserved for the disabled affordance; "not chosen" is
+    outline (surface fill, primary text/border) at full opacity. A transparent base
+    border keeps every button the same size whether or not the outline shows.
 
 ## Open PM questions
 
