@@ -1,4 +1,4 @@
-import { CheckCircleIcon } from '@/components/atoms/Icons'
+import CheckCircleIcon from '@/components/atoms/icons/check-circle.svg?react'
 
 interface SubmissionResultProps {
   title: string

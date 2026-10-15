@@ -5,7 +5,8 @@ import { profile, rawJobConfigs } from '@/data'
 import { JobPage } from '@/pages/JobPage'
 import { ApplyFlow } from '@/pages/ApplyFlow'
 import { Button } from '@/components/atoms/Button'
-import { ArrowLeftIcon, GlobeIcon } from '@/components/atoms/Icons'
+import ArrowLeftIcon from '@/components/atoms/icons/arrow-left.svg?react'
+import GlobeIcon from '@/components/atoms/icons/globe.svg?react'
 import { entryOf, isLiveFormEntry, pushEntry, replaceEntry } from '@/utils/appHistory'
 
 function LanguageToggle() {
