@@ -12,4 +12,5 @@ export const de: Record<TranslationKey, string> = {
   error_number_range: 'Geben Sie eine ganze Zahl zwischen {min} und {max} ein',
   error_file_type: 'Nur PDF-, DOCX-, PNG- oder JPG-Dateien sind erlaubt',
   error_file_size: 'Die Datei ist größer als {max} MB',
+  error_file_read: 'Die Datei konnte nicht gelesen werden. Bitte versuchen Sie es erneut',
 }
