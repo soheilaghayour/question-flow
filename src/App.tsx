@@ -23,7 +23,11 @@ function Screens() {
   return applying === null ? (
     <JobPage configs={rawJobConfigs} onApply={(config) => setApplying({ config })} />
   ) : (
-    <ApplyFlow rawJob={applying.config} profile={profile} />
+    <ApplyFlow
+      rawJob={applying.config}
+      profile={profile}
+      onBack={() => setApplying(null)}
+    />
   )
 }
 

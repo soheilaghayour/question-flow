@@ -33,6 +33,35 @@ describe('App', () => {
     ).not.toBeInTheDocument()
   })
 
+  it('navigates back to the job overview from the form and after submitting', async () => {
+    const user = userEvent.setup()
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+    render(<App />)
+
+    // From the form without submitting: nothing is lost but the way back exists.
+    await user.click(screen.getByRole('button', { name: 'Apply' }))
+    expect(screen.getByText('Fields marked with * are required')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Back to jobs' }))
+    expect(screen.getByRole('button', { name: 'Apply' })).toBeInTheDocument()
+
+    // After submitting (short.json is fully prefilled): result screen → overview,
+    // ready to apply to another job.
+    await user.click(screen.getByRole('button', { name: 'Apply' }))
+    await user.click(screen.getByRole('button', { name: 'Submit application' }))
+    expect(screen.getByText('Application submitted')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Back to jobs' }))
+    expect(screen.getByRole('button', { name: 'Apply' })).toBeInTheDocument()
+  })
+
+  it('shows which job the form belongs to', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(screen.getByRole('button', { name: 'Apply' }))
+    // Title and company from the job overview carry over to the form.
+    expect(screen.getByRole('heading', { name: 'Frontend Developer (React)' })).toBeInTheDocument()
+    expect(screen.getByText('Kranich Health GmbH')).toBeInTheDocument()
+  })
+
   it('toggles the UI language and persists chrome text in German', async () => {
     const user = userEvent.setup()
     render(<App />)

@@ -71,10 +71,16 @@ export function FileQuestion({ question, value, onChange, error }: FileQuestionP
       : t(issueKey(issue)).replace('{max}', String(MAX_FILE_SIZE_BYTES / (1024 * 1024)))
 
   return (
-    <Field id={question.id} label={question.question} error={issueMessage ?? error}>
+    <Field
+      id={question.id}
+      label={question.question}
+      required={question.required}
+      error={issueMessage ?? error}
+    >
       {(inputProps) => (
         <FileDrop
           inputProps={inputProps}
+          chooseLabel={t('choose_file')}
           fileName={value?.file_name}
           onSelect={(selection) => void handleSelect(selection)}
         />
