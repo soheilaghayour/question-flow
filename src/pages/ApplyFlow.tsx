@@ -27,7 +27,7 @@ import {
   pushEntry,
   startFormSession,
 } from '@/utils/appHistory'
-import { recordAppliedJob } from '@/utils/appliedJobs'
+import { addAppliedJobIdToStorage } from '@/utils/appliedJobs'
 
 interface ApplyFlowProps {
   rawJob: unknown
@@ -157,7 +157,7 @@ export function ApplyFlow({ rawJob, profile, onBack, onSubmitted }: ApplyFlowPro
     const nextPayload = buildPayload(job, state.answers, screening)
     console.log(nextPayload)
     setPayload(nextPayload)
-    recordAppliedJob(job.id)
+    addAppliedJobIdToStorage(job.id)
     onSubmitted?.()
   }
 

@@ -5,7 +5,7 @@ import { Button } from '@/components/atoms/Button'
 import { JobSummary } from '@/components/molecules/JobSummary'
 import { ProfileCard } from '@/components/molecules/ProfileCard'
 import { useI18n } from '@/i18n/useI18n'
-import { readAppliedJobIds } from '@/utils/appliedJobs'
+import { getAppliedJobIdsFromStorage } from '@/utils/appliedJobs'
 
 interface JobPageProps {
   configs: readonly unknown[]
@@ -26,7 +26,7 @@ export function JobPage({ configs, profile, onApply }: JobPageProps) {
   const applied =
     selected !== undefined &&
     'job' in selected.result &&
-    readAppliedJobIds().includes(selected.result.job.id)
+    getAppliedJobIdsFromStorage().includes(selected.result.job.id)
 
   return (
     <div className="grid gap-6 md:grid-cols-[14rem_1fr_16rem]">

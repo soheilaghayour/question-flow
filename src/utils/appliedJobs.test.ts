@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
-import { readAppliedJobIds, recordAppliedJob } from './appliedJobs'
+import { getAppliedJobIdsFromStorage, addAppliedJobIdToStorage } from './appliedJobs'
 
-describe('readAppliedJobIds', () => {
+describe('getAppliedJobIdsFromStorage', () => {
   it('returns nothing when no ids were stored', () => {
-    expect(readAppliedJobIds()).toEqual([])
+    expect(getAppliedJobIdsFromStorage()).toEqual([])
   })
 
   it.each([
@@ -12,22 +12,22 @@ describe('readAppliedJobIds', () => {
     ['null', 'null'],
   ])('reads %s as nothing applied', (_label, stored) => {
     localStorage.setItem('applied-job-ids', stored)
-    expect(readAppliedJobIds()).toEqual([])
+    expect(getAppliedJobIdsFromStorage()).toEqual([])
   })
 })
 
-describe('recordAppliedJob', () => {
+describe('addAppliedJobIdToStorage', () => {
   it('stores each id once', () => {
-    recordAppliedJob('job-short')
-    recordAppliedJob('job-long')
-    recordAppliedJob('job-short')
-    expect(readAppliedJobIds()).toEqual(['job-short', 'job-long'])
+    addAppliedJobIdToStorage('job-short')
+    addAppliedJobIdToStorage('job-long')
+    addAppliedJobIdToStorage('job-short')
+    expect(getAppliedJobIdsFromStorage()).toEqual(['job-short', 'job-long'])
   })
 
   it('does not throw when storage is blocked', () => {
     vi.spyOn(Storage.prototype, 'setItem').mockImplementationOnce(() => {
       throw new DOMException('denied', 'SecurityError')
     })
-    expect(() => recordAppliedJob('job-short')).not.toThrow()
+    expect(() => addAppliedJobIdToStorage('job-short')).not.toThrow()
   })
 })
