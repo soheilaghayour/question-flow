@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { App } from './App'
 
@@ -38,22 +38,40 @@ describe('App', () => {
     vi.spyOn(console, 'log').mockImplementation(() => {})
     render(<App />)
 
-    // From the form without submitting: nothing is lost but the way back exists.
+    // The header back walks the same history as the wizard's own Back and the
+    // browser button: one step at a time, exiting only from the first step.
+    const headerBack = () =>
+      user.click(within(screen.getByRole('banner')).getByRole('button', { name: 'Back' }))
     await user.click(screen.getByRole('button', { name: 'Apply' }))
     expect(screen.getByText('Fields marked with * are required')).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: 'Back to jobs' }))
-    expect(screen.getByRole('button', { name: 'Apply' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    expect(screen.getByRole('progressbar', { name: 'Step 2 of 3' })).toBeInTheDocument()
+    await headerBack()
+    expect(await screen.findByRole('progressbar', { name: 'Step 1 of 3' })).toBeInTheDocument()
+    await headerBack()
+    expect(await screen.findByRole('button', { name: 'Apply' })).toBeInTheDocument()
 
-    // After submitting (short.json is fully prefilled): the header back button
-    // disappears, the centered result button leads back to the overview, and
-    // the applied job cannot be applied to again.
+    // After submitting (short.json: prefill step → optional step → summary):
+    // the header back button disappears, the centered result button leads back
+    // to the overview, and the applied job cannot be applied to again.
     await user.click(screen.getByRole('button', { name: 'Apply' }))
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    await user.click(screen.getByRole('button', { name: 'Next' }))
     await user.click(screen.getByRole('button', { name: 'Submit application' }))
     expect(screen.getByText('Application submitted')).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Back to jobs' })).not.toBeInTheDocument()
+    expect(
+      within(screen.getByRole('banner')).queryByRole('button', { name: 'Back' }),
+    ).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Back to the main page' }))
     expect(screen.getByRole('button', { name: 'Apply' })).toBeDisabled()
     expect(screen.getByText('You have already applied to this job.')).toBeInTheDocument()
+
+    // The submitted application's step entries are stale history: browser
+    // Back on the overview walks them without a single dead press — the
+    // overview stays, the form never resurrects.
+    history.back()
+    expect(await screen.findByRole('button', { name: 'Apply' })).toBeInTheDocument()
+    expect(screen.queryByText('Fields marked with * are required')).not.toBeInTheDocument()
   })
 
   it('shows the profile that feeds prefill on the job page', () => {
