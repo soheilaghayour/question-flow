@@ -7,6 +7,9 @@ import { profile } from '@/data'
 import shortJson from '@jobs/short.json'
 import longJson from '@jobs/long.json'
 import badJson from '@jobs/bad.json'
+import expectedShortPayload from '@/pages/apply-flow-fixtures/payload-short.json'
+import expectedLongPayload from '@/pages/apply-flow-fixtures/payload-long.json'
+import expectedBadPayload from '@/pages/apply-flow-fixtures/payload-bad.json'
 import { ApplyFlow } from './ApplyFlow'
 
 const wrapper = ({ children }: { children: ReactNode }) => (
@@ -51,22 +54,10 @@ describe('ApplyFlow with long.json', () => {
 
     await user.click(screen.getByRole('button', { name: 'Submit application' }))
 
-    expect(submittedPayload()).toEqual({
-      job_id: 'job-long',
-      answers: [
-        { id: 'notice_period', value: '3_months' },
-        { id: 'german_level', value: 'B1' },
-        { id: 'salary_expectation', value: 95000 },
-        { id: 'eu_work_permit', value: true },
-        { id: 'starting_date', value: '2027-01-01' },
-        { id: 'years_of_experience', value: 6 },
-        { id: 'focus_areas', values: ['frontend', 'performance'] },
-        { id: 'willing_to_relocate', value: false },
-      ],
-      // 95000 >= must_be_below 90000 fails; submission still goes through
-      // (DECISIONS #8: screening never blocks anything).
-      screening: { passed: false, failed: ['salary_expectation'] },
-    })
+    // The fixture carries the contract expectations: value false for the No
+    // answer (bite #4) and failed screening on the untouched 95000 prefill
+    // (DECISIONS #8: screening never blocks submission).
+    expect(submittedPayload()).toEqual(expectedLongPayload)
   })
 })
 
@@ -130,31 +121,11 @@ describe('ApplyFlow with bad.json', () => {
 
     await user.click(screen.getByRole('button', { name: 'Submit application' }))
 
-    expect(submittedPayload()).toEqual({
-      job_id: 'job-bad',
-      answers: [
-        { id: 'notice_period', value: '3_months' },
-        { id: 'salutation', value: 'mr' },
-        { id: 'country', value: 'Deutschland' },
-        { id: 'salary_expectation', value: 95000 },
-        { id: 'onsite', value: true },
-        { id: 'driving_license', value: true },
-        {
-          id: 'cover_letter',
-          // btoa('%PDF') — worked example; the data-URL prefix is stripped (bite #2).
-          value: { content_type: 'application/pdf', data: 'JVBERg==', file_name: 'anschreiben.pdf' },
-        },
-        { id: 'safe', value: 'Ja, 2 Jahre' },
-        { id: 'strengths_weaknesses', value: 'Stärken: Testen.' },
-        { id: 'react_years', value: 7 },
-        // One pick in a max_choices 10 select still travels as values (bite #1).
-        { id: 'tech_stack', values: ['react'] },
-        { id: 'availability', value: false },
-      ],
-      // 95000 >= must_be_below 65000; the stripped must_be_true on the text
-      // question must NOT screen. onsite/driving_license answered true pass.
-      screening: { passed: false, failed: ['salary_expectation'] },
-    })
+    // The fixture pins the contract: base64 without the data-URL prefix
+    // (bite #2, data is btoa('%PDF') — a worked example), one tech_stack pick
+    // still travelling as values (bite #1), and screening failing only on
+    // salary — the stripped must_be_true on the text question must NOT screen.
+    expect(submittedPayload()).toEqual(expectedBadPayload)
   })
 })
 
@@ -225,13 +196,25 @@ describe('ApplyFlow with short.json', () => {
     vi.spyOn(console, 'log').mockImplementation(() => {})
     render(<ApplyFlow rawJob={shortJson} profile={profile} />, { wrapper })
     await user.click(screen.getByRole('button', { name: 'Submit application' }))
-    expect(submittedPayload()).toEqual({
-      job_id: 'job-short',
-      answers: [
-        { id: 'notice_period', value: '3_months' },
-        { id: 'salary_expectation', value: 95000 },
-      ],
-      screening: { passed: true, failed: [] },
-    })
+    expect(submittedPayload()).toEqual(expectedShortPayload)
+  })
+
+  // The "invalid" half of the submit gate: unparseable input in a REQUIRED
+  // field is held as null by the widget (DECISIONS #21/#22), so it blocks
+  // exactly like an empty one — with the widget's own error visible.
+  it('blocks submission while a required field holds invalid input', async () => {
+    const user = userEvent.setup()
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    render(<ApplyFlow rawJob={shortJson} profile={profile} />, { wrapper })
+
+    const salary = screen.getByLabelText('What is your yearly salary expectation in EUR?')
+    await user.clear(salary)
+    await user.type(salary, 'abc')
+    await user.click(screen.getByRole('button', { name: 'Submit application' }))
+
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    expect(log).not.toHaveBeenCalled()
+    expect(salary).toHaveAttribute('aria-invalid', 'true')
+    expect(screen.getByRole('alert')).toHaveTextContent('Enter a whole number')
   })
 })

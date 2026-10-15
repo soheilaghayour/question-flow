@@ -1,0 +1,14 @@
+{
+  "job_id": "job-long",
+  "answers": [
+    { "id": "notice_period", "value": "3_months" },
+    { "id": "german_level", "value": "B1" },
+    { "id": "salary_expectation", "value": 95000 },
+    { "id": "eu_work_permit", "value": true },
+    { "id": "starting_date", "value": "2027-01-01" },
+    { "id": "years_of_experience", "value": 6 },
+    { "id": "focus_areas", "values": ["frontend", "performance"] },
+    { "id": "willing_to_relocate", "value": false }
+  ],
+  "screening": { "passed": false, "failed": ["salary_expectation"] }
+}
