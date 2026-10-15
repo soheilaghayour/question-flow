@@ -13,6 +13,11 @@ export const en = {
   error_file_size: 'The file is larger than {max} MB',
   error_file_read: 'The file could not be read. Please try again',
   error_job_invalid: 'This job posting cannot be displayed.',
+  submitted_title: 'Application submitted',
+  submitted_body:
+    'Thank you for applying. The company will review your application and get back to you.',
+  submitted_screening_note:
+    'Please note: your profile may not match some of the requirements for this position.',
 }
 
 export type TranslationKey = keyof typeof en

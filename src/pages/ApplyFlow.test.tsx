@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi, type MockInstance } from 'vitest'
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ReactNode } from 'react'
@@ -20,8 +20,10 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-function submittedPayload(): unknown {
-  return JSON.parse(screen.getByRole('status').textContent ?? 'null')
+// The payload left the screen with #16 — console.log is the dev channel now,
+// so the contract fixtures are checked against the last logged payload.
+function submittedPayload(log: MockInstance): unknown {
+  return log.mock.calls.at(-1)?.[0]
 }
 
 function answerBoolean(groupName: string, option: 'Yes' | 'No') {
@@ -33,7 +35,7 @@ function answerBoolean(groupName: string, option: 'Yes' | 'No') {
 describe('ApplyFlow with long.json', () => {
   it('runs every question type and reports failed screening in the payload', async () => {
     const user = userEvent.setup()
-    vi.spyOn(console, 'log').mockImplementation(() => {})
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
     render(<ApplyFlow rawJob={longJson} profile={profile} />, { wrapper })
 
     // Prefilled: notice_period 3_months, german_level B1 (profile de level),
@@ -57,7 +59,7 @@ describe('ApplyFlow with long.json', () => {
     // The fixture carries the contract expectations: value false for the No
     // answer (bite #4) and failed screening on the untouched 95000 prefill
     // (DECISIONS #8: screening never blocks submission).
-    expect(submittedPayload()).toEqual(expectedLongPayload)
+    expect(submittedPayload(log)).toEqual(expectedLongPayload)
   })
 })
 
@@ -87,7 +89,7 @@ describe('ApplyFlow with bad.json', () => {
   it('submits the full flow including the uploaded file as plain base64', async () => {
     const user = userEvent.setup()
     vi.spyOn(console, 'warn').mockImplementation(() => {})
-    vi.spyOn(console, 'log').mockImplementation(() => {})
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
     render(<ApplyFlow rawJob={badJson} profile={profile} />, { wrapper })
 
     await user.click(screen.getByRole('radio', { name: 'Herr' }))
@@ -125,7 +127,57 @@ describe('ApplyFlow with bad.json', () => {
     // (bite #2, data is btoa('%PDF') — a worked example), one tech_stack pick
     // still travelling as values (bite #1), and screening failing only on
     // salary — the stripped must_be_true on the text question must NOT screen.
-    expect(submittedPayload()).toEqual(expectedBadPayload)
+    expect(submittedPayload(log)).toEqual(expectedBadPayload)
+  })
+})
+
+describe('ApplyFlow result screen on failed screening (#16)', () => {
+  // New test data, not a frozen fixture: one prefilled numeric whose untouched
+  // profile value (95000) fails must_be_below 90000 at submit (DECISIONS #7/#8).
+  const failingJob = {
+    id: 'job-screening-fail',
+    title: 'Backend Engineer',
+    company: 'Testing GmbH',
+    language: 'en',
+    questions: [
+      {
+        type: 'numeric',
+        id: 'salary_expectation',
+        question: 'What is your yearly salary expectation in EUR?',
+        required: true,
+        profile_field: 'salary_expectation',
+        must_be_below: 90000,
+      },
+    ],
+  }
+
+  it('tells the candidate only a generic note — never the rule, threshold, or question', async () => {
+    const user = userEvent.setup()
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    render(<ApplyFlow rawJob={failingJob} profile={profile} />, { wrapper })
+
+    await user.click(screen.getByRole('button', { name: 'Submit application' }))
+
+    // Submission is never blocked by screening; the payload records the failure.
+    expect(submittedPayload(log)).toEqual({
+      job_id: 'job-screening-fail',
+      answers: [{ id: 'salary_expectation', value: 95000 }],
+      screening: { passed: false, failed: ['salary_expectation'] },
+    })
+
+    // Candidate sees the confirmation plus one generic sentence.
+    const status = screen.getByRole('status')
+    expect(status).toHaveTextContent('Application submitted')
+    expect(status).toHaveTextContent('may not match')
+
+    // No screening detail is reachable anywhere in the UI (acceptance criterion):
+    // not the threshold, not the rule name, not which question failed.
+    const page = document.body.textContent ?? ''
+    expect(page).not.toContain('90000')
+    expect(page).not.toContain('95000')
+    expect(page).not.toContain('must_be_below')
+    expect(page).not.toContain('salary')
+    expect(page).not.toContain('failed')
   })
 })
 
@@ -158,7 +210,7 @@ describe('ApplyFlow with short.json', () => {
       ],
       screening: { passed: true, failed: [] },
     }
-    expect(submittedPayload()).toEqual(expected)
+    expect(submittedPayload(log)).toEqual(expected)
     expect(log).toHaveBeenCalledWith(expected)
   })
 
@@ -193,10 +245,26 @@ describe('ApplyFlow with short.json', () => {
 
   it('submits the untouched prefill as-is', async () => {
     const user = userEvent.setup()
-    vi.spyOn(console, 'log').mockImplementation(() => {})
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
     render(<ApplyFlow rawJob={shortJson} profile={profile} />, { wrapper })
     await user.click(screen.getByRole('button', { name: 'Submit application' }))
-    expect(submittedPayload()).toEqual(expectedShortPayload)
+    expect(submittedPayload(log)).toEqual(expectedShortPayload)
+  })
+
+  // #16: the result screen is for candidates — the payload is dev-only (console).
+  it('shows a human confirmation instead of the raw payload after submitting', async () => {
+    const user = userEvent.setup()
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    render(<ApplyFlow rawJob={shortJson} profile={profile} />, { wrapper })
+
+    await user.click(screen.getByRole('button', { name: 'Submit application' }))
+
+    const status = screen.getByRole('status')
+    expect(status).toHaveTextContent('Application submitted')
+    expect(status.textContent).not.toContain('job_id')
+    // Passing screening shows no note at all — only failing adds one.
+    expect(status.textContent).not.toContain('may not match')
+    expect(submittedPayload(log)).toEqual(expectedShortPayload)
   })
 
   // The "invalid" half of the submit gate: unparseable input in a REQUIRED
