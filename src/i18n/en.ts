@@ -11,6 +11,7 @@ export const en = {
   error_file_type: 'Only PDF, DOCX, PNG or JPG files are accepted',
   error_file_size: 'The file is larger than {max} MB',
   error_file_read: 'The file could not be read. Please try again',
+  error_job_invalid: 'This job posting cannot be displayed.',
 }
 
 export type TranslationKey = keyof typeof en
