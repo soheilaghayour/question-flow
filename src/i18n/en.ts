@@ -19,8 +19,20 @@ export const en = {
   submitted_screening_note:
     'Please note: your profile may not match some of the requirements for this position.',
   back_to_jobs: 'Back to jobs',
+  back_to_main: 'Back to the main page',
   choose_file: 'Choose file',
   required_hint: 'Fields marked with * are required',
+  jobs_heading: 'Open positions',
+  profile_heading: 'Your profile',
+  profile_location: 'Location',
+  profile_salary: 'Salary expectation',
+  profile_notice: 'Notice period',
+  profile_experience: 'Years of experience',
+  profile_languages: 'Languages',
+  job_description:
+    'We are looking for someone great to join the team. Applying only takes a few minutes — many answers are already prefilled from your profile, so you mostly just confirm them.',
+  applied_note: 'You have already applied to this job.',
+  progress_label: '{answered} of {total} questions answered',
 }
 
 export type TranslationKey = keyof typeof en

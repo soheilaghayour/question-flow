@@ -5,7 +5,7 @@ import { profile, rawJobConfigs } from '@/data'
 import { JobPage } from '@/pages/JobPage'
 import { ApplyFlow } from '@/pages/ApplyFlow'
 import { Button } from '@/components/atoms/Button'
-import { GlobeIcon } from '@/components/atoms/Icons'
+import { ArrowLeftIcon, GlobeIcon } from '@/components/atoms/Icons'
 
 function LanguageToggle() {
   const { language, toggleLanguage } = useI18n()
@@ -21,32 +21,61 @@ function LanguageToggle() {
   )
 }
 
-// Two screens via plain state — no router in V1 (DECISIONS #4). The wrapper
-// object is the screen sentinel: `null` means "job page", independent of what
-// the raw config itself is (unknown | null would collapse to unknown).
-function Screens() {
+// One shell owns navigation: which screen shows, the header back button, and
+// which jobs were applied to (session-only — not persisted until drafts, V2-01).
+// The wrapper object is the screen sentinel: `null` means "job page",
+// independent of what the raw config itself is (DECISIONS #4: no router).
+function AppShell() {
+  const { t } = useI18n()
   const [applying, setApplying] = useState<{ config: unknown } | null>(null)
-  return applying === null ? (
-    <JobPage configs={rawJobConfigs} onApply={(config) => setApplying({ config })} />
-  ) : (
-    <ApplyFlow
-      rawJob={applying.config}
-      profile={profile}
-      onBack={() => setApplying(null)}
-    />
+  const [submitted, setSubmitted] = useState(false)
+  const [appliedJobIds, setAppliedJobIds] = useState<readonly string[]>([])
+  const goHome = () => {
+    setApplying(null)
+    setSubmitted(false)
+  }
+
+  return (
+    <main className="mx-auto flex max-w-5xl flex-col gap-6 p-6">
+      <header className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          {/* Only while filling the form: the result screen navigates via its
+              own centered button, and re-submitting is a closed door anyway. */}
+          {applying !== null && !submitted && (
+            <Button aria-label={t('back_to_jobs')} title={t('back_to_jobs')} onClick={goHome}>
+              <ArrowLeftIcon />
+            </Button>
+          )}
+          <h1 className="text-2xl font-semibold text-primary">Instaffo Question Flow</h1>
+        </div>
+        <LanguageToggle />
+      </header>
+      {applying === null ? (
+        <JobPage
+          configs={rawJobConfigs}
+          profile={profile}
+          appliedJobIds={appliedJobIds}
+          onApply={(config) => setApplying({ config })}
+        />
+      ) : (
+        <ApplyFlow
+          rawJob={applying.config}
+          profile={profile}
+          onBack={goHome}
+          onSubmitted={(jobId) => {
+            setSubmitted(true)
+            setAppliedJobIds((ids) => (ids.includes(jobId) ? ids : [...ids, jobId]))
+          }}
+        />
+      )}
+    </main>
   )
 }
 
 export function App() {
   return (
     <LanguageProvider>
-      <main className="mx-auto flex max-w-2xl flex-col gap-6 p-6">
-        <header className="flex items-start justify-between gap-4">
-          <h1 className="text-2xl font-semibold text-primary">Instaffo Question Flow</h1>
-          <LanguageToggle />
-        </header>
-        <Screens />
-      </main>
+      <AppShell />
     </LanguageProvider>
   )
 }
