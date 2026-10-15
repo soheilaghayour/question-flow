@@ -3,7 +3,12 @@ import longJob from '@jobs/long.json'
 import profileJson from '@profile'
 import { normalizeJob } from './normalize'
 import { buildPrefillAnswers } from './prefill'
-import { profileSchema, type Question } from './schema'
+import {
+  profileSchema,
+  type NumericQuestion,
+  type Question,
+  type SelectQuestion,
+} from './schema'
 
 const profile = profileSchema.parse(profileJson)
 
@@ -12,6 +17,28 @@ function longJobQuestions(): Question[] {
   if ('error' in result) throw new Error(result.error)
   return result.job.questions
 }
+
+const select = (overrides: Partial<SelectQuestion> = {}): SelectQuestion => ({
+  type: 'select',
+  id: 'q',
+  question: 'Q?',
+  required: false,
+  max_choices: 1,
+  options: [{ label: 'B1', value: 'B1' }],
+  profile_field: 'german_level',
+  ...overrides,
+})
+
+const numeric = (overrides: Partial<NumericQuestion> = {}): NumericQuestion => ({
+  type: 'numeric',
+  id: 'q',
+  question: 'Q?',
+  required: false,
+  min: 0,
+  max: 100000000,
+  profile_field: 'salary_expectation',
+  ...overrides,
+})
 
 describe('buildPrefillAnswers — real fixtures (long.json + profile.json)', () => {
   it('prefills salary 95000 despite must_be_below 90000 — screening never gates prefill', () => {
@@ -24,29 +51,25 @@ describe('buildPrefillAnswers — real fixtures (long.json + profile.json)', () 
     expect(answers.german_level).toBe('B1')
     expect(answers.notice_period).toBe('3_months')
   })
+
+  it('prefills years_of_experience within the question range', () => {
+    const answers = buildPrefillAnswers(longJobQuestions(), profile)
+    expect(answers.years_of_experience).toBe(6)
+  })
+
+  // Catches a de/en swap in the languages lookup: the profile has de=B1,
+  // en=C1, and both are valid options here, so only 'C1' is the right answer.
+  it('looks up english_level by the en language entry', () => {
+    const question = select({
+      profile_field: 'english_level',
+      options: [
+        { label: 'B1', value: 'B1' },
+        { label: 'C1', value: 'C1' },
+      ],
+    })
+    expect(buildPrefillAnswers([question], profile)).toEqual({ q: 'C1' })
+  })
 })
-
-const select = (overrides: Partial<Question> = {}): Question => ({
-  type: 'select',
-  id: 'q',
-  question: 'Q?',
-  required: false,
-  max_choices: 1,
-  options: [{ label: 'B1', value: 'B1' }],
-  profile_field: 'german_level',
-  ...overrides,
-}) as Question
-
-const numeric = (overrides: Partial<Question> = {}): Question => ({
-  type: 'numeric',
-  id: 'q',
-  question: 'Q?',
-  required: false,
-  min: 0,
-  max: 100000000,
-  profile_field: 'salary_expectation',
-  ...overrides,
-}) as Question
 
 describe('buildPrefillAnswers — input validation gates prefill', () => {
   it.each<[string, Question]>([
