@@ -80,6 +80,15 @@ Every judgment call, with its reason. Authority order: README contract > this fi
     warnings lose their only source of rule → type knowledge.
 18. **Issues on GitHub** (`soheilaghayour/instaffo-question-flow`, private): 10 V1 issues
     (`v1`, `ready-for-agent`) then 7 V2 issues (`v2`, `needs-triage`), ordered by title prefix.
+19. **Payload omission policy: a value with no substance is "no answer", and a wrong-shape
+    value is omitted, never coerced.** Whitespace-only text/date, `''` from an unselected
+    single-select and a zero-pick multi-select are all left out (README: leave out optional
+    questions that have no answer). Each payload arm accepts only its own value type — a
+    boolean under a numeric question (or any other cross-type wiring bug) is dropped rather
+    than shipped, because the payload is the last line before the backend and must never
+    invent or reinterpret data. Silent (no console warning), unlike normalize #10: config
+    problems are the recruiter's bug to hear about; form-state problems are ours, caught
+    by tests.
 
 ## Open PM questions
 
