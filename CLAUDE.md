@@ -86,6 +86,7 @@ not even to make a test pass. New test data goes into new files (e.g. `jobs/edge
 - For tasks with 3+ steps, keep a visible todo list.
 - Every diff is read by a human: explain why a change is needed, not only what changed.
 - Small commits, one issue each, with clear messages.
+- Every PR must pass CI. Run `npm run typecheck && npm run lint && npm test` before committing.
 
 ## Agent skills
 
