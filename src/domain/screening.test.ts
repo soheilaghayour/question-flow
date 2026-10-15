@@ -1,25 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { normalizeJob } from './normalize'
 import { evaluateScreening } from './screening'
-import type { BooleanQuestion, NumericQuestion } from './schema'
-
-const boolean = (overrides: Partial<BooleanQuestion> = {}): BooleanQuestion => ({
-  type: 'boolean',
-  id: 'q',
-  question: 'Q?',
-  required: false,
-  ...overrides,
-})
-
-const numeric = (overrides: Partial<NumericQuestion> = {}): NumericQuestion => ({
-  type: 'numeric',
-  id: 'q',
-  question: 'Q?',
-  required: false,
-  min: 0,
-  max: 100000000,
-  ...overrides,
-})
+import { boolean, numeric } from './testBuilders'
 
 describe('evaluateScreening — numeric boundaries', () => {
   // README: must_be_at_least passes on >= (bite #5: at_least is inclusive).
