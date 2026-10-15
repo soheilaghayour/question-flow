@@ -337,6 +337,20 @@ describe('ApplyFlow with short.json', () => {
     ).not.toBeInTheDocument()
   })
 
+  it('ignores a form submission before the summary step', () => {
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    render(<ApplyFlow rawJob={shortJson} profile={profile} />, { wrapper })
+
+    // Enter in an input (implicit submission) or any other submit on a
+    // question step must not send the application — only the summary's
+    // Submit button may.
+    fireEvent.submit(screen.getByRole('button', { name: 'Next' }).closest('form')!)
+
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    expect(log).not.toHaveBeenCalled()
+    expect(screen.getByRole('progressbar', { name: 'Step 1 of 3' })).toBeInTheDocument()
+  })
+
   it('submits the untouched prefill as-is', async () => {
     const user = userEvent.setup()
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
