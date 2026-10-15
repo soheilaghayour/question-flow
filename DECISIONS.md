@@ -25,6 +25,9 @@ Every judgment call, with its reason. Authority order: README contract > this fi
    accepted only as well-formed thousands grouping (groups of three): `85.000`, `85,000`,
    `85 000` → 85000; `85.5`, `85.00`, `8 5000` → error. Locale-dependent parsing could
    silently read `85.000` as 85 EUR — the worst failure mode (wrong data, no error).
+   Two refinements for the same reason: a grouped value may not start with 0 (`0.123`
+   reads as a float → error; plain `007` stays unambiguous → 7), and values beyond
+   `Number.MAX_SAFE_INTEGER` error instead of silently rounding to a different integer.
 7. **Prefill validity = input validation only** (type, option membership, min/max).
    Screening rules never gate prefill: profile's 95000 is prefilled against
    `must_be_below: 90000`, editable, and may fail screening at submit. Keeps `prefill.ts`
