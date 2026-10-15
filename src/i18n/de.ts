@@ -6,5 +6,4 @@ export const de: Record<TranslationKey, string> = {
   submit: 'Bewerbung absenden',
   optional: 'optional',
   error_required: 'Dieses Feld ist erforderlich',
-  language_name: 'Deutsch',
 }

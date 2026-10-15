@@ -16,6 +16,8 @@ Every judgment call, with its reason. Authority order: README contract > this fi
 3. **Default UI language: browser language → English fallback; manual toggle overrides,
    persisted in localStorage.** Job `language` describes the recruiter's text, not the
    reader's preference. Only UI chrome is translated; recruiter text renders verbatim.
+   Storage access can throw (blocked third-party storage, quota): persistence degrades
+   silently — the toggle still switches, only the saved choice is lost — never a crash.
 4. **V1 is a single-page form.** Cheapest correct thing; the wizard question belongs to V2
    together with reorder/progress. No router — two screens via plain state.
 5. **Numeric input: `type="text" inputMode="numeric"`; typing is never blocked;

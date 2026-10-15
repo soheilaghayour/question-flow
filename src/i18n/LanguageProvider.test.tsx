@@ -55,6 +55,41 @@ describe('LanguageProvider — initial language (DECISIONS #3)', () => {
   })
 })
 
+// Blocked storage (cross-origin iframe, cookies off) throws on access.
+// Persistence is a nice-to-have: it degrades silently, never crashes the form.
+describe('LanguageProvider — storage failures', () => {
+  it('falls back to the browser language when reading storage throws', () => {
+    mockBrowserLanguage('de-DE')
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new DOMException('denied', 'SecurityError')
+    })
+    renderProbe()
+    expect(screen.getByText('Bewerbung absenden')).toBeInTheDocument()
+  })
+
+  it('still toggles the language when writing storage throws', async () => {
+    const user = userEvent.setup()
+    mockBrowserLanguage('en-US')
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new DOMException('quota', 'QuotaExceededError')
+    })
+    renderProbe()
+    await user.click(screen.getByRole('button', { name: 'toggle' }))
+    expect(screen.getByText('Bewerbung absenden')).toBeInTheDocument()
+  })
+})
+
+describe('LanguageProvider — document language (WCAG 3.1.1)', () => {
+  it('keeps documentElement.lang in sync with the UI language', async () => {
+    const user = userEvent.setup()
+    mockBrowserLanguage('de-DE')
+    renderProbe()
+    expect(document.documentElement.lang).toBe('de')
+    await user.click(screen.getByRole('button', { name: 'toggle' }))
+    expect(document.documentElement.lang).toBe('en')
+  })
+})
+
 describe('LanguageProvider — toggle', () => {
   it('switches UI strings, leaves recruiter text verbatim, persists the choice', async () => {
     const user = userEvent.setup()

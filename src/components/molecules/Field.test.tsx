@@ -28,6 +28,42 @@ describe('Field', () => {
     expect(input).toHaveAccessibleDescription('Enter a number between 0 and 100')
   })
 
+  // Errors appear at submit while focus stays on the submit button, so they
+  // must be announced, not just referenced (aria-describedby is read on focus).
+  it('announces the error to screen readers via role="alert"', () => {
+    render(
+      <Field id="salary" label="Salary expectation" error="This field is required">
+        {(inputProps) => <Input {...inputProps} />}
+      </Field>,
+    )
+    expect(screen.getByRole('alert')).toHaveTextContent('This field is required')
+  })
+
+  it('ties a description hint to the input', () => {
+    render(
+      <Field id="salary" label="Salary expectation" description="Gross, in EUR">
+        {(inputProps) => <Input {...inputProps} />}
+      </Field>,
+    )
+    expect(screen.getByRole('textbox')).toHaveAccessibleDescription('Gross, in EUR')
+  })
+
+  it('keeps the hint and the error both tied to the input', () => {
+    render(
+      <Field
+        id="salary"
+        label="Salary expectation"
+        description="Gross, in EUR"
+        error="This field is required"
+      >
+        {(inputProps) => <Input {...inputProps} />}
+      </Field>,
+    )
+    expect(screen.getByRole('textbox')).toHaveAccessibleDescription(
+      'Gross, in EUR This field is required',
+    )
+  })
+
   it('exposes neither aria-invalid nor a description without an error', () => {
     render(
       <Field id="salary" label="Salary expectation">
