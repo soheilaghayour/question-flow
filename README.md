@@ -20,10 +20,6 @@ npm run typecheck  # tsc -b
 npm run build      # typecheck + production build
 ```
 
-Applying to a job is remembered in the browser's localStorage, so its Apply button stays
-disabled after a refresh. To apply again (e.g. to demo the flow once more), clear the
-site's data in your browser (DevTools → Application → Storage → Clear site data).
-
 ## Where things live
 
 - [`docs/task-contract.md`](docs/task-contract.md) — the task contract (frozen fixture):
