@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { renderRoute } from '@/renderRoute'
@@ -14,6 +14,10 @@ async function submitShortJob() {
   await user.click(screen.getByRole('button', { name: 'Next' }))
   await user.click(screen.getByRole('button', { name: 'Submit application' }))
 }
+
+afterEach(() => {
+  vi.restoreAllMocks()
+})
 
 describe('App', () => {
   it('renders the app heading', () => {
@@ -76,6 +80,25 @@ describe('App', () => {
     const router = renderRoute('/jobs/job-short/apply?step=1')
     await user.click(screen.getByRole('button', { name: 'Back' }))
     expect(router.state.location.pathname).toBe('/jobs/job-short')
+  })
+
+  it('leaves the form from step 1 by going back, not by adding a job page entry', async () => {
+    const user = userEvent.setup()
+    const router = renderRoute('/jobs/job-short')
+    await user.click(screen.getByRole('button', { name: 'Apply' }))
+    await user.click(screen.getByRole('button', { name: 'Back' }))
+    expect(router.state.location.pathname).toBe('/jobs/job-short')
+    expect(router.state.historyAction).toBe('POP')
+  })
+
+  it('shows the confirmation even when storage is blocked', async () => {
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new DOMException('denied', 'SecurityError')
+    })
+    renderRoute('/jobs/job-short/apply?step=1')
+    await submitShortJob()
+    expect(await screen.findByText('Application submitted')).toBeInTheDocument()
   })
 
   it('has no back button in the header', async () => {

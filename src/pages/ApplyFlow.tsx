@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router'
+import { Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 import { normalizeJob } from '@/domain/normalize'
 import { buildPrefillAnswers } from '@/domain/prefill'
 import { evaluateScreening } from '@/domain/screening'
@@ -26,6 +26,7 @@ export function ApplyFlow() {
   const { jobId = '' } = useParams()
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const result = useMemo(() => normalizeJob(rawJobConfigsById.get(jobId)), [jobId])
   const initialAnswers = useMemo(
     () => ('job' in result ? buildPrefillAnswers(result.job.questions, profile) : {}),
@@ -99,7 +100,8 @@ export function ApplyFlow() {
   }
 
   const handleBack = () => {
-    if (stepIndex === 0) navigate(`/jobs/${job.id}`)
+    // A form opened directly (shared link) has no app entry behind it to go back to.
+    if (stepIndex === 0 && location.key === 'default') navigate(`/jobs/${job.id}`, { replace: true })
     else navigate(-1)
   }
 
