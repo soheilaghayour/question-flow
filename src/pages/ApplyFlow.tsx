@@ -106,6 +106,10 @@ export function ApplyFlow({ rawJob, profile, onBack, onSubmitted }: ApplyFlowPro
   }
 
   const handleSubmit = () => {
+    // Only the summary's Submit button sends the application. Implicit form
+    // submission (Enter in an input on a question step) lands here too and
+    // must be ignored — the candidate hasn't reviewed yet.
+    if (!onSummary) return
     setState(submitAttempted)
     if (missing.length > 0) return
     const screening = evaluateScreening(job.questions, state.answers)
@@ -176,10 +180,16 @@ export function ApplyFlow({ rawJob, profile, onBack, onSubmitted }: ApplyFlowPro
           ) : (
             <span />
           )}
+          {/* Distinct keys force a fresh DOM node: if React reused the Next
+              button for Submit, the browser would apply the click's default
+              action to the NEW type and submit the form in the same click
+              that reached the summary. */}
           {onSummary ? (
-            <Button type="submit">{t('submit')}</Button>
+            <Button key="submit" type="submit">
+              {t('submit')}
+            </Button>
           ) : (
-            <Button type="button" onClick={handleNext}>
+            <Button key="next" type="button" onClick={handleNext}>
               {t('next')}
             </Button>
           )}
