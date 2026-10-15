@@ -32,12 +32,15 @@ npm run build      # typecheck + production build
 - `jobs/*.json`, `profile.json` — mock data fixtures (frozen, including the deliberately
   broken `bad.json`).
 
-## How it works, in one paragraph
+## How it works
 
-Raw job configs are never trusted: everything passes through `normalizeJob()`
-(`src/domain/`), which drops invalid questions, dedupes IDs, and strips misplaced rules —
-with warnings. The domain layer (schemas, prefill, screening, payload) is pure TypeScript
-with no React, fully unit-tested. Components follow atoms → molecules → question
-components, where each question type is one component plus one registry entry; the flow
-never switches on question type. Submitting builds the contract payload and shows it
-on screen (and in the console).
+```
+Raw Config ──▶ normalizeJob() ──▶ Wizard Flow (Confirm → 3/step → Review) ──▶ Submit
+                      │                                                        │
+                 Pure Domain                                             console.log(payload)
+              (Zero React deps)                                          + Result Screen
+```
+
+- **Defensive ingestion:** Invalid questions and broken rules are dropped or sanitized at the boundary with warnings; no broken state reaches the UI.
+- **Decoupled question registry:** Every question type implements the controlled `QuestionComponent` interface; call sites never switch on question type.
+- **Pure domain logic:** Normalization, prefill, screening, and payload construction live in unit-tested, framework-free TypeScript modules.
