@@ -5,13 +5,19 @@ import { profile, rawJobConfigs } from '@/data'
 import { JobPage } from '@/pages/JobPage'
 import { ApplyFlow } from '@/pages/ApplyFlow'
 import { Button } from '@/components/atoms/Button'
+import { GlobeIcon } from '@/components/atoms/Icons'
 
 function LanguageToggle() {
   const { language, toggleLanguage } = useI18n()
   // The toggle names the language it switches TO, in that language, so it is
-  // readable precisely when the current UI language is the wrong one.
+  // readable precisely when the current UI language is the wrong one. The
+  // globe only signals "this is the language control" — icon-only would hide
+  // WHICH language you switch to, so the text stays.
   return (
-    <Button onClick={toggleLanguage}>{language === 'en' ? 'Deutsch' : 'English'}</Button>
+    <Button className="flex items-center gap-2" onClick={toggleLanguage}>
+      <GlobeIcon />
+      {language === 'en' ? 'Deutsch' : 'English'}
+    </Button>
   )
 }
 
