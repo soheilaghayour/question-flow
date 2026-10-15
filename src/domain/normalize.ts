@@ -90,29 +90,29 @@ export function normalizeJob(rawJob: unknown): NormalizeResult {
     // policy is drop-the-smallest-thing-with-a-warning (DECISIONS #10, #17).
     // Cleaning deletes keys, so it works on a shallow copy — the caller's
     // config (an imported JSON module) must never be mutated.
-    const cleanedQuestion: Record<string, unknown> = { ...rawQuestion };
+    const candidateQuestion: Record<string, unknown> = { ...rawQuestion };
 
     for (const [name, rule] of Object.entries(SCREENING_RULES)) {
-      if (!(name in cleanedQuestion)) continue;
-      if (rule.allowedOn !== cleanedQuestion.type) {
-        delete cleanedQuestion[name];
+      if (!(name in candidateQuestion)) continue;
+      if (rule.allowedOn !== candidateQuestion.type) {
+        delete candidateQuestion[name];
         addWarning(
           questionId,
           `rule "${name}" is not allowed on type "${rawQuestion.type}" — ignored`,
         );
-      } else if (!rule.valueSchema.safeParse(cleanedQuestion[name]).success) {
-        delete cleanedQuestion[name];
+      } else if (!rule.valueSchema.safeParse(candidateQuestion[name]).success) {
+        delete candidateQuestion[name];
         addWarning(questionId, `rule "${name}" has an invalid value — ignored`);
       }
     }
 
     if (
-      cleanedQuestion.type === "select" &&
-      Array.isArray(cleanedQuestion.options)
+      candidateQuestion.type === "select" &&
+      Array.isArray(candidateQuestion.options)
     ) {
       const seenValues = new Set<string>();
       const options: z.infer<typeof selectOptionSchema>[] = [];
-      for (const rawOption of cleanedQuestion.options) {
+      for (const rawOption of candidateQuestion.options) {
         const option = selectOptionSchema.safeParse(rawOption);
         if (!option.success) {
           addWarning(questionId, "malformed option dropped");
@@ -132,7 +132,7 @@ export function normalizeJob(rawJob: unknown): NormalizeResult {
         addWarning(questionId, "no valid options left — question dropped");
         return;
       }
-      cleanedQuestion.options = options;
+      candidateQuestion.options = options;
     }
 
     if (rawQuestion.question.length > QUESTION_TEXT_MAX_LENGTH) {
@@ -142,7 +142,7 @@ export function normalizeJob(rawJob: unknown): NormalizeResult {
       );
     }
 
-    const parsed = schema.safeParse(cleanedQuestion);
+    const parsed = schema.safeParse(candidateQuestion);
     if (!parsed.success) {
       addWarning(
         questionId,
