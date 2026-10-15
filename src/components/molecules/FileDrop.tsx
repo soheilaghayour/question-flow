@@ -26,8 +26,28 @@ interface FileDropProps {
  * "All files" pickers bypass the browser's `accept` filter. */
 export function FileDrop({ inputProps, chooseLabel, fileName, onSelect }: FileDropProps) {
   const inputRef = useRef<HTMLInputElement>(null)
+  const handleFile = (file: File) => {
+    const rejection = rejectFile(file)
+    if (rejection) {
+      onSelect({ kind: rejection })
+      return
+    }
+    // rejectFile passing guarantees resolveContentType is defined.
+    const contentType = resolveContentType(file)
+    if (contentType) onSelect({ kind: 'accepted', file, contentType })
+  }
   return (
-    <div className="flex flex-col gap-1">
+    // The whole control stays a drop target: the native input (a drop target
+    // by itself) is visually hidden, so the wrapper takes over that role.
+    <div
+      className="flex flex-col gap-1"
+      onDragOver={(event) => event.preventDefault()}
+      onDrop={(event) => {
+        event.preventDefault()
+        const file = event.dataTransfer.files?.[0]
+        if (file) handleFile(file)
+      }}
+    >
       {/* The native input is visually hidden: its value is reset after every
           selection (see below), so its own "no file chosen" text would claim
           no file exists while one is held in form state. The button triggers
@@ -45,15 +65,7 @@ export function FileDrop({ inputProps, chooseLabel, fileName, onSelect }: FileDr
           // under 5 MB) fires a fresh change event — browsers skip it when the
           // value string is unchanged.
           event.target.value = ''
-          if (!file) return
-          const rejection = rejectFile(file)
-          if (rejection) {
-            onSelect({ kind: rejection })
-            return
-          }
-          // rejectFile passing guarantees resolveContentType is defined.
-          const contentType = resolveContentType(file)
-          if (contentType) onSelect({ kind: 'accepted', file, contentType })
+          if (file) handleFile(file)
         }}
       />
       <Button className="self-start" onClick={() => inputRef.current?.click()}>
