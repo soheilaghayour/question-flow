@@ -12,6 +12,7 @@ import {
 import type { Profile } from '@/domain/schema'
 import { QuestionField } from '@/components/questions/QuestionField'
 import { Button } from '@/components/atoms/Button'
+import { CodeBlock } from '@/components/atoms/CodeBlock'
 import { useI18n } from '@/i18n/useI18n'
 
 interface ApplyFlowProps {
@@ -48,9 +49,7 @@ export function ApplyFlow({ rawJob, profile }: ApplyFlowProps) {
   if (payload) {
     return (
       <output className="block">
-        <pre className="overflow-x-auto rounded border border-muted bg-surface p-4 text-sm">
-          {JSON.stringify(payload, null, 2)}
-        </pre>
+        <CodeBlock>{JSON.stringify(payload, null, 2)}</CodeBlock>
       </output>
     )
   }

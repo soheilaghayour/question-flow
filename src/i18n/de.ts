@@ -7,6 +7,7 @@ export const de: Record<TranslationKey, string> = {
   optional: 'optional',
   yes: 'Ja',
   no: 'Nein',
+  invalid_job: 'Ungültige Stelle',
   error_required: 'Dieses Feld ist erforderlich',
   error_number_invalid: 'Geben Sie eine ganze Zahl ein',
   error_number_range: 'Geben Sie eine ganze Zahl zwischen {min} und {max} ein',

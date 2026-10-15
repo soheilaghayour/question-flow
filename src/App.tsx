@@ -11,9 +11,7 @@ function LanguageToggle() {
   // The toggle names the language it switches TO, in that language, so it is
   // readable precisely when the current UI language is the wrong one.
   return (
-    <Button className="opacity-80" onClick={toggleLanguage}>
-      {language === 'en' ? 'Deutsch' : 'English'}
-    </Button>
+    <Button onClick={toggleLanguage}>{language === 'en' ? 'Deutsch' : 'English'}</Button>
   )
 }
 
