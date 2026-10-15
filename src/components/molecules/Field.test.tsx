@@ -16,6 +16,20 @@ describe('Field', () => {
     expect(screen.getByRole('textbox')).toHaveFocus()
   })
 
+  it('marks a required field with a star without changing its accessible name', () => {
+    render(
+      <Field id="salary" label="Salary expectation" required>
+        {(inputProps) => <Input {...inputProps} />}
+      </Field>,
+    )
+    expect(screen.getByText('*')).toBeInTheDocument()
+    // The star is aria-hidden; screen readers get aria-required instead.
+    expect(screen.getByLabelText('Salary expectation')).toHaveAttribute(
+      'aria-required',
+      'true',
+    )
+  })
+
   it('marks an invalid field and ties the error text to the input', () => {
     render(
       <Field id="salary" label="Salary expectation" error="Enter a number between 0 and 100">

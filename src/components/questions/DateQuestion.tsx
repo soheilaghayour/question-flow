@@ -20,11 +20,12 @@ function todayLocal(): string {
 
 export function DateQuestion({ question, value, onChange, error }: DateQuestionProps) {
   return (
-    <Field id={question.id} label={question.question} error={error}>
+    <Field id={question.id} label={question.question} required={question.required} error={error}>
       {(inputProps) => (
         <Input
           {...inputProps}
           type="date"
+          className="[&::-webkit-calendar-picker-indicator]:cursor-pointer"
           min={todayLocal()}
           value={value ?? ''}
           onChange={(event) => onChange(event.target.value === '' ? null : event.target.value)}

@@ -14,7 +14,7 @@ export function TextQuestion({ question, value, onChange, error }: TextQuestionP
   // '' means "no answer" in form state (DECISIONS #19) — emit null, not ''.
   const emit = (text: string) => onChange(text === '' ? null : text)
   return (
-    <Field id={question.id} label={question.question} error={error}>
+    <Field id={question.id} label={question.question} required={question.required} error={error}>
       {(inputProps) =>
         question.multiline ? (
           <TextArea

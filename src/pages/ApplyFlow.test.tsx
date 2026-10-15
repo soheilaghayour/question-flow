@@ -251,6 +251,18 @@ describe('ApplyFlow with short.json', () => {
     expect(submittedPayload(log)).toEqual(expectedShortPayload)
   })
 
+  it('omits the required-fields legend when no question is required', () => {
+    const noRequired = {
+      id: 'job-optional-only',
+      title: 'T',
+      company: 'C',
+      language: 'en',
+      questions: [{ type: 'text', id: 'anything', question: 'Anything to add?' }],
+    }
+    render(<ApplyFlow rawJob={noRequired} profile={profile} />, { wrapper })
+    expect(screen.queryByText('Fields marked with * are required')).not.toBeInTheDocument()
+  })
+
   // #16: the result screen is for candidates — the payload is dev-only (console).
   it('shows a human confirmation instead of the raw payload after submitting', async () => {
     const user = userEvent.setup()

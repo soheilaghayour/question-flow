@@ -20,4 +20,19 @@ export const de: Record<TranslationKey, string> = {
     'Vielen Dank für Ihre Bewerbung. Das Unternehmen wird sie prüfen und sich bei Ihnen melden.',
   submitted_screening_note:
     'Hinweis: Ihr Profil erfüllt möglicherweise nicht alle Anforderungen dieser Stelle.',
+  back_to_jobs: 'Zurück zu den Stellen',
+  back_to_main: 'Zurück zur Hauptseite',
+  choose_file: 'Datei auswählen',
+  required_hint: 'Mit * markierte Felder sind Pflichtfelder',
+  jobs_heading: 'Offene Stellen',
+  profile_heading: 'Ihr Profil',
+  profile_location: 'Standort',
+  profile_salary: 'Gehaltsvorstellung',
+  profile_notice: 'Kündigungsfrist',
+  profile_experience: 'Jahre Berufserfahrung',
+  profile_languages: 'Sprachen',
+  job_description:
+    'Wir suchen Verstärkung für unser Team. Die Bewerbung dauert nur wenige Minuten — viele Antworten sind bereits aus Ihrem Profil vorausgefüllt, Sie müssen sie meist nur bestätigen.',
+  applied_note: 'Sie haben sich auf diese Stelle bereits beworben.',
+  progress_label: '{answered} von {total} Fragen beantwortet',
 }

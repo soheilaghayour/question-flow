@@ -23,9 +23,14 @@ export function SelectQuestion({ question, value, onChange, error }: SelectQuest
   }
 
   return (
-    <OptionGroup id={question.id} label={question.question} error={error}>
+    <OptionGroup
+      id={question.id}
+      label={question.question}
+      required={question.required}
+      error={error}
+    >
       {question.options.map((option) => (
-        <label key={option.value} className="flex items-center gap-2">
+        <label key={option.value} className="flex cursor-pointer items-center gap-2">
           {multi ? (
             <Checkbox
               checked={picked.includes(option.value)}
