@@ -40,7 +40,3 @@ Raw Config ──▶ normalizeJob() ──▶ Wizard Flow (Confirm → 3/step �
                  Pure Domain                                             console.log(payload)
               (Zero React deps)                                          + Result Screen
 ```
-
-- **Defensive ingestion:** Invalid questions and broken rules are dropped or sanitized at the boundary with warnings; no broken state reaches the UI.
-- **Decoupled question registry:** Every question type implements the controlled `QuestionComponent` interface; call sites never switch on question type.
-- **Pure domain logic:** Normalization, prefill, screening, and payload construction live in unit-tested, framework-free TypeScript modules.
