@@ -94,6 +94,11 @@ Every judgment call, with its reason. Authority order: README contract > this fi
     exactly `YYYY-MM-DD`. Silent (no console warning), unlike normalize #10: config
     problems are the recruiter's bug to hear about; form-state problems are ours, caught
     by tests.
+20. **CI with GitHub Actions on push to `main` and every PR: typecheck, lint, test, build.**
+    Single job, no matrix: one Node version is enough for a browser app. Superseded runs
+    are cancelled on PRs only, never on `main`, so every main commit gets a full run.
+    No CI badge yet — `README.md` is still the frozen template fixture (#28 moves it).
+    Deployment is a separate step after v1.
 
 ## Open PM questions
 
