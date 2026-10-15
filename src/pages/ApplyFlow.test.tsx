@@ -6,6 +6,7 @@ import { LanguageProvider } from '@/i18n/LanguageProvider'
 import { profile } from '@/data'
 import shortJson from '@jobs/short.json'
 import longJson from '@jobs/long.json'
+import badJson from '@jobs/bad.json'
 import { ApplyFlow } from './ApplyFlow'
 
 const wrapper = ({ children }: { children: ReactNode }) => (
@@ -64,6 +65,94 @@ describe('ApplyFlow with long.json', () => {
       ],
       // 95000 >= must_be_below 90000 fails; submission still goes through
       // (DECISIONS #8: screening never blocks anything).
+      screening: { passed: false, failed: ['salary_expectation'] },
+    })
+  })
+})
+
+describe('ApplyFlow with bad.json', () => {
+  it('renders only the normalized questions and logs the warnings', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    render(<ApplyFlow rawJob={badJson} profile={profile} />, { wrapper })
+
+    // Dropped by normalize: the duplicate-id text question and the unknown
+    // rating type (bite #8). The kept select under the same id still renders.
+    expect(
+      screen.queryByText('Wie lange ist Ihre aktuelle Kündigungsfrist (in Wochen/Monaten)?'),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByText(/Bitte bewerten Sie Ihre TypeScript-Kenntnisse/),
+    ).not.toBeInTheDocument()
+    expect(screen.getByRole('group', { name: 'Kündigungsfrist' })).toBeInTheDocument()
+
+    // The misplaced must_be_true on a text question renders the question, rule stripped.
+    expect(screen.getByLabelText('Aktueller Wohnsitz (Land)')).toBeInTheDocument()
+
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('rating'))
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('duplicate question id'))
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('must_be_true'))
+  })
+
+  it('submits the full flow including the uploaded file as plain base64', async () => {
+    const user = userEvent.setup()
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+    render(<ApplyFlow rawJob={badJson} profile={profile} />, { wrapper })
+
+    await user.click(screen.getByRole('radio', { name: 'Herr' }))
+    await user.type(screen.getByLabelText('Aktueller Wohnsitz (Land)'), 'Deutschland')
+    await answerBoolean(
+      'Haben Sie keine Einwände gegen eine Tätigkeit, die überwiegend nicht remote stattfindet?',
+      'Yes',
+    )
+    await answerBoolean('Führerschein Klasse B vorhanden?', 'Yes')
+    await user.upload(
+      screen.getByLabelText('Anschreiben (bitte ausschließlich als PDF)'),
+      new File(['%PDF'], 'anschreiben.pdf', { type: 'application/pdf' }),
+    )
+    // The shown file name confirms the async base64 conversion landed in form
+    // state — submitting earlier would race it.
+    await screen.findByText('anschreiben.pdf')
+    await user.type(screen.getByLabelText('Erfahrung mit SAFe?'), 'Ja, 2 Jahre')
+    await user.type(
+      screen.getByLabelText('Beschreiben Sie Ihre Stärken und Schwächen.'),
+      'Stärken: Testen.',
+    )
+    await user.type(
+      screen.getByLabelText(/Wie viele Jahre Berufserfahrung haben Sie mit React/),
+      '7',
+    )
+    await user.click(screen.getByRole('checkbox', { name: 'React' }))
+    await answerBoolean(
+      'Wären Sie grundsätzlich bereit, bei Bedarf gelegentlich auch außerhalb der regulären Arbeitszeiten zur Verfügung zu stehen?',
+      'No',
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Submit application' }))
+
+    expect(submittedPayload()).toEqual({
+      job_id: 'job-bad',
+      answers: [
+        { id: 'notice_period', value: '3_months' },
+        { id: 'salutation', value: 'mr' },
+        { id: 'country', value: 'Deutschland' },
+        { id: 'salary_expectation', value: 95000 },
+        { id: 'onsite', value: true },
+        { id: 'driving_license', value: true },
+        {
+          id: 'cover_letter',
+          // btoa('%PDF') — worked example; the data-URL prefix is stripped (bite #2).
+          value: { content_type: 'application/pdf', data: 'JVBERg==', file_name: 'anschreiben.pdf' },
+        },
+        { id: 'safe', value: 'Ja, 2 Jahre' },
+        { id: 'strengths_weaknesses', value: 'Stärken: Testen.' },
+        { id: 'react_years', value: 7 },
+        // One pick in a max_choices 10 select still travels as values (bite #1).
+        { id: 'tech_stack', values: ['react'] },
+        { id: 'availability', value: false },
+      ],
+      // 95000 >= must_be_below 65000; the stripped must_be_true on the text
+      // question must NOT screen. onsite/driving_license answered true pass.
       screening: { passed: false, failed: ['salary_expectation'] },
     })
   })
