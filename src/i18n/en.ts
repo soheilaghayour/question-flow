@@ -5,6 +5,7 @@ export const en = {
   optional: 'optional',
   yes: 'Yes',
   no: 'No',
+  invalid_job: 'Invalid job',
   error_required: 'This field is required',
   error_number_invalid: 'Enter a whole number',
   error_number_range: 'Enter a whole number between {min} and {max}',
