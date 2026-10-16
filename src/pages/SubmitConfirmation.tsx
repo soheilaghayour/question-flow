@@ -3,7 +3,7 @@ import { Button } from '@/components/atoms/Button'
 import { SubmissionResult } from '@/components/molecules/SubmissionResult'
 import { useI18n } from '@/i18n/useI18n'
 
-export function ApplyConfirmation() {
+export function SubmitConfirmation() {
   const { jobId } = useParams()
   const navigate = useNavigate()
   const { t } = useI18n()

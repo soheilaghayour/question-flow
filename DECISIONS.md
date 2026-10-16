@@ -84,11 +84,6 @@ D24. **Candidates see the same neutral confirmation whatever the screening resul
 
 ### Form & state
 
-D1. **Answers are one `useState<Answers>` in `ApplyFlow`; the step lives in the URL.**
-    react-hook-form would be a second validation brain beside `domain/`. The only other state
-    is the step whose Next failed, so its errors show and a fresh step opens clean, and the
-    step the form opened on, so a fresh load can restart at step 1.
-
 D2. **Context only for the i18n language, never for form state.** Props are one level deep
     (`ApplyFlow` → question component); context would hide data flow and couple components
     to a provider for no transport win.
@@ -103,7 +98,7 @@ D11. **Date: native `<input type="date">`** (value already `YYYY-MM-DD`, no time
 
 D21. **Question components are controlled and share one seam:**
      `{ question, value, onChange, error? }` (`QuestionComponent` in `registry.ts`).
-     The flow owns answers and required-errors (D1, D2); components emit `null` for
+     The flow owns answers and required-errors (D2); components emit `null` for
      "no answer", so form state only ever holds real answers (D19). Two local exceptions
      are inherent to the widget: `NumericQuestion` keeps the raw string (typing is never
      blocked, D5) and manages parse/range errors locally; `FileQuestion` stores the issue kind
@@ -144,19 +139,13 @@ D30. **The apply form is a wizard: prefill confirm first, 3 questions per step, 
      completed work. Open questions follow in config order (3 per step), ending in a read-only
      review step with the sole Submit button. "Next" gates on the current step's required answers
      with inline errors (the step-advance gating D5 planned); Back and typing are ungated, with
-     answers preserved (D1). Progress is a step line ("Step X of Y", including summary)
+     answers preserved. Progress is a step line ("Step X of Y", including summary)
      animated under motion-safe only. Screening never blocks (D8).
 
 D31. **Next and Back are icon buttons; Submit keeps its text.** Next/Back carry
      `aria-label` + `title`; Submit stays text because an irreversible action must be explicit.
 
-D35. **Every screen has a URL (react-router)** (#41). `/jobs/:jobId`,
-     `/jobs/:jobId/apply?step=N`, `/jobs/:jobId/confirmation`; pages read the job from the URL.
-     Next pushes a step, Back is browser Back. A fresh load (refresh, shared link) restarts at
-     step 1, since answers live only in memory; Submit with a required answer missing goes to
-     that step and shows its errors. Submit replaces the step with
-     the confirmation; the form of an applied job redirects to its job page. Trade-off: Back
-     after submitting passes through the old steps, each redirecting to the job page.
+D35. **Every screen has a URL (react-router)** (#41).
 
 ### Styling & i18n
 

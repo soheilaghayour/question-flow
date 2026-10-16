@@ -5,7 +5,7 @@ import { buildPrefillAnswers } from '@/domain/prefill'
 import { buildSteps } from '@/domain/wizard'
 
 /** Turns a job id into the normalized job, its prefilled answers and its wizard steps. */
-export function useApplication(jobId: string) {
+export function useJobWizard(jobId: string) {
   const application = useMemo(() => {
     const result = normalizeJob(rawJobConfigsById.get(jobId))
     if ('error' in result) return result
