@@ -5,7 +5,7 @@ Every judgment call, with its reason. Authority order: the contract (`docs/task-
 
 ## What I built
 
-The application is an end-to-end candidate application flow that normalizes raw job configs, prefills matching candidate profile fields, and guides the candidate through a multi-step wizard. Prefilled answers lead as an editable confirmation step, followed by open questions chunked three per step in config order, and conclude with a read-only review step. Submitting logs the contract-compliant JSON payload (including screening results) to the browser console and renders a candidate-facing confirmation screen with generic messaging if requirements are unmet. The interface supports English and German with a manual toggle falling back to browser language. Core domain logic (normalization, validation, prefill, screening, and payload generation) is pure and verified by 258 tests across 26 test files, automated via GitHub Actions CI (typecheck, lint, test, build).
+The application is an end-to-end candidate application flow that normalizes raw job configs, prefills matching candidate profile fields, and guides the candidate through a multi-step wizard. Prefilled answers lead as an editable confirmation step, followed by open questions chunked three per step in config order, and conclude with a read-only review step. Submitting logs the contract-compliant JSON payload (including screening results) to the browser console and renders a candidate-facing confirmation screen with generic messaging if requirements are unmet. The interface supports English and German with a manual switch falling back to browser language. Core domain logic (normalization, validation, prefill, screening, and payload generation) is pure and verified by 258 tests across 26 test files, automated via GitHub Actions CI (typecheck, lint, test, build).
 
 ## Decisions
 
@@ -102,7 +102,7 @@ D21. **Question components are controlled and share one seam:**
      "no answer", so form state only ever holds real answers (D19). Two local exceptions
      are inherent to the widget: `NumericQuestion` keeps the raw string (typing is never
      blocked, D5) and manages parse/range errors locally; `FileQuestion` stores the issue kind
-     so a language toggle re-translates visible errors. Group questions (boolean, select)
+     so a language switch re-translates visible errors. Group questions (boolean, select)
      associate label and error via `OptionGroup` (fieldset/legend, D12). Implementation mechanics
      (FileDrop re-validation, input reset, MIME fallback, latest-wins guard, and registry union casting)
      are documented in code comments.
@@ -143,17 +143,17 @@ D30. **The apply form is a wizard: prefill confirm first, 3 questions per step, 
      animated under motion-safe only. Screening never blocks (D8).
 
 D31. **The wizard's Next and Back are the main call to action: text next to the arrow; the
-     language switch is a small EN | DE.**
+     language switch is a small EN | DE, the active language bold, not only colored.**
 
 D35. **Every screen has a URL (react-router)** (#41).
 
 ### Styling & i18n
 
-D3. **Default UI language: browser language → English fallback; manual toggle overrides,
+D3. **Default UI language: browser language → English fallback; manual switch overrides,
     persisted in localStorage.** Job `language` describes the recruiter's text, not the
     reader's preference. Only UI chrome is translated; recruiter text renders verbatim.
     Storage access can throw (blocked third-party storage, quota): persistence degrades
-    silently — the toggle still switches, only the saved choice is lost — never a crash.
+    silently — the switch still works, only the saved choice is lost — never a crash.
 
 D12. **Accessibility baseline in V1:** label/input association, `aria-invalid`,
      `aria-describedby` for errors.
@@ -168,10 +168,10 @@ D14. **i18n: hand-rolled typed `t(key)` + React context.** ~30 UI strings don't 
 D28. **Focus rings fire on `:focus-visible` only**, so mouse clicks don't paint stray borders
      on radios and checkboxes.
 
-D32. **Unselected toggle buttons are a full-opacity outline, never a faded fill.** Testing
+D32. **Unselected job switcher buttons are a full-opacity outline, never a faded fill.** Testing
      the job switcher showed that unselected options (`aria-pressed=false`, opacity-60)
      were nearly indistinguishable from disabled buttons (opacity-50), making enabled jobs look
-     unclickable. Faded is reserved for disabled; unselected toggles render as a full-opacity
+     unclickable. Faded is reserved for disabled; unselected jobs render as a full-opacity
      outline (surface fill, primary text/border). A transparent base border preserves button
      dimensions across states.
 
@@ -218,7 +218,7 @@ D20. **CI with GitHub Actions on push to `main` and every PR: typecheck, lint, t
   step instead of dimmed noise.
 - **Modal for the apply form** — a long multi-question form with file uploads inside a
   modal means scroll-in-scroll, focus-trap work, and an accidental backdrop click loses all answers.
-- **Translating recruiter text on language toggle** — would invent data; question/option
+- **Translating recruiter text on language switch** — would invent data; question/option
   texts are recruiter content (D3); payload carries original values.
 - **react-hook-form + zod resolver** — would generate a runtime schema per job and
   duplicate `domain/` validation; two brains to keep in sync.
