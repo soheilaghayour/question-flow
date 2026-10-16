@@ -16,7 +16,7 @@ vi.mock('@/utils/fileToBase64', async (importOriginal) => {
 const mockFileToBase64 = vi.mocked(fileToBase64)
 
 const wrapper = ({ children }: { children: ReactNode }) => (
-  <LanguageProvider>{children}</LanguageProvider>
+  <LanguageProvider language="en">{children}</LanguageProvider>
 )
 
 const question = build.file({ question: 'Upload your CV' })

@@ -12,6 +12,7 @@ import { AnswerReview } from '@/components/molecules/AnswerReview'
 import { JobSummary } from '@/components/molecules/JobSummary'
 import { ProgressBar } from '@/components/molecules/ProgressBar'
 import { useI18n } from '@/i18n/useI18n'
+import { pathInLanguage } from '@/i18n/languagePath'
 import { addAppliedJobIdToStorage, getAppliedJobIdsFromStorage } from '@/utils/appliedJobs'
 
 export function ApplyFlow() {
@@ -43,7 +44,7 @@ export function ApplyFlow() {
 
   // Back after submitting walks into this form's old steps.
   if (getAppliedJobIdsFromStorage().includes(job.id)) {
-    return <Navigate to={`/jobs/${job.id}`} replace />
+    return <Navigate to={pathInLanguage(language, `/jobs/${job.id}`)} replace />
   }
   const stepIndex = Number(searchParams.get('step')) - 1
 
@@ -67,7 +68,7 @@ export function ApplyFlow() {
 
   const handleBack = () => {
     // A form opened directly (shared link) has no app entry behind it to go back to.
-    if (stepIndex === 0 && location.key === 'default') navigate(`/jobs/${job.id}`, { replace: true })
+    if (stepIndex === 0 && location.key === 'default') navigate(pathInLanguage(language, `/jobs/${job.id}`), { replace: true })
     else navigate(-1)
   }
 
@@ -84,7 +85,7 @@ export function ApplyFlow() {
     const screening = evaluateScreening(job.questions, answers)
     console.log(buildPayload(job, answers, screening))
     addAppliedJobIdToStorage(job.id)
-    navigate(`/jobs/${job.id}/confirmation`, { replace: true })
+    navigate(pathInLanguage(language, `/jobs/${job.id}/confirmation`), { replace: true })
   }
 
   const progressLabel = t('step_label')

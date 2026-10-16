@@ -6,7 +6,7 @@ import * as build from '@/domain/testBuilders'
 import { questionRegistry } from './registry'
 
 const wrapper = ({ children }: { children: ReactNode }) => (
-  <LanguageProvider>{children}</LanguageProvider>
+  <LanguageProvider language="en">{children}</LanguageProvider>
 )
 
 describe('questionRegistry', () => {
