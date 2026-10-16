@@ -15,17 +15,14 @@ export function OptionGroup({ id, label, required, error, children }: OptionGrou
   const errorId = `${id}-error`
   // No aria-required: the group role doesn't support it.
   return (
-    <fieldset aria-describedby={error ? errorId : undefined} className="flex flex-col gap-1">
+    <fieldset id={id} aria-describedby={error ? errorId : undefined} className="flex flex-col gap-1">
       <legend>
-        <Text as="span" weight="medium">
-          {label}
-        </Text>
-        {required && (
-          <>
-            {' '}
-            <RequiredMark />
-          </>
-        )}
+        <span className="inline-flex items-center gap-1">
+          <Text as="span" weight="medium">
+            {label}
+          </Text>
+          {required && <RequiredMark />}
+        </span>
       </legend>
       <div className="flex flex-col gap-2">{children}</div>
       {error && <ErrorText id={errorId}>{error}</ErrorText>}
