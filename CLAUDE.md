@@ -23,6 +23,7 @@ src/
     atoms/              # Button, Input, Radio, Checkbox, ...
     molecules/          # Field (label + input + error), OptionGroup, FileDrop, ...
     questions/          # one component per question type + registry.ts
+  hooks/                # useApplication: job id → job, prefilled answers, wizard steps
   routes.tsx            # URL → page (react-router)
   pages/
     JobPage.tsx         # job info + Apply button (job switcher for the 3 configs)

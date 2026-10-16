@@ -35,8 +35,6 @@ export const en = {
   back: 'Back',
   review_title: 'Review your answers',
   no_answer: 'Not answered',
-  error_review_missing:
-    'Some required questions are still unanswered. Please go back and answer them.',
 }
 
 export type TranslationKey = keyof typeof en
