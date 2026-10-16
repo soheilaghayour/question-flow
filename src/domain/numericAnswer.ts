@@ -3,10 +3,7 @@ import { parseLocaleNumber } from '@/utils/parseLocaleNumber'
 /** The single owner of "integer within the question's bounds" — the widget
  * (NumericQuestion) and prefill must never disagree on what a valid numeric
  * answer is. */
-export function isValidNumericAnswer(
-  value: number,
-  question: { min: number; max: number },
-): boolean {
+export function isValidNumericAnswer(value: number, question: { min: number; max: number }) {
   return Number.isInteger(value) && value >= question.min && value <= question.max
 }
 
