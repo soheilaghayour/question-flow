@@ -24,8 +24,7 @@ src/
     molecules/          # Field (label + input + error), OptionGroup, FileDrop, ...
     questions/          # one component per question type + registry.ts
   hooks/                # useJobWizard: job id → job, prefilled answers, wizard steps
-  routes.tsx            # URL → page (react-router)
-  AppProviders.tsx      # language + router around the routes (main.tsx and tests)
+  routes.tsx            # URL → page (react-router); /de parent = German, / = English
   pages/
     JobPage.tsx         # job info + Apply button (job switcher for the 3 configs)
     ApplyFlow.tsx       # the wizard, step in ?step=N
