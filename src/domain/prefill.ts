@@ -14,7 +14,7 @@ function isProfileField(field: string): field is ProfileField {
 }
 
 /** Resolves a profile_field to its location in the profile (contract table). */
-function profileValue(field: ProfileField, profile: Profile): unknown {
+function profileValue(field: ProfileField, profile: Profile) {
   switch (field) {
     case 'notice_period':
       return profile.notice_period
@@ -57,10 +57,7 @@ function validPrefill(question: Question, value: unknown): PrefillValue | undefi
 }
 
 /** Maps each question's profile_field to an initial answer, if valid for the question. */
-export function buildPrefillAnswers(
-  questions: Question[],
-  profile: Profile,
-): PrefillAnswers {
+export function buildPrefillAnswers(questions: Question[], profile: Profile) {
   const answers: PrefillAnswers = {}
   for (const question of questions) {
     if (!question.profile_field || !isProfileField(question.profile_field)) continue
