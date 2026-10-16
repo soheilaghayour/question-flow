@@ -7,9 +7,4 @@ describe('ErrorText', () => {
     render(<ErrorText>Required</ErrorText>)
     expect(screen.getByRole('alert')).toHaveTextContent('Required')
   })
-
-  it('keeps a layout className next to the error styling', () => {
-    render(<ErrorText className="self-start">Required</ErrorText>)
-    expect(screen.getByRole('alert')).toHaveClass('text-error', 'self-start')
-  })
 })

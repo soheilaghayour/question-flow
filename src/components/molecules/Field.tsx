@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
-import { ErrorText } from '@/components/atoms/ErrorText'
-import { RequiredMark } from '@/components/atoms/RequiredMark'
 import { Text } from '@/components/atoms/Text'
+import { ErrorText } from './ErrorText'
+import { RequiredMark } from './RequiredMark'
 
 /** Props the caller must spread onto the rendered input so the label, hint and
  * error text stay associated with it (DECISIONS #12: a11y baseline). */

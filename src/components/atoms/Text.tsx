@@ -3,6 +3,7 @@ import type { HTMLAttributes } from 'react'
 const TONE_CLASSES = {
   default: '',
   muted: 'text-muted',
+  error: 'text-error',
 }
 
 const SIZE_CLASSES = {
