@@ -34,7 +34,7 @@ describe('App', () => {
   it('puts the selected job id in the URL', async () => {
     const user = userEvent.setup()
     const router = renderRoute('/jobs/job-short')
-    await user.click(screen.getByRole('button', { name: 'Senior Frontend Engineer' }))
+    await user.click(screen.getByRole('link', { name: 'Senior Frontend Engineer' }))
     expect(router.state.location.pathname).toBe('/jobs/job-long')
     expect(screen.getByText('Nordlicht Software GmbH')).toBeInTheDocument()
   })
@@ -131,7 +131,8 @@ describe('App', () => {
     expect(screen.getByText('Application submitted')).toBeInTheDocument()
 
     await goBack(router)
-    expect(await screen.findByRole('button', { name: 'Apply' })).toBeDisabled()
+    expect(within(await screen.findByRole('link', { name: /^Frontend Developer \(React\)/ })).getByText('Applied')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Apply' })).not.toBeInTheDocument()
     expect(router.state.location.pathname).toBe('/jobs/job-short')
     expect(screen.queryByText('Fields marked with * are required')).not.toBeInTheDocument()
   })
@@ -143,8 +144,8 @@ describe('App', () => {
     await submitShortJob()
     await user.click(screen.getByRole('button', { name: 'Back to the main page' }))
     expect(router.state.location.pathname).toBe('/jobs/job-short')
-    expect(screen.getByRole('button', { name: 'Apply' })).toBeDisabled()
-    expect(screen.getByText('You have already applied to this job.')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Apply' })).not.toBeInTheDocument()
+    expect(within(screen.getByRole('main')).getAllByText('Applied')).toHaveLength(2)
   })
 
   it('remembers an applied job across a page refresh', async () => {
@@ -154,7 +155,21 @@ describe('App', () => {
     document.body.innerHTML = ''
 
     renderRoute('/jobs/job-short')
-    expect(screen.getByRole('button', { name: 'Apply' })).toBeDisabled()
+    expect(screen.queryByRole('button', { name: 'Apply' })).not.toBeInTheDocument()
+  })
+
+  it('marks the selected job as the current page in the job list', () => {
+    renderRoute('/jobs/job-short')
+    expect(screen.getByRole('link', { name: 'Frontend Developer (React)' })).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByRole('link', { name: 'Senior Frontend Engineer' })).not.toHaveAttribute('aria-current')
+  })
+
+  it('shows the Applied badge only on applied jobs, in German under /de', () => {
+    localStorage.setItem('applied-job-ids', '["job-short"]')
+    renderRoute('/de/jobs/job-long')
+    expect(within(screen.getByRole('link', { name: /^Frontend Developer \(React\)/ })).getByText('Beworben')).toBeInTheDocument()
+    expect(within(screen.getByRole('link', { name: 'Senior Frontend Engineer' })).queryByText('Beworben')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Bewerben' })).toBeEnabled()
   })
 
   it.each(['{not json', '"job-short"', '{"job-short":true}'])(
@@ -261,7 +276,7 @@ describe('UI language in the URL (#49)', () => {
     const user = userEvent.setup()
     vi.spyOn(console, 'log').mockImplementation(() => {})
     const router = renderRoute('/de/jobs/job-long')
-    await user.click(screen.getByRole('button', { name: 'Frontend Developer (React)' }))
+    await user.click(screen.getByRole('link', { name: 'Frontend Developer (React)' }))
     expect(router.state.location.pathname).toBe('/de/jobs/job-short')
 
     await user.click(screen.getByRole('button', { name: 'Bewerben' }))

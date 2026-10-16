@@ -168,12 +168,10 @@ D14. **i18n: hand-rolled typed `t(key)` + React context.** ~30 UI strings don't 
 D28. **Focus rings fire on `:focus-visible` only**, so mouse clicks don't paint stray borders
      on radios and checkboxes.
 
-D32. **Unselected job switcher buttons are a full-opacity outline, never a faded fill.** Testing
-     the job switcher showed that unselected options (`aria-pressed=false`, opacity-60)
-     were nearly indistinguishable from disabled buttons (opacity-50), making enabled jobs look
-     unclickable. Faded is reserved for disabled; unselected jobs render as a full-opacity
-     outline (surface fill, primary text/border). A transparent base border preserves button
-     dimensions across states.
+D32. **The job list is navigation and Apply is the page's only solid primary button** (#55).
+     Jobs are links with `aria-current="page"` and a tinted active state, so the selected job
+     no longer competes with Apply. An applied job shows an "Applied" badge in the list and
+     the details, and the Apply button is removed rather than disabled — the badge says why.
 
 ### Engineering
 
