@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { screen } from '@testing-library/react'
 import type * as DataModule from '@/data'
 import shortJson from '@jobs/short.json'
-import { renderRoute } from '@/renderRoute'
+import { renderRoute } from '@/test/renderRoute'
 
 vi.mock('@/data', async (importOriginal) => ({
   ...(await importOriginal<typeof DataModule>()),
