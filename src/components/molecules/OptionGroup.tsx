@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
-import { ErrorText } from '@/components/atoms/ErrorText'
-import { RequiredMark } from '@/components/atoms/RequiredMark'
 import { Text } from '@/components/atoms/Text'
+import { ErrorText } from './ErrorText'
+import { RequiredMark } from './RequiredMark'
 
 interface OptionGroupProps {
   id: string

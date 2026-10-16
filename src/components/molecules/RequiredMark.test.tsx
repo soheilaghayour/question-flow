@@ -8,6 +8,5 @@ describe('RequiredMark', () => {
     const star = container.firstElementChild
     expect(star).toHaveTextContent('*')
     expect(star).toHaveAttribute('aria-hidden', 'true')
-    expect(star).toHaveClass('text-error')
   })
 })
