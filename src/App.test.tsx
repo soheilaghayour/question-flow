@@ -178,10 +178,26 @@ describe('App', () => {
     expect(screen.getByText('Kranich Health GmbH')).toBeInTheDocument()
   })
 
-  it('toggles the UI language', async () => {
+  it('switches the UI language with an EN | DE control that marks the current one', async () => {
     const user = userEvent.setup()
+    vi.spyOn(window.navigator, 'language', 'get').mockReturnValue('en-US')
     renderRoute('/jobs/job-short')
-    await user.click(screen.getByRole('button', { name: 'Deutsch' }))
+    const languages = within(screen.getByRole('group', { name: 'Language' }))
+    expect(languages.getByRole('button', { name: 'EN' })).toHaveAttribute('aria-pressed', 'true')
+    expect(languages.getByRole('button', { name: 'DE' })).toHaveAttribute('aria-pressed', 'false')
+
+    await user.click(languages.getByRole('button', { name: 'DE' }))
     expect(screen.getByRole('button', { name: 'Bewerben' })).toBeInTheDocument()
+    expect(
+      within(screen.getByRole('group', { name: 'Sprache' })).getByRole('button', { name: 'DE' }),
+    ).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('labels the wizard buttons with visible text', async () => {
+    const user = userEvent.setup()
+    renderRoute('/jobs/job-short/apply?step=1')
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    expect(screen.getByRole('button', { name: 'Next' })).toHaveTextContent('Next')
+    expect(screen.getByRole('button', { name: 'Back' })).toHaveTextContent('Back')
   })
 })

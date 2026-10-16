@@ -7,13 +7,14 @@ import { useI18n } from './useI18n'
 const RECRUITER_TEXT = 'Bitte ausschließlich als PDF einreichen.'
 
 function Probe() {
-  const { t, toggleLanguage } = useI18n()
+  const { t, setLanguage } = useI18n()
   return (
     <div>
       <p>{t('submit')}</p>
       {/* Recruiter-authored text renders verbatim, never through t(). */}
       <p>{RECRUITER_TEXT}</p>
-      <button onClick={toggleLanguage}>toggle</button>
+      <button onClick={() => setLanguage('en')}>en</button>
+      <button onClick={() => setLanguage('de')}>de</button>
     </div>
   )
 }
@@ -67,14 +68,14 @@ describe('LanguageProvider — storage failures', () => {
     expect(screen.getByText('Bewerbung absenden')).toBeInTheDocument()
   })
 
-  it('still toggles the language when writing storage throws', async () => {
+  it('still switches the language when writing storage throws', async () => {
     const user = userEvent.setup()
     mockBrowserLanguage('en-US')
     vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
       throw new DOMException('quota', 'QuotaExceededError')
     })
     renderProbe()
-    await user.click(screen.getByRole('button', { name: 'toggle' }))
+    await user.click(screen.getByRole('button', { name: 'de' }))
     expect(screen.getByText('Bewerbung absenden')).toBeInTheDocument()
   })
 })
@@ -85,26 +86,34 @@ describe('LanguageProvider — document language (WCAG 3.1.1)', () => {
     mockBrowserLanguage('de-DE')
     renderProbe()
     expect(document.documentElement.lang).toBe('de')
-    await user.click(screen.getByRole('button', { name: 'toggle' }))
+    await user.click(screen.getByRole('button', { name: 'en' }))
     expect(document.documentElement.lang).toBe('en')
   })
 })
 
-describe('LanguageProvider — toggle', () => {
+describe('LanguageProvider — setLanguage', () => {
   it('switches UI strings, leaves recruiter text verbatim, persists the choice', async () => {
     const user = userEvent.setup()
     mockBrowserLanguage('en-US')
     renderProbe()
 
-    await user.click(screen.getByRole('button', { name: 'toggle' }))
+    await user.click(screen.getByRole('button', { name: 'de' }))
 
     expect(screen.getByText('Bewerbung absenden')).toBeInTheDocument()
     expect(screen.getByText(RECRUITER_TEXT)).toBeInTheDocument()
     expect(localStorage.getItem('ui-language')).toBe('de')
 
-    await user.click(screen.getByRole('button', { name: 'toggle' }))
+    await user.click(screen.getByRole('button', { name: 'en' }))
 
     expect(screen.getByText('Submit application')).toBeInTheDocument()
     expect(localStorage.getItem('ui-language')).toBe('en')
+  })
+
+  it('keeps the language when the active one is chosen again', async () => {
+    const user = userEvent.setup()
+    mockBrowserLanguage('de-DE')
+    renderProbe()
+    await user.click(screen.getByRole('button', { name: 'de' }))
+    expect(screen.getByText('Bewerbung absenden')).toBeInTheDocument()
   })
 })

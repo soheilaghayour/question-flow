@@ -3,6 +3,7 @@ import type { TranslationKey } from './en'
 // Record<TranslationKey, string> makes a missing or extra key a compile error.
 export const de: Record<TranslationKey, string> = {
   app_title: 'Question Flow',
+  language: 'Sprache',
   apply: 'Bewerben',
   submit: 'Bewerbung absenden',
   optional: 'optional',
