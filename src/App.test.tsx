@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { renderRoute } from '@/renderRoute'
+import { renderRoute } from '@/test/renderRoute'
 
 function goBack(router: ReturnType<typeof renderRoute>) {
   return act(() => router.navigate(-1))
