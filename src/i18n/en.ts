@@ -16,8 +16,6 @@ export const en = {
   submitted_title: 'Application submitted',
   submitted_body:
     'Thank you for applying. The company will review your application and get back to you.',
-  submitted_screening_note:
-    'Please note: your profile may not match some of the requirements for this position.',
   back_to_main: 'Back to the main page',
   choose_file: 'Choose file',
   required_hint: 'Fields marked with * are required',

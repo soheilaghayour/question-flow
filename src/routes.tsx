@@ -3,7 +3,7 @@ import { rawJobConfigsById } from '@/data'
 import { App } from '@/App'
 import { JobPage } from '@/pages/JobPage'
 import { ApplyFlow } from '@/pages/ApplyFlow'
-import { AppliedPage } from '@/pages/AppliedPage'
+import { ApplyConfirmation } from '@/pages/ApplyConfirmation'
 
 const firstJobId = rawJobConfigsById.keys().next().value
 
@@ -14,7 +14,7 @@ export const routes: RouteObject[] = [
       { path: '/', element: <Navigate to={`/jobs/${firstJobId}`} replace /> },
       { path: '/jobs/:jobId', element: <JobPage /> },
       { path: '/jobs/:jobId/apply', element: <ApplyFlow /> },
-      { path: '/jobs/:jobId/applied', element: <AppliedPage /> },
+      { path: '/jobs/:jobId/confirmation', element: <ApplyConfirmation /> },
       { path: '*', element: <Navigate to="/" replace /> },
     ],
   },

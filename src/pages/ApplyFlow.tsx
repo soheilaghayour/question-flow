@@ -47,7 +47,7 @@ export function ApplyFlow() {
   // freshly entered step never opens pre-littered with error text.
   const [attemptedStepIndex, setAttemptedStepIndex] = useState<number | null>(null)
   // Checked once on mount: Back into a submitted form remounts it, while the
-  // submit itself must not redirect before /applied is reached.
+  // submit itself must not redirect before the confirmation is reached.
   const [alreadyApplied] = useState(() => getAppliedJobIdsFromStorage().includes(jobId))
   const { t, language } = useI18n()
 
@@ -112,10 +112,7 @@ export function ApplyFlow() {
     const nextPayload = buildPayload(job, state.answers, screening)
     console.log(nextPayload)
     addAppliedJobIdToStorage(job.id)
-    navigate(`/jobs/${job.id}/applied`, {
-      replace: true,
-      state: { screeningPassed: screening.passed },
-    })
+    navigate(`/jobs/${job.id}/confirmation`, { replace: true })
   }
 
   const progressLabel = t('step_label')
