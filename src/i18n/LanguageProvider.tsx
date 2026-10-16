@@ -35,7 +35,7 @@ function initialLanguage(): Language {
 }
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<Language>(initialLanguage)
+  const [language, setLanguage] = useState<Language>(initialLanguage)
 
   // Screen readers take pronunciation from the document language (WCAG 3.1.1);
   // index.html's hardcoded lang="en" must follow the UI language.
@@ -46,9 +46,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const value = useMemo(
     () => ({
       language,
-      setLanguage: (next: Language) => {
+      chooseLanguage: (next: Language) => {
         storeLanguage(next)
-        setLanguageState(next)
+        setLanguage(next)
       },
       t: (key: keyof typeof en) => DICTIONARIES[language][key],
     }),

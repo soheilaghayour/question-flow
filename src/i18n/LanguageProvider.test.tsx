@@ -5,12 +5,12 @@ import { LanguageProvider } from './LanguageProvider'
 import { useI18n } from './useI18n'
 
 function Probe() {
-  const { t, setLanguage } = useI18n()
+  const { t, chooseLanguage } = useI18n()
   return (
     <div>
       <p>{t('submit')}</p>
-      <button onClick={() => setLanguage('en')}>en</button>
-      <button onClick={() => setLanguage('de')}>de</button>
+      <button onClick={() => chooseLanguage('en')}>en</button>
+      <button onClick={() => chooseLanguage('de')}>de</button>
     </div>
   )
 }
@@ -87,7 +87,7 @@ describe('LanguageProvider — document language (WCAG 3.1.1)', () => {
   })
 })
 
-describe('LanguageProvider — setLanguage', () => {
+describe('LanguageProvider — chooseLanguage', () => {
   it('switches UI strings and persists the choice', async () => {
     const user = userEvent.setup()
     mockBrowserLanguage('en-US')
