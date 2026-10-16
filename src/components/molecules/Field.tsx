@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react'
+import { ErrorText } from '@/components/atoms/ErrorText'
+import { Hint } from '@/components/atoms/Hint'
 
 /** Props the caller must spread onto the rendered input so the label, hint and
  * error text stay associated with it (DECISIONS #12: a11y baseline). */
@@ -47,18 +49,8 @@ export function Field({ id, label, required, description, error, children }: Fie
         'aria-describedby': describedBy,
         'aria-required': required ? true : undefined,
       })}
-      {description && (
-        <p id={descriptionId} className="text-sm text-muted">
-          {description}
-        </p>
-      )}
-      {/* role="alert": errors appear at submit while focus stays on the submit
-          button, so they must be announced, not only referenced. */}
-      {error && (
-        <p id={errorId} role="alert" className="text-sm text-error">
-          {error}
-        </p>
-      )}
+      {description && <Hint id={descriptionId}>{description}</Hint>}
+      {error && <ErrorText id={errorId}>{error}</ErrorText>}
     </div>
   )
 }

@@ -7,6 +7,9 @@ import { answerText } from '@/domain/answerText'
 import { useJobWizard } from '@/hooks/useJobWizard'
 import { QuestionField } from '@/components/questions/QuestionField'
 import { Button } from '@/components/atoms/Button'
+import { ErrorText } from '@/components/atoms/ErrorText'
+import { Heading } from '@/components/atoms/Heading'
+import { Hint } from '@/components/atoms/Hint'
 import { ArrowLeftIcon, ArrowRightIcon } from '@/components/atoms/Icons'
 import { AnswerReview } from '@/components/molecules/AnswerReview'
 import { JobSummary } from '@/components/molecules/JobSummary'
@@ -33,11 +36,7 @@ export function ApplyFlow() {
   const { t, language, localizedPath } = useI18n()
 
   if ('error' in wizard) {
-    return (
-      <p role="alert" className="text-error">
-        {t('error_job_invalid')}
-      </p>
-    )
+    return <ErrorText>{t('error_job_invalid')}</ErrorText>
   }
   const { job, steps } = wizard
 
@@ -95,9 +94,7 @@ export function ApplyFlow() {
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
       <JobSummary title={job.title} company={job.company} />
       <ProgressBar label={progressLabel} fraction={(stepIndex + 1) / totalSteps} />
-      {step && step.questions.some((q) => q.required) && (
-        <p className="text-sm text-muted">{t('required_hint')}</p>
-      )}
+      {step && step.questions.some((q) => q.required) && <Hint>{t('required_hint')}</Hint>}
       {/* One submit path for click and Enter alike: on question steps it IS
           the Next action (same gate), on the summary it sends — so the
           button's type never has to swap under a click. */}
@@ -115,7 +112,11 @@ export function ApplyFlow() {
             be reset by a remount. */}
         {steps.map((wizardStep, index) => (
           <div key={wizardStep.questions[0].id} hidden={index !== stepIndex} className="flex flex-col gap-6">
-            {wizardStep.prefilled && <h2 className="font-medium">{t('from_profile')}</h2>}
+            {wizardStep.prefilled && (
+              <Heading level={2} size="sm">
+                {t('from_profile')}
+              </Heading>
+            )}
             {wizardStep.questions.map((question) => (
               <QuestionField
                 key={question.id}
@@ -133,7 +134,9 @@ export function ApplyFlow() {
         ))}
         {onSummary && (
           <>
-            <h2 className="font-medium">{t('review_title')}</h2>
+            <Heading level={2} size="sm">
+              {t('review_title')}
+            </Heading>
             <AnswerReview
               items={job.questions.map((question) => ({
                 id: question.id,

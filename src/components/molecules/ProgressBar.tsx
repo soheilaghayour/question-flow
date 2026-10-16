@@ -1,3 +1,5 @@
+import { Hint } from '@/components/atoms/Hint'
+
 interface ProgressBarProps {
   label: string
   /** 0..1 — the caller computes answered/total. */
@@ -12,9 +14,7 @@ export function ProgressBar({ label, fraction }: ProgressBarProps) {
     <div className="flex flex-col gap-1">
       {/* aria-live: when the label changes (new wizard step), screen readers
           hear it — the visual content swap has no other announcement. */}
-      <p aria-live="polite" className="text-sm text-muted">
-        {label}
-      </p>
+      <Hint aria-live="polite">{label}</Hint>
       <div
         role="progressbar"
         aria-label={label}
