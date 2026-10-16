@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { ErrorText } from '@/components/atoms/ErrorText'
 
 interface OptionGroupProps {
   id: string
@@ -28,13 +29,7 @@ export function OptionGroup({ id, label, required, error, children }: OptionGrou
         )}
       </legend>
       <div className="flex flex-col gap-2">{children}</div>
-      {/* role="alert": same reasoning as Field — errors appear at submit while
-          focus stays on the submit button. */}
-      {error && (
-        <p id={errorId} role="alert" className="text-sm text-error">
-          {error}
-        </p>
-      )}
+      {error && <ErrorText id={errorId}>{error}</ErrorText>}
     </fieldset>
   )
 }

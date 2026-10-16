@@ -1,3 +1,4 @@
+import { Heading } from '@/components/atoms/Heading'
 import { CheckCircleIcon } from '@/components/atoms/Icons'
 
 interface SubmissionResultProps {
@@ -13,7 +14,9 @@ export function SubmissionResult({ title, body }: SubmissionResultProps) {
       <span className="text-primary">
         <CheckCircleIcon />
       </span>
-      <h2 className="text-2xl font-semibold">{title}</h2>
+      <Heading level={2} size="lg">
+        {title}
+      </Heading>
       <p>{body}</p>
     </output>
   )
