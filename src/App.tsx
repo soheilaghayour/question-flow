@@ -2,7 +2,6 @@ import { Outlet } from 'react-router'
 import { useI18n } from '@/i18n/useI18n'
 import { LanguageSwitch } from '@/components/molecules/LanguageSwitch'
 
-/** The shell around every route: header with the language switch, then the page. */
 export function App() {
   const { t } = useI18n()
   return (
