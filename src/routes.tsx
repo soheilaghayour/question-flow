@@ -10,7 +10,7 @@ import { pathInLanguage } from '@/i18n/languagePath'
 
 const firstJobPath = `/jobs/${rawJobConfigsById.keys().next().value}`
 
-function pageRoutes(language: Language): RouteObject[] {
+function pageRoutes(language: Language) {
   const firstJob = <Navigate to={pathInLanguage(language, firstJobPath)} replace />
   return [
     { index: true, element: firstJob },
