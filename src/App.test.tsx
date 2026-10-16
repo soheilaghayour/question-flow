@@ -239,6 +239,13 @@ describe('UI language in the URL (#49)', () => {
     expect(router.state.location.pathname).toBe(target)
   })
 
+  it('marks German as the active language under /de', () => {
+    renderRoute('/de/jobs/job-short')
+    const languages = within(screen.getByRole('group', { name: 'Sprache' }))
+    expect(languages.getByRole('link', { name: 'DE' })).toHaveAttribute('aria-current', 'page')
+    expect(languages.getByRole('link', { name: 'EN' })).not.toHaveAttribute('aria-current')
+  })
+
   it('marks the active language and links the other to the same page and step', async () => {
     const user = userEvent.setup()
     renderRoute('/jobs/job-short/apply?step=1')

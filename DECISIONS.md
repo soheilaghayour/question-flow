@@ -172,7 +172,8 @@ D32. **The job list is navigation and Apply is the page's only solid primary but
      Jobs are links with `aria-current="page"` and a tinted active state, so the selected job
      no longer competes with Apply. An applied job shows an "Applied" badge in the list and
      in Apply's place, never a disabled button: the badge says why, and the title stays put
-     when switching jobs.
+     when switching jobs. All navigation links share one `NavItem` atom and one current-page
+     style (primary text on a tint); the job list uses full rows, the language switch compact pills.
 
 ### Engineering
 
