@@ -178,10 +178,20 @@ describe('App', () => {
     expect(screen.getByText('Kranich Health GmbH')).toBeInTheDocument()
   })
 
-  it('toggles the UI language', async () => {
+  it('translates the UI but never the recruiter text', async () => {
     const user = userEvent.setup()
-    renderRoute('/jobs/job-short')
-    await user.click(screen.getByRole('button', { name: 'Deutsch' }))
-    expect(screen.getByRole('button', { name: 'Bewerben' })).toBeInTheDocument()
+    vi.spyOn(window.navigator, 'language', 'get').mockReturnValue('en-US')
+    renderRoute('/jobs/job-short/apply?step=1')
+    await user.click(screen.getByRole('button', { name: 'DE' }))
+    expect(screen.getByRole('button', { name: 'Weiter' })).toBeInTheDocument()
+    expect(screen.getByText('What is your notice period?')).toBeInTheDocument()
+  })
+
+  it('labels the wizard buttons with visible text', async () => {
+    const user = userEvent.setup()
+    renderRoute('/jobs/job-short/apply?step=1')
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    expect(screen.getByRole('button', { name: 'Next' })).toHaveTextContent('Next')
+    expect(screen.getByRole('button', { name: 'Back' })).toHaveTextContent('Back')
   })
 })

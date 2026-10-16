@@ -149,16 +149,14 @@ export function ApplyFlow() {
           </>
         )}
         <div className="flex justify-between gap-4">
-          <Button type="button" aria-label={t('back')} title={t('back')} onClick={handleBack}>
+          <Button variant="secondary" onClick={handleBack}>
             <ArrowLeftIcon />
+            {t('back')}
           </Button>
-          {onSummary ? (
-            <Button type="submit">{t('submit')}</Button>
-          ) : (
-            <Button type="submit" aria-label={t('next')} title={t('next')}>
-              <ArrowRightIcon />
-            </Button>
-          )}
+          <Button type="submit">
+            {onSummary ? t('submit') : t('next')}
+            {!onSummary && <ArrowRightIcon />}
+          </Button>
         </div>
       </form>
     </div>
