@@ -61,10 +61,12 @@ the snake_case keys exactly.
 - Adding a question type = new component + one registry entry: the flow never switches on type.
 - Colors only by role (`text-error`, `bg-primary`); palette colors like `red-600` exist only inside `@theme`: design changes stay one-line.
 - Raw styling lives in `atoms/` and `molecules/`; pages compose and add only layout classes (`flex`, `gap-4`, `grid`): the atom is the semantic layer.
-- Don't abstract until code is duplicated three times: wrong abstractions cost more than duplication.
+- Don't abstract until code is duplicated three times, and no wrapper component that only forwards props: wrong abstractions cost more than duplication.
 - Implement only what the current issue asks: scope creep hides review surface.
 - The contract (`docs/task-contract.md`) is the source of truth; every rule in it has a test: untested contract rules rot.
 - TypeScript strict, no `any`: the contract types are the safety net.
+- Let TypeScript infer; annotate only where it checks something — contract shapes, discriminated results, empty containers, nullable state, `unknown` at trust boundaries: redundant annotations are noise that drifts.
+- Prefer flat lookup tables with `satisfies` over generic helpers and conditional types: a reader sees the mapping, the compiler still checks coverage.
 
 ## Things that will bite you (each has at least one test)
 
