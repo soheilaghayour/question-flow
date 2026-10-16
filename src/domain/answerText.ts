@@ -1,6 +1,6 @@
 import type { Question } from './schema'
 import type { Answers } from './payload'
-import { hasAnswer } from './formState'
+import { hasAnswer } from './answers'
 
 /** UI-language words and locale the text needs; injected so this stays i18n-free. */
 export interface AnswerTextLabels {

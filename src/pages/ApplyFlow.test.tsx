@@ -98,7 +98,7 @@ describe('ApplyFlow wizard steps (#36)', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Enter a whole number')
   })
 
-  it('sends a step URL past the furthest step reached back to step 1', async () => {
+  it('sends a step URL past an unfinished step back to step 1', async () => {
     const user = userEvent.setup()
     const router = renderApplyFlow(longJson)
     await user.click(screen.getByRole('button', { name: 'Next' }))
@@ -397,27 +397,19 @@ describe('ApplyFlow with short.json', () => {
     expect(log).not.toHaveBeenCalled()
   })
 
-  it('refuses to submit from the summary with a visible alert when an answer went missing', async () => {
-    const user = userEvent.setup()
+  it('sends the summary back to step 1 when an earlier required answer goes missing', async () => {
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
     renderApplyFlow(shortJson)
-
     await clickNext()
     await clickNext()
 
-    // The per-step gates make this unreachable by normal interaction; the
-    // safety net still exists for it — and must never be a silent no-op.
-    // Clearing the (hidden but mounted) required salary simulates the gap.
+    // Clearing the (hidden but mounted) required salary leaves step 1 unfinished.
     fireEvent.change(screen.getByLabelText('What is your yearly salary expectation in EUR?'), {
       target: { value: '' },
     })
-    await user.click(screen.getByRole('button', { name: 'Submit application' }))
 
-    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    expect(await screen.findByRole('progressbar', { name: 'Step 1 of 3' })).toBeInTheDocument()
     expect(log).not.toHaveBeenCalled()
-    expect(screen.getByRole('alert')).toHaveTextContent(
-      'Some required questions are still unanswered',
-    )
   })
 
   it('submits the untouched prefill as-is', async () => {

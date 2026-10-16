@@ -5,7 +5,7 @@ Every judgment call, with its reason. Authority order: the contract (`docs/task-
 
 ## What I built
 
-The application is an end-to-end candidate application flow that normalizes raw job configs, prefills matching candidate profile fields, and guides the candidate through a multi-step wizard. Prefilled answers lead as an editable confirmation step, followed by open questions chunked three per step in config order, and conclude with a read-only review step. Submitting logs the contract-compliant JSON payload (including screening results) to the browser console and renders a candidate-facing confirmation screen with generic messaging if requirements are unmet. The interface supports English and German with a manual toggle falling back to browser language. Core domain logic (normalization, validation, prefill, screening, and payload generation) is pure and verified by 262 tests across 26 test files, automated via GitHub Actions CI (typecheck, lint, test, build).
+The application is an end-to-end candidate application flow that normalizes raw job configs, prefills matching candidate profile fields, and guides the candidate through a multi-step wizard. Prefilled answers lead as an editable confirmation step, followed by open questions chunked three per step in config order, and conclude with a read-only review step. Submitting logs the contract-compliant JSON payload (including screening results) to the browser console and renders a candidate-facing confirmation screen with generic messaging if requirements are unmet. The interface supports English and German with a manual toggle falling back to browser language. Core domain logic (normalization, validation, prefill, screening, and payload generation) is pure and verified by 256 tests across 26 test files, automated via GitHub Actions CI (typecheck, lint, test, build).
 
 ## Decisions
 
@@ -84,11 +84,9 @@ D24. **Candidates see the same neutral confirmation whatever the screening resul
 
 ### Form & state
 
-D1. **Form state: single `useState<FormState>` object + pure transition functions**
-    (`formState.ts`: `answerChanged`, `submitAttempted`, …) fed to the functional setter.
-    react-hook-form would be a second validation brain beside `domain/`; a single state
-    object updates atomically; pure transitions stay unit-testable without React.
-    *Revisit:* switch to `useReducer` if V2 step logic grows.
+D1. **Answers are one `useState<Answers>` in `ApplyFlow`; the step lives in the URL.**
+    react-hook-form would be a second validation brain beside `domain/`. The only other state
+    is the step whose Next failed, so its errors show and a fresh step opens clean.
 
 D2. **Context only for the i18n language, never for form state.** Props are one level deep
     (`ApplyFlow` → question component); context would hide data flow and couple components
@@ -121,15 +119,11 @@ D21. **Question components are controlled and share one seam:**
      (FileDrop re-validation, input reset, MIME fallback, latest-wins guard, and registry union casting)
      are documented in code comments.
 
-D22. **The submit gate is required-missing only.** Components hold invalid input as
+D22. **The step gate is required-missing only.** Components hold invalid input as
      `null` (D21), so an invalid required field blocks through the same check as an
-     empty one (`missingRequired` in `formState.ts` mirrors D19's no-substance rule).
+     empty one (`missingRequired` in `answers.ts` mirrors D19's no-substance rule).
      An optional field with unparseable input submits with that answer omitted: the
      widget's inline error already told the user, and the payload stays contract-safe.
-     Lifting widget validity into form state was rejected as reopening the D21 seam.
-     *Implementation notes:* `<output>` provides screen-reader announcement (D24); submitted
-     payload lives in a phase-local `useState` beside `FormState` (D1); the language toggle shipped
-     with the first page (D3).
 
 ### UX & flow
 
@@ -167,9 +161,8 @@ D30. **The apply form is a wizard: prefill confirm first, 3 questions per step, 
      completed work. Open questions follow in config order (3 per step), ending in a read-only
      review step with the sole Submit button. "Next" gates on the current step's required answers
      with inline errors (the step-advance gating D5 planned); Back and typing are ungated, with
-     answers preserved in `FormState` (D1). Progress is a step line ("Step X of Y", including summary)
-     animated under motion-safe only. Screening never blocks (D8); summary submit re-checks all
-     questions as a safety net.
+     answers preserved (D1). Progress is a step line ("Step X of Y", including summary)
+     animated under motion-safe only. Screening never blocks (D8).
 
 D31. **One back control, backed by the browser history; icon-only step navigation.**
      Testing the wizard showed two problems: the browser's back button left the site entirely,
@@ -191,13 +184,12 @@ D33. **History entries are session-stamped; stale ones are walked, never obeyed.
      browser Forward can restore a reached step without re-passing Next gates, which is safely
      caught by the summary safety net (D31). *Superseded by D35.*
 
-D35. **Every screen has a URL (react-router)** (#41, supersedes D25, D33 and D31's history
-     part). `/jobs/:jobId`, `/jobs/:jobId/apply?step=N`, `/jobs/:jobId/confirmation`; pages read
-     the job from the URL. Next pushes a step, Back is browser Back. A step past the furthest
-     one reached in this mount (refresh, shared link) restarts at step 1, since answers live
-     only in memory. Submit replaces the step with the confirmation, and opening the form of an
-     applied job redirects to its job page. Trade-off: Back after submitting passes through
-     the old steps, each redirecting to the job page.
+D35. **Every screen has a URL (react-router)** (#41). `/jobs/:jobId`,
+     `/jobs/:jobId/apply?step=N`, `/jobs/:jobId/confirmation`; pages read the job from the URL.
+     Next pushes a step, Back is browser Back. A step behind an unfinished step (refresh, edited
+     URL) restarts at step 1, since answers live only in memory. Submit replaces the step with
+     the confirmation; the form of an applied job redirects to its job page. Trade-off: Back
+     after submitting passes through the old steps, each redirecting to the job page.
 
 ### Styling & i18n
 

@@ -37,6 +37,4 @@ export const de: Record<TranslationKey, string> = {
   back: 'Zurück',
   review_title: 'Überprüfen Sie Ihre Antworten',
   no_answer: 'Nicht beantwortet',
-  error_review_missing:
-    'Einige Pflichtfragen sind noch unbeantwortet. Bitte gehen Sie zurück und beantworten Sie sie.',
 }
