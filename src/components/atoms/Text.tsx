@@ -1,14 +1,13 @@
 import type { HTMLAttributes } from 'react'
-import { cn } from '@/utils/cn'
 
-const TONE_CLASSES = {
+const TONES = {
   muted: 'text-muted',
   error: 'text-error',
-}
+} as const
 
-interface TextProps extends HTMLAttributes<HTMLElement> {
+export interface TextProps extends HTMLAttributes<HTMLElement> {
   as?: 'p' | 'span' | 'dt' | 'dd'
-  tone?: keyof typeof TONE_CLASSES | 'default'
+  tone?: keyof typeof TONES | 'default'
   size?: 'sm' | 'md'
   weight?: 'normal' | 'medium'
 }
@@ -21,15 +20,14 @@ export function Text({
   className,
   ...props
 }: TextProps) {
-  return (
-    <Tag
-      {...props}
-      className={cn(
-        tone !== 'default' && TONE_CLASSES[tone],
-        size === 'sm' && 'text-sm',
-        weight === 'medium' && 'font-medium',
-        className,
-      )}
-    />
-  )
+  const classes = [
+    tone !== 'default' && TONES[tone],
+    size === 'sm' && 'text-sm',
+    weight === 'medium' && 'font-medium',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ')
+
+  return <Tag {...props} className={classes || undefined} />
 }

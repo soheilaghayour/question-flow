@@ -1,5 +1,4 @@
 import type { ComponentPropsWithoutRef } from 'react'
-import { cn } from '@/utils/cn'
 
 const SIZE_CLASSES = {
   sm: 'text-base',
@@ -12,7 +11,7 @@ interface HeadingProps extends ComponentPropsWithoutRef<'h1'> {
   size?: keyof typeof SIZE_CLASSES
 }
 
-export function Heading({ level, size = 'sm', className, ...props }: HeadingProps) {
+export function Heading({ level, size = 'sm', className = '', ...props }: HeadingProps) {
   const Tag = `h${level}` as const
-  return <Tag {...props} className={cn('font-semibold', SIZE_CLASSES[size], className)} />
+  return <Tag {...props} className={`font-semibold ${SIZE_CLASSES[size]} ${className}`} />
 }
