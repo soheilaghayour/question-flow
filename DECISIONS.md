@@ -171,7 +171,8 @@ D28. **Focus rings fire on `:focus-visible` only**, so mouse clicks don't paint 
 D32. **The job list is navigation and Apply is the page's only solid primary button** (#55).
      Jobs are links with `aria-current="page"` and a tinted active state, so the selected job
      no longer competes with Apply. An applied job shows an "Applied" badge in the list and
-     the details, and the Apply button is removed rather than disabled — the badge says why.
+     in Apply's place, never a disabled button: the badge says why, and the title stays put
+     when switching jobs.
 
 ### Engineering
 
