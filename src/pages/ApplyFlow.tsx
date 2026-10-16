@@ -9,7 +9,7 @@ import { QuestionField } from '@/components/questions/QuestionField'
 import { Button } from '@/components/atoms/Button'
 import { ErrorText } from '@/components/atoms/ErrorText'
 import { Heading } from '@/components/atoms/Heading'
-import { Hint } from '@/components/atoms/Hint'
+import { Text } from '@/components/atoms/Text'
 import { ArrowLeftIcon, ArrowRightIcon } from '@/components/atoms/Icons'
 import { AnswerReview } from '@/components/molecules/AnswerReview'
 import { JobSummary } from '@/components/molecules/JobSummary'
@@ -94,7 +94,11 @@ export function ApplyFlow() {
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
       <JobSummary title={job.title} company={job.company} />
       <ProgressBar label={progressLabel} fraction={(stepIndex + 1) / totalSteps} />
-      {step && step.questions.some((q) => q.required) && <Hint>{t('required_hint')}</Hint>}
+      {step && step.questions.some((q) => q.required) && (
+        <Text tone="muted" size="sm">
+          {t('required_hint')}
+        </Text>
+      )}
       {/* One submit path for click and Enter alike: on question steps it IS
           the Next action (same gate), on the summary it sends — so the
           button's type never has to swap under a click. */}

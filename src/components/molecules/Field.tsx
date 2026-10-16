@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { ErrorText } from '@/components/atoms/ErrorText'
-import { Hint } from '@/components/atoms/Hint'
+import { Text } from '@/components/atoms/Text'
 
 /** Props the caller must spread onto the rendered input so the label, hint and
  * error text stay associated with it (DECISIONS #12: a11y baseline). */
@@ -49,7 +49,7 @@ export function Field({ id, label, required, description, error, children }: Fie
         'aria-describedby': describedBy,
         'aria-required': required ? true : undefined,
       })}
-      {description && <Hint id={descriptionId}>{description}</Hint>}
+      {description && <Text tone="muted" size="sm" id={descriptionId}>{description}</Text>}
       {error && <ErrorText id={errorId}>{error}</ErrorText>}
     </div>
   )

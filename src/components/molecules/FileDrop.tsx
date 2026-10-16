@@ -7,7 +7,7 @@ import {
   type FileRejection,
 } from '@/domain/fileConstraints'
 import { Button } from '@/components/atoms/Button'
-import { Hint } from '@/components/atoms/Hint'
+import { Text } from '@/components/atoms/Text'
 import type { FieldInputProps } from './Field'
 
 /** contentType travels with the file: it may come from the extension fallback,
@@ -79,7 +79,7 @@ export function FileDrop({ inputProps, chooseLabel, fileName, onSelect }: FileDr
       >
         {chooseLabel}
       </Button>
-      {fileName && <Hint>{fileName}</Hint>}
+      {fileName && <Text tone="muted" size="sm">{fileName}</Text>}
     </div>
   )
 }

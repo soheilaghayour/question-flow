@@ -161,7 +161,7 @@ D13. **Styling: Tailwind v4 + semantic color tokens in `@theme`; atoms are the r
      `Input.tsx` is the single place input styling lives, so role-level changes are
      one-file edits. Discipline rules in `CLAUDE.md`: colors only by role; raw styling only
      in `atoms/`/`molecules/`, pages add layout classes only.
-     Text roles are atoms too: `ErrorText`, `Hint` and `Heading` (one size scale, no color) (#51).
+     Text roles are atoms too: `Text` (tone and size props, never caller color classes), `ErrorText` (separate because it adds `role="alert"`) and `Heading` (#51).
 
 D14. **i18n: hand-rolled typed `t(key)` + React context.** ~30 UI strings don't justify i18next.
 
