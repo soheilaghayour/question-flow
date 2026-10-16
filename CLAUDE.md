@@ -36,15 +36,15 @@ src/
 
 ## Naming conventions
 
-| What                  | Style                         | Example                              |
-| :-------------------- | :---------------------------- | :----------------------------------- |
-| Folders               | lowercase / kebab-case        | `components/atoms`, `question-types` |
+| What                  | Style                         | Example                                      |
+| :-------------------- | :---------------------------- | :------------------------------------------- |
+| Folders               | lowercase / kebab-case        | `components/atoms`, `question-types`         |
 | React component files | PascalCase (= component name) | `JobOverviewPage.tsx`, `NumericQuestion.tsx` |
-| Other TS files        | camelCase                     | `screening.ts`, `fileToBase64.ts`    |
-| Tests                 | next to the file, same name   | `screening.test.ts`                  |
-| Variables / functions | camelCase                     | `buildPayload`, `questionId`         |
-| Types / components    | PascalCase                    | `NumericQuestion`, `AnswerPayload`   |
-| Constants             | UPPER_SNAKE_CASE              | `MAX_FILE_SIZE_BYTES`                |
+| Other TS files        | camelCase                     | `screening.ts`, `fileToBase64.ts`            |
+| Tests                 | next to the file, same name   | `screening.test.ts`                          |
+| Variables / functions | camelCase                     | `buildPayload`, `questionId`                 |
+| Types / components    | PascalCase                    | `NumericQuestion`, `AnswerPayload`           |
+| Constants             | UPPER_SNAKE_CASE              | `MAX_FILE_SIZE_BYTES`                        |
 
 **Import aliases:** `@/*` → `src/*`; fixtures via `@jobs/*` and `@profile`. Relative
 imports only within the same folder.
