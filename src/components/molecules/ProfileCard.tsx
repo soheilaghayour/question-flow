@@ -1,9 +1,8 @@
 import type { Profile } from '@/domain/schema'
+import { Heading } from '@/components/atoms/Heading'
+import { Text } from '@/components/atoms/Text'
 import { useI18n } from '@/i18n/useI18n'
 
-/** The profile that feeds prefill, made visible: the candidate should see
- * WHERE prefilled answers come from before entering the form. Display only —
- * values render plain (no locale number formatting, see issue #21). */
 export function ProfileCard({ profile }: { profile: Profile }) {
   const { t } = useI18n()
   const name = [profile.first_name, profile.last_name].filter(Boolean).join(' ')
@@ -20,14 +19,24 @@ export function ProfileCard({ profile }: { profile: Profile }) {
   ]
   return (
     <aside className="flex h-fit flex-col gap-3 rounded-lg border border-muted bg-surface p-4">
-      <h2 className="font-semibold">{t('profile_heading')}</h2>
-      {name && <p className="font-medium">{name}</p>}
-      {profile.headline && <p className="text-sm text-muted">{profile.headline}</p>}
-      <dl className="flex flex-col gap-2 text-sm">
+      <Heading level={2}>
+        {t('profile_heading')}
+      </Heading>
+      {name && <Text weight="medium">{name}</Text>}
+      {profile.headline && (
+        <Text tone="muted" size="sm">
+          {profile.headline}
+        </Text>
+      )}
+      <dl className="flex flex-col gap-2">
         {rows.map(([label, value]) => (
           <div key={label}>
-            <dt className="text-muted">{label}</dt>
-            <dd>{value}</dd>
+            <Text as="dt" tone="muted" size="sm">
+              {label}
+            </Text>
+            <Text as="dd" size="sm">
+              {value}
+            </Text>
           </div>
         ))}
       </dl>

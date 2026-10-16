@@ -5,8 +5,7 @@ import { OptionGroup } from '@/components/molecules/OptionGroup'
 
 interface SelectQuestionProps {
   question: SelectQuestionConfig
-  // string when max_choices === 1, string[] when > 1 — the shape follows
-  // max_choices, never the picked count (bite #1).
+  // string when max_choices is 1, else string[], whatever the picked count (bite #1).
   value: string | string[] | null
   onChange: (value: string | string[] | null) => void
   error?: string

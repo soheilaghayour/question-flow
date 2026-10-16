@@ -1,7 +1,9 @@
 import type { ReactNode } from 'react'
+import { Text } from '@/components/atoms/Text'
+import { ErrorText } from './ErrorText'
+import { RequiredMark } from './RequiredMark'
 
-/** Props the caller must spread onto the rendered input so the label, hint and
- * error text stay associated with it (DECISIONS #12: a11y baseline). */
+/** Props the caller spreads onto the rendered input. */
 export interface FieldInputProps {
   id: string
   'aria-invalid': true | undefined
@@ -21,25 +23,17 @@ interface FieldProps {
 export function Field({ id, label, required, description, error, children }: FieldProps) {
   const descriptionId = `${id}-description`
   const errorId = `${id}-error`
-  // Field owns the describedby token list so a hint and an error can coexist —
-  // callers must never set aria-describedby themselves (a later spread would
-  // silently drop one association).
   const describedBy =
-    [description ? descriptionId : '', error ? errorId : ''].filter(Boolean).join(' ') ||
-    undefined
+    [description && descriptionId, error && errorId].filter(Boolean).join(' ') || undefined
   return (
     <div className="flex flex-col gap-1">
-      {/* The star lives OUTSIDE the label element: label text is what accessible
-          queries (and screen readers) read — they get aria-required instead. */}
       <div className="flex gap-1">
-        <label htmlFor={id} className="font-medium">
-          {label}
+        <label htmlFor={id}>
+          <Text as="span" weight="medium">
+            {label}
+          </Text>
         </label>
-        {required && (
-          <span aria-hidden="true" className="text-error">
-            *
-          </span>
-        )}
+        {required && <RequiredMark />}
       </div>
       {children({
         id,
@@ -48,17 +42,11 @@ export function Field({ id, label, required, description, error, children }: Fie
         'aria-required': required ? true : undefined,
       })}
       {description && (
-        <p id={descriptionId} className="text-sm text-muted">
+        <Text tone="muted" size="sm" id={descriptionId}>
           {description}
-        </p>
+        </Text>
       )}
-      {/* role="alert": errors appear at submit while focus stays on the submit
-          button, so they must be announced, not only referenced. */}
-      {error && (
-        <p id={errorId} role="alert" className="text-sm text-error">
-          {error}
-        </p>
-      )}
+      {error && <ErrorText id={errorId}>{error}</ErrorText>}
     </div>
   )
 }

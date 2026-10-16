@@ -13,8 +13,6 @@ export function useJobWizard(jobId: string) {
     return { ...result, initialAnswers, steps: buildSteps(result.job.questions, initialAnswers) }
   }, [jobId])
 
-  // Config problems are the recruiter's bug to hear about (DECISIONS #10) —
-  // once per config, not per render.
   useEffect(() => {
     if ('job' in application)
       for (const warning of application.warnings)

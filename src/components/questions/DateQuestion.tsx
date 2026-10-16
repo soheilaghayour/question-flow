@@ -9,8 +9,7 @@ interface DateQuestionProps {
   error?: string
 }
 
-// Local date parts, never toISOString — near midnight the UTC date is a
-// different day, and min would exclude today or allow yesterday (bite #3).
+// Not toISOString: near midnight the UTC date is a different day (bite #3).
 function todayLocal(): string {
   const now = new Date()
   const month = String(now.getMonth() + 1).padStart(2, '0')
