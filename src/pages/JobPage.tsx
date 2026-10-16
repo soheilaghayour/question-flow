@@ -22,7 +22,7 @@ export function JobPage() {
   return (
     <div className="grid gap-6 md:grid-cols-[14rem_1fr_16rem]">
       <nav aria-label={t('jobs_heading')} className="flex flex-col gap-2">
-        <Heading level={2} size="sm">
+        <Heading level={2}>
           {t('jobs_heading')}
         </Heading>
         {jobs.map((job) => (

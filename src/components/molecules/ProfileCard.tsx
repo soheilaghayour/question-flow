@@ -19,7 +19,7 @@ export function ProfileCard({ profile }: { profile: Profile }) {
   ]
   return (
     <aside className="flex h-fit flex-col gap-3 rounded-lg border border-muted bg-surface p-4">
-      <Heading level={2} size="sm">
+      <Heading level={2}>
         {t('profile_heading')}
       </Heading>
       {name && <Text weight="medium">{name}</Text>}

@@ -106,7 +106,7 @@ export function ApplyFlow() {
         {steps.map((wizardStep, index) => (
           <div key={wizardStep.questions[0].id} hidden={index !== stepIndex} className="flex flex-col gap-6">
             {wizardStep.prefilled && (
-              <Heading level={2} size="sm">
+              <Heading level={2}>
                 {t('from_profile')}
               </Heading>
             )}
@@ -127,7 +127,7 @@ export function ApplyFlow() {
         ))}
         {onSummary && (
           <>
-            <Heading level={2} size="sm">
+            <Heading level={2}>
               {t('review_title')}
             </Heading>
             <AnswerReview

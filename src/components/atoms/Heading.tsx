@@ -1,18 +1,17 @@
-import type { ReactNode } from 'react'
+import type { ComponentPropsWithoutRef } from 'react'
 
 const SIZE_CLASSES = {
-  lg: 'text-2xl font-semibold',
-  md: 'text-xl font-semibold',
-  sm: 'font-semibold',
+  sm: 'text-base',
+  md: 'text-xl',
+  lg: 'text-2xl',
 }
 
-interface HeadingProps {
-  level: 1 | 2
-  size: keyof typeof SIZE_CLASSES
-  children: ReactNode
+interface HeadingProps extends ComponentPropsWithoutRef<'h1'> {
+  level: 1 | 2 | 3 | 4 | 5 | 6
+  size?: keyof typeof SIZE_CLASSES
 }
 
-export function Heading({ level, size, children }: HeadingProps) {
+export function Heading({ level, size = 'sm', className = '', ...props }: HeadingProps) {
   const Tag = `h${level}` as const
-  return <Tag className={SIZE_CLASSES[size]}>{children}</Tag>
+  return <Tag {...props} className={`font-semibold ${SIZE_CLASSES[size]} ${className}`} />
 }
