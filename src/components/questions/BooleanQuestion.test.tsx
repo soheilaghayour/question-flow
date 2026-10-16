@@ -7,7 +7,7 @@ import * as build from '@/domain/testBuilders'
 import { BooleanQuestion } from './BooleanQuestion'
 
 const wrapper = ({ children }: { children: ReactNode }) => (
-  <LanguageProvider language="en">{children}</LanguageProvider>
+  <LanguageProvider>{children}</LanguageProvider>
 )
 
 describe('BooleanQuestion', () => {

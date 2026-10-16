@@ -27,7 +27,7 @@ export const routes: RouteObject[] = [
   {
     path: '/',
     element: (
-      <LanguageProvider language="en">
+      <LanguageProvider>
         <App />
       </LanguageProvider>
     ),

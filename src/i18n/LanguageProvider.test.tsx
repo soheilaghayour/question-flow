@@ -29,7 +29,7 @@ describe('LanguageProvider', () => {
     )
     expect(document.documentElement.lang).toBe('de')
     rerender(
-      <LanguageProvider language="en">
+      <LanguageProvider>
         <Probe />
       </LanguageProvider>,
     )

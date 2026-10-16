@@ -7,7 +7,7 @@ import * as build from '@/domain/testBuilders'
 import { NumericQuestion } from './NumericQuestion'
 
 const wrapper = ({ children }: { children: ReactNode }) => (
-  <LanguageProvider language="en">{children}</LanguageProvider>
+  <LanguageProvider>{children}</LanguageProvider>
 )
 
 describe('NumericQuestion', () => {
