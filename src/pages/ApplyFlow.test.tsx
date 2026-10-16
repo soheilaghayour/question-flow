@@ -1,20 +1,25 @@
 import { afterEach, describe, expect, it, vi, type MockInstance } from 'vitest'
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { fireEvent, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import type { ReactNode } from 'react'
-import { LanguageProvider } from '@/i18n/LanguageProvider'
-import { profile } from '@/data'
+import type * as DataModule from '@/data'
+import { renderRoute } from '@/test/renderRoute'
 import shortJson from '@jobs/short.json'
 import longJson from '@jobs/long.json'
 import badJson from '@jobs/bad.json'
 import expectedShortPayload from '@/pages/apply-flow-fixtures/payload-short.json'
 import expectedLongPayload from '@/pages/apply-flow-fixtures/payload-long.json'
 import expectedBadPayload from '@/pages/apply-flow-fixtures/payload-bad.json'
-import { ApplyFlow } from './ApplyFlow'
 
-const wrapper = ({ children }: { children: ReactNode }) => (
-  <LanguageProvider>{children}</LanguageProvider>
-)
+const testJobs = vi.hoisted(() => new Map<string, unknown>())
+vi.mock('@/data', async (importOriginal) => ({
+  ...(await importOriginal<typeof DataModule>()),
+  rawJobConfigsById: testJobs,
+}))
+
+function renderApplyFlow(job: { id: string; [key: string]: unknown }) {
+  testJobs.set(job.id, job)
+  return renderRoute(`/jobs/${job.id}/apply?step=1`)
+}
 
 afterEach(() => {
   vi.restoreAllMocks()
@@ -38,7 +43,7 @@ function clickNext() {
 
 describe('ApplyFlow wizard steps (#36)', () => {
   it('opens on the prefill confirm step and renders only its questions', () => {
-    render(<ApplyFlow rawJob={longJson} profile={profile} />, { wrapper })
+    renderApplyFlow(longJson)
 
     // long.json: 4 prefilled + 4 open questions → prefill step, 3+1, summary.
     expect(screen.getByText('Already filled from your profile')).toBeInTheDocument()
@@ -75,7 +80,7 @@ describe('ApplyFlow wizard steps (#36)', () => {
       ],
     }
     const user = userEvent.setup()
-    render(<ApplyFlow rawJob={job} profile={profile} />, { wrapper })
+    renderApplyFlow(job)
 
     for (const label of ['A?', 'B?', 'C?']) await user.type(screen.getByLabelText(label), 'x')
     await user.click(screen.getByRole('button', { name: 'Next' }))
@@ -92,25 +97,9 @@ describe('ApplyFlow wizard steps (#36)', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Enter a whole number')
   })
 
-  it('ignores popstate entries from another application session', async () => {
-    const user = userEvent.setup()
-    render(<ApplyFlow rawJob={longJson} profile={profile} />, { wrapper })
-    expect(screen.getByRole('progressbar', { name: 'Step 1 of 4' })).toBeInTheDocument()
-
-    // A stale entry left behind by a previous (submitted or abandoned)
-    // application — possibly for a DIFFERENT job with more steps — must never
-    // move this form's step: out-of-range it would render an empty broken step.
-    fireEvent.popState(window, { state: { screen: 'form', session: 9999, step: 7 } })
-    expect(screen.getByRole('progressbar', { name: 'Step 1 of 4' })).toBeInTheDocument()
-
-    // The form's own live entries still navigate.
-    await user.click(screen.getByRole('button', { name: 'Next' }))
-    expect(screen.getByRole('progressbar', { name: 'Step 2 of 4' })).toBeInTheDocument()
-  })
-
   it('gates Next on the step’s required answers and keeps answers across Back', async () => {
     const user = userEvent.setup()
-    render(<ApplyFlow rawJob={longJson} profile={profile} />, { wrapper })
+    renderApplyFlow(longJson)
 
     // Prefill confirm step → step 2: eu_work_permit, starting_date (required),
     // focus_areas (optional).
@@ -152,7 +141,7 @@ describe('ApplyFlow with long.json', () => {
   it('walks every question type through the wizard, reviews, and submits the contract payload', async () => {
     const user = userEvent.setup()
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-    render(<ApplyFlow rawJob={longJson} profile={profile} />, { wrapper })
+    renderApplyFlow(longJson)
 
     // Step 1 is the prefill confirm step (notice_period 3_months, german_level
     // B1, salary 95000 against must_be_below 90000 — prefilled anyway, DECISIONS
@@ -194,7 +183,7 @@ describe('ApplyFlow with long.json', () => {
 describe('ApplyFlow with bad.json', () => {
   it('renders only the normalized questions and logs the warnings', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    render(<ApplyFlow rawJob={badJson} profile={profile} />, { wrapper })
+    renderApplyFlow(badJson)
 
     // Dropped by normalize: the duplicate-id text question and the unknown
     // rating type (bite #8). The kept select under the same id still renders —
@@ -221,7 +210,7 @@ describe('ApplyFlow with bad.json', () => {
     const user = userEvent.setup()
     vi.spyOn(console, 'warn').mockImplementation(() => {})
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-    render(<ApplyFlow rawJob={badJson} profile={profile} />, { wrapper })
+    renderApplyFlow(badJson)
 
     // Step 1: prefill confirm (Kündigungsfrist select + salary), untouched.
     await clickNext()
@@ -288,10 +277,10 @@ describe('ApplyFlow result screen on failed screening (#16)', () => {
     ],
   }
 
-  it('tells the candidate only a generic note — never the rule, threshold, or question', async () => {
+  it('shows the same confirmation as a passed screening — no screening detail at all', async () => {
     const user = userEvent.setup()
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-    render(<ApplyFlow rawJob={failingJob} profile={profile} />, { wrapper })
+    renderApplyFlow(failingJob)
 
     // Prefill confirm step → summary → submit.
     await clickNext()
@@ -304,19 +293,14 @@ describe('ApplyFlow result screen on failed screening (#16)', () => {
       screening: { passed: false, failed: ['salary_expectation'] },
     })
 
-    // Candidate sees the confirmation plus one generic sentence.
-    const status = screen.getByRole('status')
-    expect(status).toHaveTextContent('Application submitted')
-    expect(status).toHaveTextContent('may not match')
-
-    // No screening detail is reachable anywhere in the UI (acceptance criterion):
-    // not the threshold, not the rule name, not which question failed.
+    expect(screen.getByRole('status')).toHaveTextContent('Application submitted')
     const page = document.body.textContent ?? ''
     expect(page).not.toContain('90000')
     expect(page).not.toContain('95000')
     expect(page).not.toContain('must_be_below')
     expect(page).not.toContain('salary')
     expect(page).not.toContain('failed')
+    expect(page).not.toContain('may not match')
   })
 })
 
@@ -324,7 +308,7 @@ describe('ApplyFlow with short.json', () => {
   it('prefills from the profile, keeps it editable, and submits the contract payload', async () => {
     const user = userEvent.setup()
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-    render(<ApplyFlow rawJob={shortJson} profile={profile} />, { wrapper })
+    renderApplyFlow(shortJson)
 
     // Prefill: profile notice_period "3_months" is a valid option, salary 95000
     // is within bounds (DECISIONS #7: the must-rules never gate prefill).
@@ -359,7 +343,7 @@ describe('ApplyFlow with short.json', () => {
   it('blocks advancing accessibly while a required answer is missing', async () => {
     const user = userEvent.setup()
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-    render(<ApplyFlow rawJob={shortJson} profile={profile} />, { wrapper })
+    renderApplyFlow(shortJson)
 
     const salary = screen.getByLabelText('What is your yearly salary expectation in EUR?')
     await user.clear(salary)
@@ -381,7 +365,7 @@ describe('ApplyFlow with short.json', () => {
   })
 
   it('renders an error state for a config that cannot be normalized, never a crash', () => {
-    render(<ApplyFlow rawJob={{ id: '', questions: 'nope' }} profile={profile} />, { wrapper })
+    renderApplyFlow({ id: 'job-unnormalizable', questions: 'nope' })
     expect(screen.getByRole('alert')).toHaveTextContent('This job posting cannot be displayed.')
     expect(
       screen.queryByRole('button', { name: 'Submit application' }),
@@ -390,7 +374,7 @@ describe('ApplyFlow with short.json', () => {
 
   it('treats a form submission on a question step as Next, never as submit', () => {
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-    render(<ApplyFlow rawJob={shortJson} profile={profile} />, { wrapper })
+    renderApplyFlow(shortJson)
 
     // Enter in an input (implicit submission) dispatches through the same
     // step gate as the Next button — it advances, it never sends the
@@ -402,33 +386,29 @@ describe('ApplyFlow with short.json', () => {
     expect(log).not.toHaveBeenCalled()
   })
 
-  it('refuses to submit from the summary with a visible alert when an answer went missing', async () => {
+  it('sends Submit to the unfinished step, with its errors, when an earlier answer went missing', async () => {
     const user = userEvent.setup()
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-    render(<ApplyFlow rawJob={shortJson} profile={profile} />, { wrapper })
-
+    renderApplyFlow(shortJson)
     await clickNext()
     await clickNext()
 
-    // The per-step gates make this unreachable by normal interaction; the
-    // safety net still exists for it — and must never be a silent no-op.
-    // Clearing the (hidden but mounted) required salary simulates the gap.
+    // Reachable by Back, clearing an answer, then browser Forward; the hidden
+    // but mounted salary field simulates it.
     fireEvent.change(screen.getByLabelText('What is your yearly salary expectation in EUR?'), {
       target: { value: '' },
     })
     await user.click(screen.getByRole('button', { name: 'Submit application' }))
 
-    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    expect(screen.getByRole('progressbar', { name: 'Step 1 of 3' })).toBeInTheDocument()
+    expect(screen.getByText('This field is required')).toBeInTheDocument()
     expect(log).not.toHaveBeenCalled()
-    expect(screen.getByRole('alert')).toHaveTextContent(
-      'Some required questions are still unanswered',
-    )
   })
 
   it('submits the untouched prefill as-is', async () => {
     const user = userEvent.setup()
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-    render(<ApplyFlow rawJob={shortJson} profile={profile} />, { wrapper })
+    renderApplyFlow(shortJson)
     await clickNext()
     await clickNext()
     await user.click(screen.getByRole('button', { name: 'Submit application' }))
@@ -443,7 +423,7 @@ describe('ApplyFlow with short.json', () => {
       language: 'en',
       questions: [{ type: 'text', id: 'anything', question: 'Anything to add?' }],
     }
-    render(<ApplyFlow rawJob={noRequired} profile={profile} />, { wrapper })
+    renderApplyFlow(noRequired)
     expect(screen.queryByText('Fields marked with * are required')).not.toBeInTheDocument()
   })
 
@@ -451,7 +431,7 @@ describe('ApplyFlow with short.json', () => {
   it('shows a human confirmation instead of the raw payload after submitting', async () => {
     const user = userEvent.setup()
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-    render(<ApplyFlow rawJob={shortJson} profile={profile} />, { wrapper })
+    renderApplyFlow(shortJson)
 
     await clickNext()
     await clickNext()
@@ -460,8 +440,6 @@ describe('ApplyFlow with short.json', () => {
     const status = screen.getByRole('status')
     expect(status).toHaveTextContent('Application submitted')
     expect(status.textContent).not.toContain('job_id')
-    // Passing screening shows no note at all — only failing adds one.
-    expect(status.textContent).not.toContain('may not match')
     expect(submittedPayload(log)).toEqual(expectedShortPayload)
   })
 
@@ -471,7 +449,7 @@ describe('ApplyFlow with short.json', () => {
   it('blocks advancing while a required field holds invalid input', async () => {
     const user = userEvent.setup()
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-    render(<ApplyFlow rawJob={shortJson} profile={profile} />, { wrapper })
+    renderApplyFlow(shortJson)
 
     const salary = screen.getByLabelText('What is your yearly salary expectation in EUR?')
     await user.clear(salary)

@@ -1,164 +1,90 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { normalizeJob } from '@/domain/normalize'
-import { buildPrefillAnswers } from '@/domain/prefill'
+import { useLayoutEffect, useState } from 'react'
+import { Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 import { evaluateScreening } from '@/domain/screening'
-import { buildPayload, type ApplicationPayload } from '@/domain/payload'
-import {
-  answerChanged,
-  createFormState,
-  missingRequired,
-  submitAttempted,
-} from '@/domain/formState'
-import { buildSteps } from '@/domain/wizard'
+import { buildPayload, type Answers } from '@/domain/payload'
+import { missingRequired } from '@/domain/answers'
 import { answerText } from '@/domain/answerText'
-import type { Profile } from '@/domain/schema'
+import { useJobWizard } from '@/hooks/useJobWizard'
 import { QuestionField } from '@/components/questions/QuestionField'
 import { Button } from '@/components/atoms/Button'
 import { ArrowLeftIcon, ArrowRightIcon } from '@/components/atoms/Icons'
 import { AnswerReview } from '@/components/molecules/AnswerReview'
 import { JobSummary } from '@/components/molecules/JobSummary'
 import { ProgressBar } from '@/components/molecules/ProgressBar'
-import { SubmissionResult } from '@/components/molecules/SubmissionResult'
 import { useI18n } from '@/i18n/useI18n'
-import {
-  endFormSession,
-  entryOf,
-  isLiveFormEntry,
-  pushEntry,
-  startFormSession,
-} from '@/utils/appHistory'
-import { addAppliedJobIdToStorage } from '@/utils/appliedJobs'
+import { addAppliedJobIdToStorage, getAppliedJobIdsFromStorage } from '@/utils/appliedJobs'
 
-interface ApplyFlowProps {
-  rawJob: unknown
-  profile: Profile
-  /** Navigates back to the job overview; without it no back control renders. */
-  onBack?: () => void
-  /** Fires once on successful submit so the shell can switch to result-screen chrome. */
-  onSubmitted?: () => void
-}
-
-export function ApplyFlow({ rawJob, profile, onBack, onSubmitted }: ApplyFlowProps) {
-  const result = useMemo(() => normalizeJob(rawJob), [rawJob])
-  const initialAnswers = useMemo(
-    () => ('job' in result ? buildPrefillAnswers(result.job.questions, profile) : {}),
-    [result, profile],
+export function ApplyFlow() {
+  const { jobId = '' } = useParams()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const wizard = useJobWizard(jobId)
+  const [answers, setAnswers] = useState<Answers>(() =>
+    'job' in wizard ? wizard.initialAnswers : {},
   )
-  const [state, setState] = useState(() => createFormState(initialAnswers))
-  // The wizard shape (#36): prefilled questions lead as one confirm step,
-  // the rest follows in chunks, and the summary screen closes the flow.
-  const steps = useMemo(
-    () => ('job' in result ? buildSteps(result.job.questions, initialAnswers) : []),
-    [result, initialAnswers],
-  )
-  const [stepIndex, setStepIndex] = useState(0)
-  // Latches on a failed Next and resets only on navigation: after one failed
-  // attempt the step validates live (a re-emptied field errors immediately),
-  // but a freshly entered step never opens pre-littered with error text.
-  const [stepAttempted, setStepAttempted] = useState(false)
-  const [payload, setPayload] = useState<ApplicationPayload | null>(null)
+  // The step whose Next failed shows its errors; a freshly entered step never
+  // opens pre-littered with error text.
+  const [failedStepIndex, setFailedStepIndex] = useState<number | null>(null)
+  const [openedOnStep] = useState(() => searchParams.get('step'))
+  useLayoutEffect(() => {
+    if (openedOnStep !== '1') navigate('?step=1', { replace: true })
+  }, [openedOnStep, navigate])
   const { t, language } = useI18n()
 
-  // Config problems are the recruiter's bug to hear about (DECISIONS #10) —
-  // once per config, not per render.
-  useEffect(() => {
-    if ('job' in result)
-      for (const warning of result.warnings)
-        console.warn(`[${warning.questionId}] ${warning.reason}`)
-  }, [result])
-
-  // Every step is one browser-history entry, so the browser button, the
-  // header icon and the wizard's own Back are the same control (DECISIONS
-  // #31): forward navigation pushes, every back flavor is history.back().
-  // Entries are stamped with this mount's session so stale history from a
-  // submitted or abandoned application — possibly a different job with a
-  // different step count — can never drive this form (DECISIONS #33).
-  const sessionRef = useRef(0)
-  // Ref, not a dependency: the popstate listener must see the current step
-  // count without re-subscribing (and re-stamping a session) when it changes.
-  const stepCountRef = useRef(0)
-  useEffect(() => {
-    stepCountRef.current = steps.length
-  }, [steps])
-  useEffect(() => {
-    sessionRef.current = startFormSession()
-    pushEntry({ screen: 'form', session: sessionRef.current, step: 0 })
-    const onPopState = (event: PopStateEvent) => {
-      const entry = entryOf(event)
-      if (entry?.screen !== 'form' || !isLiveFormEntry(entry)) return // shell's job
-      setStepAttempted(false)
-      // Clamp as a belt: the session check already rejects foreign entries.
-      setStepIndex(Math.min(entry.step, stepCountRef.current))
-    }
-    window.addEventListener('popstate', onPopState)
-    return () => {
-      window.removeEventListener('popstate', onPopState)
-      endFormSession()
-    }
-  }, [])
-
-  if ('error' in result) {
+  if ('error' in wizard) {
     return (
       <p role="alert" className="text-error">
         {t('error_job_invalid')}
       </p>
     )
   }
-  const { job } = result
+  const { job, steps } = wizard
 
-  // Candidate-facing confirmation; the payload itself is dev-only via
-  // console.log. A failed screening adds one generic sentence — never the
-  // rule, threshold, or question (DECISIONS #24).
-  if (payload) {
-    return (
-      <div className="flex flex-col items-center gap-6 py-10">
-        <SubmissionResult
-          title={t('submitted_title')}
-          body={t('submitted_body')}
-          note={payload.screening.passed ? undefined : t('submitted_screening_note')}
-        />
-        {onBack && <Button onClick={onBack}>{t('back_to_main')}</Button>}
-      </div>
-    )
+  // Back after submitting walks into this form's old steps.
+  if (getAppliedJobIdsFromStorage().includes(job.id)) {
+    return <Navigate to={`/jobs/${job.id}`} replace />
   }
+  const stepIndex = Number(searchParams.get('step')) - 1
 
   const totalSteps = steps.length + 1 // the summary screen is the last step
   const onSummary = stepIndex === steps.length
   const step = steps[stepIndex]
 
-  // The full-form re-check runs only on the summary — a safety net, not a
-  // gate. It is reachable: browser Forward restores a previously reached step
-  // without passing handleNext, so a required answer cleared after advancing
-  // arrives here as a gap the net must catch (visibly, via the alert below).
-  const missing = onSummary ? missingRequired(job.questions, state.answers) : []
   // Hard gate (DECISIONS #5): Next never advances past an unanswered required
   // question on the current step — the errors appear on the fields in view.
   // Back and typing are never gated.
-  const stepMissing = step ? missingRequired(step.questions, state.answers) : []
+  const stepMissing = step ? missingRequired(step.questions, answers) : []
 
   const handleNext = () => {
     if (stepMissing.length > 0) {
-      setStepAttempted(true)
+      setFailedStepIndex(stepIndex)
       return
     }
-    pushEntry({ screen: 'form', session: sessionRef.current, step: stepIndex + 1 })
-    setStepAttempted(false)
-    setStepIndex(stepIndex + 1)
+    setFailedStepIndex(null)
+    setSearchParams({ step: String(stepIndex + 2) })
+  }
+
+  const handleBack = () => {
+    // A form opened directly (shared link) has no app entry behind it to go back to.
+    if (stepIndex === 0 && location.key === 'default') navigate(`/jobs/${job.id}`, { replace: true })
+    else navigate(-1)
   }
 
   const submitApplication = () => {
-    setState(submitAttempted)
-    if (missing.length > 0) return
-    // The application is sent: its history entries are stale from here on, so
-    // browser Back on the result screen exits to the overview, never into the
-    // submitted form.
-    endFormSession()
-    const screening = evaluateScreening(job.questions, state.answers)
-    const nextPayload = buildPayload(job, state.answers, screening)
-    console.log(nextPayload)
-    setPayload(nextPayload)
+    // Back, clearing an answer, then browser Forward skips that step's Next gate.
+    const unfinishedStepIndex = steps.findIndex(
+      (s) => missingRequired(s.questions, answers).length > 0,
+    )
+    if (unfinishedStepIndex !== -1) {
+      setFailedStepIndex(unfinishedStepIndex)
+      setSearchParams({ step: String(unfinishedStepIndex + 1) })
+      return
+    }
+    const screening = evaluateScreening(job.questions, answers)
+    console.log(buildPayload(job, answers, screening))
     addAppliedJobIdToStorage(job.id)
-    onSubmitted?.()
+    navigate(`/jobs/${job.id}/confirmation`, { replace: true })
   }
 
   const progressLabel = t('step_label')
@@ -188,16 +114,16 @@ export function ApplyFlow({ rawJob, profile, onBack, onSubmitted }: ApplyFlowPro
             not-yet-valid typing (DECISIONS #21) must survive Back/Next, not
             be reset by a remount. */}
         {steps.map((wizardStep, index) => (
-          <div key={index} hidden={index !== stepIndex} className="flex flex-col gap-6">
+          <div key={wizardStep.questions[0].id} hidden={index !== stepIndex} className="flex flex-col gap-6">
             {wizardStep.prefilled && <h2 className="font-medium">{t('from_profile')}</h2>}
             {wizardStep.questions.map((question) => (
               <QuestionField
                 key={question.id}
                 question={question}
-                value={state.answers[question.id] ?? null}
-                onChange={(value) => setState((s) => answerChanged(s, question.id, value))}
+                value={answers[question.id] ?? null}
+                onChange={(value) => setAnswers((prev) => ({ ...prev, [question.id]: value }))}
                 error={
-                  index === stepIndex && stepAttempted && stepMissing.includes(question.id)
+                  index === failedStepIndex && stepMissing.includes(question.id)
                     ? t('error_required')
                     : undefined
                 }
@@ -208,18 +134,11 @@ export function ApplyFlow({ rawJob, profile, onBack, onSubmitted }: ApplyFlowPro
         {onSummary && (
           <>
             <h2 className="font-medium">{t('review_title')}</h2>
-            {/* The safety net behind the per-step gates must never be a
-                silent no-op: a blocked Submit says so, audibly (role=alert). */}
-            {state.submitAttempted && missing.length > 0 && (
-              <p role="alert" className="text-sm text-error">
-                {t('error_review_missing')}
-              </p>
-            )}
             <AnswerReview
               items={job.questions.map((question) => ({
                 id: question.id,
                 question: question.question,
-                answer: answerText(question, state.answers[question.id], {
+                answer: answerText(question, answers[question.id], {
                   yes: t('yes'),
                   no: t('no'),
                   missing: t('no_answer'),
@@ -230,18 +149,9 @@ export function ApplyFlow({ rawJob, profile, onBack, onSubmitted }: ApplyFlowPro
           </>
         )}
         <div className="flex justify-between gap-4">
-          {stepIndex > 0 ? (
-            <Button
-              type="button"
-              aria-label={t('back')}
-              title={t('back')}
-              onClick={() => history.back()}
-            >
-              <ArrowLeftIcon />
-            </Button>
-          ) : (
-            <span />
-          )}
+          <Button type="button" aria-label={t('back')} title={t('back')} onClick={handleBack}>
+            <ArrowLeftIcon />
+          </Button>
           {onSummary ? (
             <Button type="submit">{t('submit')}</Button>
           ) : (

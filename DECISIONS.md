@@ -5,7 +5,7 @@ Every judgment call, with its reason. Authority order: the contract (`docs/task-
 
 ## What I built
 
-The application is an end-to-end candidate application flow that normalizes raw job configs, prefills matching candidate profile fields, and guides the candidate through a multi-step wizard. Prefilled answers lead as an editable confirmation step, followed by open questions chunked three per step in config order, and conclude with a read-only review step. Submitting logs the contract-compliant JSON payload (including screening results) to the browser console and renders a candidate-facing confirmation screen with generic messaging if requirements are unmet. The interface supports English and German with a manual toggle falling back to browser language. Core domain logic (normalization, validation, prefill, screening, and payload generation) is pure and verified by 252 tests across 26 test files, automated via GitHub Actions CI (typecheck, lint, test, build).
+The application is an end-to-end candidate application flow that normalizes raw job configs, prefills matching candidate profile fields, and guides the candidate through a multi-step wizard. Prefilled answers lead as an editable confirmation step, followed by open questions chunked three per step in config order, and conclude with a read-only review step. Submitting logs the contract-compliant JSON payload (including screening results) to the browser console and renders a candidate-facing confirmation screen with generic messaging if requirements are unmet. The interface supports English and German with a manual toggle falling back to browser language. Core domain logic (normalization, validation, prefill, screening, and payload generation) is pure and verified by 256 tests across 26 test files, automated via GitHub Actions CI (typecheck, lint, test, build).
 
 ## Decisions
 
@@ -78,31 +78,15 @@ D23. **The task contract moved verbatim from `README.md` to `docs/task-contract.
      meant the contract (CLAUDE.md, this file, PRD.md, code comments) now say "contract"
      or name `docs/task-contract.md` explicitly.
 
-D24. **Screening result messaging: candidates get a confirmation; a failed screening adds
-     exactly one generic sentence** ("your profile may not match some of the requirements"),
-     never which rule, threshold, or question — and screening still never blocks submission
-     (D8). This resolves the open PM question "should candidates learn they failed at all":
-     yes, generically. A soft heads-up sets honest expectations (silence followed by a fast
-     rejection reads as ghosting), while naming the rule would leak recruiter thresholds and
-     invite gaming via resubmission. The payload (with full screening detail) stays
-     `console.log`-only as the dev deliverable; tests assert no threshold, rule name, or
-     failed-question id is reachable in the rendered UI on the failing path.
+D24. **Candidates see the same neutral confirmation whatever the screening result.** Telling
+     them they failed helps nobody and hints at recruiter thresholds. Screening never blocks
+     submission (D8); its result goes only into the payload (`console.log`).
 
 ### Form & state
-
-D1. **Form state: single `useState<FormState>` object + pure transition functions**
-    (`formState.ts`: `answerChanged`, `submitAttempted`, …) fed to the functional setter.
-    react-hook-form would be a second validation brain beside `domain/`; a single state
-    object updates atomically; pure transitions stay unit-testable without React.
-    *Revisit:* switch to `useReducer` if V2 step logic grows.
 
 D2. **Context only for the i18n language, never for form state.** Props are one level deep
     (`ApplyFlow` → question component); context would hide data flow and couple components
     to a provider for no transport win.
-
-D4. **V1 is a single-page form.** Cheapest correct thing; the wizard question belongs to V2
-    together with reorder/progress. No router — two screens via plain state.
-    *Superseded by D30:* the apply form is now a wizard.
 
 D5. **Numeric input: `type="text" inputMode="numeric"`; typing is never blocked;
     validation gates submission** (and step-advance in D30). Out-of-range shows an error
@@ -112,13 +96,9 @@ D11. **Date: native `<input type="date">`** (value already `YYYY-MM-DD`, no time
      `min` = today computed from **local** date parts (never `toISOString`). V1 validation
      is format-only — a hand-typed past date passes (see open questions).
 
-D15. **V1 submit screen: payload as `<pre>` JSON including `screening`, plus `console.log`.**
-     Dev-facing deliverable; humanized in V2. *Superseded by D24:* the screen is now the
-     candidate-facing confirmation; the payload's dev channel is `console.log` only.
-
 D21. **Question components are controlled and share one seam:**
      `{ question, value, onChange, error? }` (`QuestionComponent` in `registry.ts`).
-     The flow owns answers and required-errors (D1, D2); components emit `null` for
+     The flow owns answers and required-errors (D2); components emit `null` for
      "no answer", so form state only ever holds real answers (D19). Two local exceptions
      are inherent to the widget: `NumericQuestion` keeps the raw string (typing is never
      blocked, D5) and manages parse/range errors locally; `FileQuestion` stores the issue kind
@@ -127,24 +107,13 @@ D21. **Question components are controlled and share one seam:**
      (FileDrop re-validation, input reset, MIME fallback, latest-wins guard, and registry union casting)
      are documented in code comments.
 
-D22. **The submit gate is required-missing only.** Components hold invalid input as
+D22. **The step gate is required-missing only.** Components hold invalid input as
      `null` (D21), so an invalid required field blocks through the same check as an
-     empty one (`missingRequired` in `formState.ts` mirrors D19's no-substance rule).
+     empty one (`missingRequired` in `answers.ts` mirrors D19's no-substance rule).
      An optional field with unparseable input submits with that answer omitted: the
      widget's inline error already told the user, and the payload stays contract-safe.
-     Lifting widget validity into form state was rejected as reopening the D21 seam.
-     *Implementation notes:* `<output>` provides screen-reader announcement (D24); submitted
-     payload lives in a phase-local `useState` beside `FormState` (D1); the language toggle shipped
-     with the first page (D3).
 
 ### UX & flow
-
-D25. **Navigation between the two screens, not a modal.** After submitting, there was no way
-     back to the job list. I considered a modal and rejected it (see Rejected approaches).
-     Instead, `ApplyFlow` takes an optional `onBack` and renders "Back to jobs" on the form
-     and on the result screen; `AppShell` clears the screen sentinel (D4 stays: plain state,
-     still no router). Trade-off: Back from the form drops unsaved answers without warning —
-     acceptable until drafts exist.
 
 D26. **Required fields are marked with a red `*` plus a one-line legend; screen readers
      get `aria-required` instead.** The star is `aria-hidden` and lives OUTSIDE the
@@ -158,42 +127,25 @@ D27. **The native file input is visually hidden behind a "Choose file" button.**
      the input makes the file-name line the single source of truth; the button and the
      question label both trigger the picker.
 
-D29. **Job page becomes three columns; the shell owns navigation; submit-once per job.**
-     Clicking through, prefill looked like magic: the profile was invisible, and the overview
-     page was bare. I gave the job page three columns: job list on the left, selected job details
-     in the center, and a `ProfileCard` on the right so candidates see where prefilled values come from.
-     Applied job ids are stored in localStorage to survive a refresh.
-     Back control moved to the header while filling the form, with a centered return button on the
-     result screen. *(The initial answered/total ProgressBar here is superseded by D30's step progress.)*
+D29. **The job page has three columns; a job can be applied to once.** Clicking through,
+     prefill looked like magic: the profile was invisible, and the overview page was bare. The
+     job list sits on the left, the selected job in the center, and a `ProfileCard` on the right
+     so candidates see where prefilled values come from. Applied job ids are stored in
+     localStorage to survive a refresh.
 
 D30. **The apply form is a wizard: prefill confirm first, 3 questions per step, light
-     summary before submit** (#36, supersedes D4). The lesson from rejected focus mode (see
+     summary before submit** (#36). The lesson from rejected focus mode (see
      Rejected approaches): prefilled answers lead as one editable confirm step so they read as
      completed work. Open questions follow in config order (3 per step), ending in a read-only
      review step with the sole Submit button. "Next" gates on the current step's required answers
      with inline errors (the step-advance gating D5 planned); Back and typing are ungated, with
-     answers preserved in `FormState` (D1). Progress is a step line ("Step X of Y", including summary)
-     animated under motion-safe only. Screening never blocks (D8); summary submit re-checks all
-     questions as a safety net.
+     answers preserved. Progress is a step line ("Step X of Y", including summary)
+     animated under motion-safe only. Screening never blocks (D8).
 
-D31. **One back control, backed by the browser history; icon-only step navigation.**
-     Testing the wizard showed two problems: the browser's back button left the site entirely,
-     and the header's back icon disagreed with the wizard's Back button. I unified all back
-     controls (browser button, header icon, wizard button) on `history.back()`, with each
-     forward step pushing a history entry; Back exits the form only from step 1. Next/Back are
-     icon buttons (`aria-label` + `title`), while Submit retains text because an irreversible action
-     must be explicit. Trade-off: leaving from step N takes N Back presses. Still no router (D4 holds).
-     Implementation mechanics (Enter/onSubmit dispatch, hidden steps, text wrapping, aria-live)
-     are documented in code comments.
+D31. **Next and Back are icon buttons; Submit keeps its text.** Next/Back carry
+     `aria-label` + `title`; Submit stays text because an irreversible action must be explicit.
 
-D33. **History entries are session-stamped; stale ones are walked, never obeyed.** Testing
-     D31's history integration showed that entries outlived the application: a submitted job's
-     `{step: 3}` could drive a different job's shorter wizard into an invalid step, and Back
-     after submitting was N no-op presses across dead entries. Now `utils/appHistory.ts` defines
-     the entry protocol; each `ApplyFlow` mount stamps entries with a session ID, the form obeys
-     only live session entries, and the shell walks stale entries back to the overview. Trade-off:
-     browser Forward can restore a reached step without re-passing Next gates, which is safely
-     caught by the summary safety net (D31).
+D35. **Every screen has a URL (react-router)** (#41).
 
 ### Styling & i18n
 
@@ -284,7 +236,6 @@ D20. **CI with GitHub Actions on push to `main` and every PR: typecheck, lint, t
 - **`<input type="number">`** — cross-browser separator behavior is untestable.
 - **CSS modules + tokens.css** — equivalent power, but atoms-as-role-layer + `@theme`
   semantic tokens give the same single-point changes with co-located styling.
-- **react-router** — no deep-link or URL-state requirement in V1.
 - **i18next** — library weight for ~30 strings.
 
 ## Left out and why
@@ -292,7 +243,7 @@ D20. **CI with GitHub Actions on push to `main` and every PR: typecheck, lint, t
 - **Backend / real submission** — payload in console + candidate confirmation is the contract deliverable.
 - **`rating` question type** — unknown type per contract; dropped by normalize, by design.
 - **Case-conversion layer** — forbidden; contract keys stay snake_case end to end.
-- **Drafts in localStorage** — helps only people who leave and return; lowest impact per hour. Back currently drops answers (see D25). localStorage holds only the UI language (D3) and applied job ids (D29).
+- **Drafts in localStorage** — helps only people who leave and return; lowest impact per hour. Leaving the form drops answers. localStorage holds only the UI language (D3) and applied job ids (D29).
 - **Reorder by effort** — the prefill step already puts the easiest answers first; open questions keep the recruiter's config order.
 - **Intro screen** — the step line ("Step X of Y") already sets expectations.
 - **Numeric display formatting (#21)** — formatting while typing moves the cursor; would format on blur only.

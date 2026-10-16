@@ -2,6 +2,7 @@ import type { TranslationKey } from './en'
 
 // Record<TranslationKey, string> makes a missing or extra key a compile error.
 export const de: Record<TranslationKey, string> = {
+  app_title: 'Instaffo Question Flow',
   apply: 'Bewerben',
   submit: 'Bewerbung absenden',
   optional: 'optional',
@@ -18,8 +19,6 @@ export const de: Record<TranslationKey, string> = {
   submitted_title: 'Bewerbung abgeschickt',
   submitted_body:
     'Vielen Dank für Ihre Bewerbung. Das Unternehmen wird sie prüfen und sich bei Ihnen melden.',
-  submitted_screening_note:
-    'Hinweis: Ihr Profil erfüllt möglicherweise nicht alle Anforderungen dieser Stelle.',
   back_to_main: 'Zurück zur Hauptseite',
   choose_file: 'Datei auswählen',
   required_hint: 'Mit * markierte Felder sind Pflichtfelder',
@@ -39,6 +38,4 @@ export const de: Record<TranslationKey, string> = {
   back: 'Zurück',
   review_title: 'Überprüfen Sie Ihre Antworten',
   no_answer: 'Nicht beantwortet',
-  error_review_missing:
-    'Einige Pflichtfragen sind noch unbeantwortet. Bitte gehen Sie zurück und beantworten Sie sie.',
 }
