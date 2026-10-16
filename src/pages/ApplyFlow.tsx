@@ -4,7 +4,7 @@ import { evaluateScreening } from '@/domain/screening'
 import { buildPayload, type Answers } from '@/domain/payload'
 import { missingRequired } from '@/domain/answers'
 import { answerText } from '@/domain/answerText'
-import { useApplication } from '@/hooks/useApplication'
+import { useJobWizard } from '@/hooks/useJobWizard'
 import { QuestionField } from '@/components/questions/QuestionField'
 import { Button } from '@/components/atoms/Button'
 import { ArrowLeftIcon, ArrowRightIcon } from '@/components/atoms/Icons'
@@ -19,9 +19,9 @@ export function ApplyFlow() {
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
   const location = useLocation()
-  const application = useApplication(jobId)
+  const wizard = useJobWizard(jobId)
   const [answers, setAnswers] = useState<Answers>(() =>
-    'job' in application ? application.initialAnswers : {},
+    'job' in wizard ? wizard.initialAnswers : {},
   )
   // The step whose Next failed shows its errors; a freshly entered step never
   // opens pre-littered with error text.
@@ -32,14 +32,14 @@ export function ApplyFlow() {
   }, [openedOnStep, navigate])
   const { t, language } = useI18n()
 
-  if ('error' in application) {
+  if ('error' in wizard) {
     return (
       <p role="alert" className="text-error">
         {t('error_job_invalid')}
       </p>
     )
   }
-  const { job, steps } = application
+  const { job, steps } = wizard
 
   // Back after submitting walks into this form's old steps.
   if (getAppliedJobIdsFromStorage().includes(job.id)) {

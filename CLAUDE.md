@@ -23,13 +23,13 @@ src/
     atoms/              # Button, Input, Radio, Checkbox, ...
     molecules/          # Field (label + input + error), OptionGroup, FileDrop, ...
     questions/          # one component per question type + registry.ts
-  hooks/                # useApplication: job id → job, prefilled answers, wizard steps
+  hooks/                # useJobWizard: job id → job, prefilled answers, wizard steps
   routes.tsx            # URL → page (react-router)
   AppProviders.tsx      # language + router around the routes (main.tsx and tests)
   pages/
     JobPage.tsx         # job info + Apply button (job switcher for the 3 configs)
     ApplyFlow.tsx       # the wizard, step in ?step=N
-    ApplyConfirmation.tsx # confirmation after submit
+    SubmitConfirmation.tsx # confirmation after submit
   i18n/                 # en.ts, de.ts (UI text only)
   utils/                # generic helpers (fileToBase64, parseLocaleNumber)
   test/                 # test-only helpers (renderRoute: the app at a URL on a memory router)
