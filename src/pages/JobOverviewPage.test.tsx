@@ -12,10 +12,10 @@ vi.mock('@/data', async (importOriginal) => ({
   ]),
 }))
 
-describe('JobPage', () => {
+describe('JobOverviewPage', () => {
   it('labels an unnormalizable config via i18n, not a hardcoded string', () => {
     renderRoute('/jobs/job-short')
-    expect(screen.getByRole('button', { name: 'Invalid job' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Invalid job' })).toBeInTheDocument()
   })
 
   it('shows the error state when the selected config is invalid', () => {

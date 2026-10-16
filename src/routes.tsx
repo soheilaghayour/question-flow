@@ -1,7 +1,7 @@
 import { Navigate, type RouteObject } from 'react-router'
 import { rawJobConfigsById } from '@/data'
 import { App } from '@/App'
-import { JobPage } from '@/pages/JobPage'
+import { JobOverviewPage } from '@/pages/JobOverviewPage'
 import { ApplyFlow } from '@/pages/ApplyFlow'
 import { SubmitConfirmation } from '@/pages/SubmitConfirmation'
 import { LanguageProvider } from '@/i18n/LanguageProvider'
@@ -14,7 +14,7 @@ function pageRoutes(language: Language) {
   const firstJob = <Navigate to={pathInLanguage(language, firstJobPath)} replace />
   return [
     { index: true, element: firstJob },
-    { path: 'jobs/:jobId', element: <JobPage /> },
+    { path: 'jobs/:jobId', element: <JobOverviewPage /> },
     { path: 'jobs/:jobId/apply', element: <ApplyFlow /> },
     { path: 'jobs/:jobId/confirmation', element: <SubmitConfirmation /> },
     { path: '*', element: firstJob },

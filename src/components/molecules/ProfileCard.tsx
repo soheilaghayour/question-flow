@@ -1,6 +1,7 @@
 import type { Profile } from '@/domain/schema'
 import { Heading } from '@/components/atoms/Heading'
 import { Text } from '@/components/atoms/Text'
+import { Card } from '@/components/molecules/Card'
 import { useI18n } from '@/i18n/useI18n'
 
 export function ProfileCard({ profile }: { profile: Profile }) {
@@ -18,7 +19,7 @@ export function ProfileCard({ profile }: { profile: Profile }) {
     ],
   ]
   return (
-    <aside className="flex h-fit flex-col gap-3 rounded-lg border border-muted bg-surface p-4">
+    <Card as="aside">
       <Heading level={2}>
         {t('profile_heading')}
       </Heading>
@@ -40,6 +41,6 @@ export function ProfileCard({ profile }: { profile: Profile }) {
           </div>
         ))}
       </dl>
-    </aside>
+    </Card>
   )
 }
