@@ -8,7 +8,7 @@ import * as build from '@/domain/testBuilders'
 import { QuestionField } from './QuestionField'
 
 const wrapper = ({ children }: { children: ReactNode }) => (
-  <LanguageProvider>{children}</LanguageProvider>
+  <LanguageProvider language="en">{children}</LanguageProvider>
 )
 
 describe('QuestionField', () => {
