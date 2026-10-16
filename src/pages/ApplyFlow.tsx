@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 import { evaluateScreening } from '@/domain/screening'
 import { buildPayload, type Answers } from '@/domain/payload'
@@ -26,6 +26,11 @@ export function ApplyFlow() {
   // The step whose Next failed shows its errors; a freshly entered step never
   // opens pre-littered with error text.
   const [failedStepIndex, setFailedStepIndex] = useState<number | null>(null)
+  // Answers live only in memory, so a fresh load (refresh, shared link) restarts at step 1.
+  const [openedOnStep] = useState(() => searchParams.get('step'))
+  useEffect(() => {
+    if (openedOnStep !== '1') navigate('?step=1', { replace: true })
+  }, [openedOnStep, navigate])
   const { t, language } = useI18n()
 
   if ('error' in application) {
@@ -41,15 +46,8 @@ export function ApplyFlow() {
   if (getAppliedJobIdsFromStorage().includes(job.id)) {
     return <Navigate to={`/jobs/${job.id}`} replace />
   }
-  // Answers live only in memory, so after a refresh (or a hand-edited URL) a
-  // later step would sit behind unfinished ones: those restart at step 1.
   const stepIndex = Number(searchParams.get('step')) - 1
-  const reachable =
-    Number.isInteger(stepIndex) &&
-    stepIndex >= 0 &&
-    stepIndex <= steps.length &&
-    steps.slice(0, stepIndex).every((s) => missingRequired(s.questions, answers).length === 0)
-  if (!reachable) {
+  if (!Number.isInteger(stepIndex) || stepIndex < 0 || stepIndex > steps.length) {
     return <Navigate to="?step=1" replace />
   }
 
@@ -78,6 +76,15 @@ export function ApplyFlow() {
   }
 
   const submitApplication = () => {
+    // Back, clearing an answer, then browser Forward skips that step's Next gate.
+    const unfinishedStepIndex = steps.findIndex(
+      (s) => missingRequired(s.questions, answers).length > 0,
+    )
+    if (unfinishedStepIndex !== -1) {
+      setFailedStepIndex(unfinishedStepIndex)
+      setSearchParams({ step: String(unfinishedStepIndex + 1) })
+      return
+    }
     const screening = evaluateScreening(job.questions, answers)
     console.log(buildPayload(job, answers, screening))
     addAppliedJobIdToStorage(job.id)
@@ -111,7 +118,7 @@ export function ApplyFlow() {
             not-yet-valid typing (DECISIONS #21) must survive Back/Next, not
             be reset by a remount. */}
         {steps.map((wizardStep, index) => (
-          <div key={index} hidden={index !== stepIndex} className="flex flex-col gap-6">
+          <div key={wizardStep.questions[0].id} hidden={index !== stepIndex} className="flex flex-col gap-6">
             {wizardStep.prefilled && <h2 className="font-medium">{t('from_profile')}</h2>}
             {wizardStep.questions.map((question) => (
               <QuestionField

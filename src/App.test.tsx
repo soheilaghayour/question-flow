@@ -108,6 +108,13 @@ describe('App', () => {
     ).not.toBeInTheDocument()
   })
 
+  // short.json's earlier steps hold nothing required that a refresh could lose.
+  it('restarts a refreshed form at step 1 even when no required answer is missing', async () => {
+    const router = renderRoute('/jobs/job-short/apply?step=3')
+    expect(await screen.findByRole('progressbar', { name: 'Step 1 of 3' })).toBeInTheDocument()
+    expect(router.state.location.search).toBe('?step=1')
+  })
+
   it('restarts a refreshed form at step 1 with the prefill intact', async () => {
     const router = renderRoute('/jobs/job-long/apply?step=3')
     expect(await screen.findByRole('progressbar', { name: 'Step 1 of 4' })).toBeInTheDocument()
