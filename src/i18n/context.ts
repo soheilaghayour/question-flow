@@ -3,13 +3,13 @@ import type { TranslationKey } from './en'
 
 /** Single owner of the supported UI languages — storage validation and the
  * language switch derive from it, so a new language can't be half-added. */
-export const UI_LANGUAGES = ['en', 'de'] as const
+export const LANGUAGES = ['en', 'de'] as const
 
-export type UiLanguage = (typeof UI_LANGUAGES)[number]
+export type Language = (typeof LANGUAGES)[number]
 
 export interface LanguageContextValue {
-  language: UiLanguage
-  setLanguage: (language: UiLanguage) => void
+  language: Language
+  setLanguage: (language: Language) => void
   t: (key: TranslationKey) => string
 }
 
