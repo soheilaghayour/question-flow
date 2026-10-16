@@ -51,7 +51,9 @@ export function JobPage() {
           </div>
         </Card>
       ) : (
-        <ErrorText>{t('error_job_invalid')}</ErrorText>
+        <Card>
+          <ErrorText>{t('error_job_invalid')}</ErrorText>
+        </Card>
       )}
       <ProfileCard profile={profile} />
     </div>
