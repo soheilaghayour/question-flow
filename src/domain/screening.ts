@@ -7,7 +7,7 @@ export interface ScreeningResult {
 
 // Answers stay `unknown`: screening runs at submit on whatever the form holds,
 // and a wrong-shape value must fail the rule exactly like a missing one.
-function failsRules(question: Question, answer: unknown): boolean {
+function failsRules(question: Question, answer: unknown) {
   switch (question.type) {
     case 'numeric': {
       const { must_be_at_least, must_be_below } = question
@@ -29,10 +29,7 @@ function failsRules(question: Question, answer: unknown): boolean {
 }
 
 /** Evaluates screening rules at submit (DECISIONS #8: never blocks anything). */
-export function evaluateScreening(
-  questions: Question[],
-  answers: Record<string, unknown>,
-): ScreeningResult {
+export function evaluateScreening(questions: Question[], answers: Record<string, unknown>) {
   const failed = questions
     .filter((question) => failsRules(question, answers[question.id]))
     .map((question) => question.id)

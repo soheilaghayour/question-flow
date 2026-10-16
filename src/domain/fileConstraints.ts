@@ -23,10 +23,7 @@ const EXTENSION_TO_TYPE: Record<string, AcceptedContentType> = {
 }
 
 /** Structural params, not DOM File: domain stays DOM-free. */
-export function resolveContentType(file: {
-  name: string
-  type: string
-}): AcceptedContentType | undefined {
+export function resolveContentType(file: { name: string; type: string }) {
   const reported = ACCEPTED_CONTENT_TYPES.find((type) => type === file.type)
   if (reported) return reported
   if (file.type !== '') return undefined
@@ -38,11 +35,7 @@ export function resolveContentType(file: {
 
 export type FileRejection = 'rejected_type' | 'rejected_size'
 
-export function rejectFile(file: {
-  name: string
-  type: string
-  size: number
-}): FileRejection | undefined {
+export function rejectFile(file: { name: string; type: string; size: number }) {
   if (resolveContentType(file) === undefined) return 'rejected_type'
   if (file.size > MAX_FILE_SIZE_BYTES) return 'rejected_size'
   return undefined

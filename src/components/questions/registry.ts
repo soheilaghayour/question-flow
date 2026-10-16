@@ -39,8 +39,4 @@ export const questionRegistry: {
   boolean: BooleanQuestion,
   select: SelectQuestion,
   file: FileQuestion,
-}
-
-// Fails to compile when a schema question type has no component.
-const registryCoversEveryType: Record<QuestionType, unknown> = questionRegistry
-void registryCoversEveryType
+} satisfies Record<QuestionType, unknown>
