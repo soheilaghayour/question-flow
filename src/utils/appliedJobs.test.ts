@@ -10,6 +10,7 @@ describe('getAppliedJobIdsFromStorage', () => {
     ['invalid JSON', '{not json'],
     ['a bare string', '"job-short"'],
     ['null', 'null'],
+    ['an object', '{"job-short":true}'],
   ])('reads %s as nothing applied', (_label, stored) => {
     localStorage.setItem('applied-job-ids', stored)
     expect(getAppliedJobIdsFromStorage()).toEqual([])

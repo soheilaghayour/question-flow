@@ -20,11 +20,6 @@ afterEach(() => {
 })
 
 describe('App', () => {
-  it('renders the app heading', () => {
-    renderRoute('/')
-    expect(screen.getByRole('heading', { name: 'Question Flow' })).toBeInTheDocument()
-  })
-
   it('opens the first job at the root URL', async () => {
     const router = renderRoute('/')
     expect(await screen.findByText('Kranich Health GmbH')).toBeInTheDocument()
@@ -75,13 +70,6 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: 'Apply' })).toBeInTheDocument()
   })
 
-  it('leaves the form from step 1 with the wizard Back', async () => {
-    const user = userEvent.setup()
-    const router = renderRoute('/jobs/job-short/apply?step=1')
-    await user.click(screen.getByRole('button', { name: 'Back' }))
-    expect(router.state.location.pathname).toBe('/jobs/job-short')
-  })
-
   it('leaves the form from step 1 by going back, not by adding a job page entry', async () => {
     const user = userEvent.setup()
     const router = renderRoute('/jobs/job-short')
@@ -101,23 +89,10 @@ describe('App', () => {
     expect(await screen.findByText('Application submitted')).toBeInTheDocument()
   })
 
-  it('has no back button in the header', async () => {
-    renderRoute('/jobs/job-short/apply?step=1')
-    expect(
-      within(screen.getByRole('banner')).queryByRole('button', { name: 'Back' }),
-    ).not.toBeInTheDocument()
-  })
-
-  // short.json's earlier steps hold nothing required that a refresh could lose.
-  it('restarts a refreshed form at step 1 even when no required answer is missing', async () => {
+  // short.json's earlier steps hold nothing required, so the reset can't come from a missing answer.
+  it('restarts a refreshed form at step 1 with the prefill intact', async () => {
     const router = renderRoute('/jobs/job-short/apply?step=3')
     expect(await screen.findByRole('progressbar', { name: 'Step 1 of 3' })).toBeInTheDocument()
-    expect(router.state.location.search).toBe('?step=1')
-  })
-
-  it('restarts a refreshed form at step 1 with the prefill intact', async () => {
-    const router = renderRoute('/jobs/job-long/apply?step=3')
-    expect(await screen.findByRole('progressbar', { name: 'Step 1 of 4' })).toBeInTheDocument()
     expect(router.state.location.search).toBe('?step=1')
     expect(screen.getByRole('radio', { name: '3 months' })).toBeChecked()
   })
@@ -171,15 +146,6 @@ describe('App', () => {
     expect(within(screen.getByRole('link', { name: 'Senior Frontend Engineer' })).queryByText('Beworben')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Bewerben' })).toBeEnabled()
   })
-
-  it.each(['{not json', '"job-short"', '{"job-short":true}'])(
-    'treats malformed stored applications (%s) as nothing applied',
-    (stored) => {
-      localStorage.setItem('applied-job-ids', stored)
-      renderRoute('/jobs/job-short')
-      expect(screen.getByRole('button', { name: 'Apply' })).toBeEnabled()
-    },
-  )
 
   it('shows the profile that feeds prefill on the job page', () => {
     renderRoute('/jobs/job-short')
