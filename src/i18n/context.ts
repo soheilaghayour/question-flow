@@ -9,7 +9,7 @@ export type UiLanguage = (typeof UI_LANGUAGES)[number]
 
 export interface LanguageContextValue {
   language: UiLanguage
-  toggleLanguage: () => void
+  setLanguage: (language: UiLanguage) => void
   t: (key: TranslationKey) => string
 }
 

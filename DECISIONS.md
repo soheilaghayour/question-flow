@@ -5,7 +5,7 @@ Every judgment call, with its reason. Authority order: the contract (`docs/task-
 
 ## What I built
 
-The application is an end-to-end candidate application flow that normalizes raw job configs, prefills matching candidate profile fields, and guides the candidate through a multi-step wizard. Prefilled answers lead as an editable confirmation step, followed by open questions chunked three per step in config order, and conclude with a read-only review step. Submitting logs the contract-compliant JSON payload (including screening results) to the browser console and renders a candidate-facing confirmation screen with generic messaging if requirements are unmet. The interface supports English and German with a manual toggle falling back to browser language. Core domain logic (normalization, validation, prefill, screening, and payload generation) is pure and verified by 256 tests across 26 test files, automated via GitHub Actions CI (typecheck, lint, test, build).
+The application is an end-to-end candidate application flow that normalizes raw job configs, prefills matching candidate profile fields, and guides the candidate through a multi-step wizard. Prefilled answers lead as an editable confirmation step, followed by open questions chunked three per step in config order, and conclude with a read-only review step. Submitting logs the contract-compliant JSON payload (including screening results) to the browser console and renders a candidate-facing confirmation screen with generic messaging if requirements are unmet. The interface supports English and German with a manual toggle falling back to browser language. Core domain logic (normalization, validation, prefill, screening, and payload generation) is pure and verified by 258 tests across 26 test files, automated via GitHub Actions CI (typecheck, lint, test, build).
 
 ## Decisions
 
@@ -142,8 +142,8 @@ D30. **The apply form is a wizard: prefill confirm first, 3 questions per step, 
      answers preserved. Progress is a step line ("Step X of Y", including summary)
      animated under motion-safe only. Screening never blocks (D8).
 
-D31. **Next and Back are icon buttons; Submit keeps its text.** Next/Back carry
-     `aria-label` + `title`; Submit stays text because an irreversible action must be explicit.
+D31. **The wizard's Next and Back are the main call to action: text next to the arrow; the
+     language switch is a small EN | DE.**
 
 D35. **Every screen has a URL (react-router)** (#41).
 
@@ -165,10 +165,8 @@ D13. **Styling: Tailwind v4 + semantic color tokens in `@theme`; atoms are the r
 
 D14. **i18n: hand-rolled typed `t(key)` + React context.** ~30 UI strings don't justify i18next.
 
-D28. **Icon and focus polish.** Focus rings fire on `:focus-visible` only to prevent mouse clicks
-     painting stray borders on radios/checkboxes; back uses an icon button (`ArrowLeftIcon` with
-     `aria-label`/`title`); the language toggle gets a globe icon but retains its text so the
-     target language remains explicit.
+D28. **Focus rings fire on `:focus-visible` only**, so mouse clicks don't paint stray borders
+     on radios and checkboxes.
 
 D32. **Unselected toggle buttons are a full-opacity outline, never a faded fill.** Testing
      the job switcher showed that unselected options (`aria-pressed=false`, opacity-60)
