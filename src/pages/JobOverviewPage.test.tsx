@@ -12,7 +12,7 @@ vi.mock('@/data', async (importOriginal) => ({
   ]),
 }))
 
-describe('JobPage', () => {
+describe('JobOverviewPage', () => {
   it('labels an unnormalizable config via i18n, not a hardcoded string', () => {
     renderRoute('/jobs/job-short')
     expect(screen.getByRole('link', { name: 'Invalid job' })).toBeInTheDocument()

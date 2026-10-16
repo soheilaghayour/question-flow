@@ -14,7 +14,7 @@ import { getAppliedJobIdsFromStorage } from '@/utils/appliedJobs'
 
 const jobs = [...rawJobConfigsById].map(([id, config]) => ({ id, result: normalizeJob(config) }))
 
-export function JobPage() {
+export function JobOverviewPage() {
   const { jobId } = useParams()
   const navigate = useNavigate()
   const { t, localizedPath } = useI18n()
