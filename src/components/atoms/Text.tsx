@@ -1,4 +1,4 @@
-import type { ComponentProps } from 'react'
+import type { HTMLAttributes } from 'react'
 
 const TONE_CLASSES = {
   default: '',
@@ -10,11 +10,26 @@ const SIZE_CLASSES = {
   sm: 'text-sm',
 }
 
-interface TextProps extends ComponentProps<'p'> {
-  tone?: keyof typeof TONE_CLASSES
-  size?: keyof typeof SIZE_CLASSES
+const WEIGHT_CLASSES = {
+  normal: '',
+  medium: 'font-medium',
 }
 
-export function Text({ tone = 'default', size = 'md', className = '', ...props }: TextProps) {
-  return <p {...props} className={`${TONE_CLASSES[tone]} ${SIZE_CLASSES[size]} ${className}`} />
+interface TextProps extends HTMLAttributes<HTMLElement> {
+  as?: 'p' | 'span' | 'dt' | 'dd'
+  tone?: keyof typeof TONE_CLASSES
+  size?: keyof typeof SIZE_CLASSES
+  weight?: keyof typeof WEIGHT_CLASSES
+}
+
+export function Text({
+  as: Tag = 'p',
+  tone = 'default',
+  size = 'md',
+  weight = 'normal',
+  className = '',
+  ...props
+}: TextProps) {
+  const roleClasses = `${TONE_CLASSES[tone]} ${SIZE_CLASSES[size]} ${WEIGHT_CLASSES[weight]}`
+  return <Tag {...props} className={`${roleClasses} ${className}`} />
 }

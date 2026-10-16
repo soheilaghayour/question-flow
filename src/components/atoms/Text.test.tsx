@@ -25,4 +25,18 @@ describe('Text', () => {
     )
     expect(screen.getByText('Hello')).toHaveClass('text-muted', 'self-start')
   })
+
+  it('renders the element passed via as', () => {
+    render(
+      <dl>
+        <Text as="dt">Term</Text>
+      </dl>,
+    )
+    expect(screen.getByText('Term').tagName).toBe('DT')
+  })
+
+  it('maps weight to a role class', () => {
+    render(<Text weight="medium">Hello</Text>)
+    expect(screen.getByText('Hello')).toHaveClass('font-medium')
+  })
 })
