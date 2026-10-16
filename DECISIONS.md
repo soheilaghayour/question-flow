@@ -5,7 +5,7 @@ Every judgment call, with its reason. Authority order: the contract (`docs/task-
 
 ## What I built
 
-The application is an end-to-end candidate application flow that normalizes raw job configs, prefills matching candidate profile fields, and guides the candidate through a multi-step wizard. Prefilled answers lead as an editable confirmation step, followed by open questions chunked three per step in config order, and conclude with a read-only review step. Submitting logs the contract-compliant JSON payload (including screening results) to the browser console and renders a candidate-facing confirmation screen with generic messaging if requirements are unmet. The interface supports English and German with a manual switch falling back to browser language. Core domain logic (normalization, validation, prefill, screening, and payload generation) is pure and verified by 259 tests across 27 test files, automated via GitHub Actions CI (typecheck, lint, test, build).
+The application is an end-to-end candidate application flow that normalizes raw job configs, prefills matching candidate profile fields, and guides the candidate through a multi-step wizard. Prefilled answers lead as an editable confirmation step, followed by open questions chunked three per step in config order, and conclude with a read-only review step. Submitting logs the contract-compliant JSON payload (including screening results) to the browser console and renders a candidate-facing confirmation screen with generic messaging if requirements are unmet. The interface supports English and German; the URL decides which (`/de/...` German, no prefix English). Core domain logic (normalization, validation, prefill, screening, and payload generation) is pure and verified by 260 tests across 26 test files, automated via GitHub Actions CI (typecheck, lint, test, build).
 
 ## Decisions
 
@@ -148,11 +148,11 @@ D35. **Every screen has a URL (react-router)** (#41).
 
 ### Styling & i18n
 
-D3. **Default UI language: browser language → English fallback; manual switch overrides,
-    persisted in localStorage.** Job `language` describes the recruiter's text, not the
-    reader's preference. Only UI chrome is translated; recruiter text renders verbatim.
-    Storage access can throw (blocked third-party storage, quota): persistence degrades
-    silently — the switch still works, only the saved choice is lost — never a crash.
+D3. **The URL decides the UI language: `/de/...` is German, no prefix is English** (#49).
+    A link carries its language, so no browser detection or storage is needed. The switch
+    replaces the history entry, so the wizard's Back never just undoes a language change.
+    Job `language` describes the recruiter's text, not the reader's preference. Only UI
+    chrome is translated; recruiter text renders verbatim.
 
 D12. **Accessibility baseline in V1:** label/input association, `aria-invalid`,
      `aria-describedby` for errors.
@@ -240,7 +240,7 @@ D20. **CI with GitHub Actions on push to `main` and every PR: typecheck, lint, t
 - **Backend / real submission** — payload in console + candidate confirmation is the contract deliverable.
 - **`rating` question type** — unknown type per contract; dropped by normalize, by design.
 - **Case-conversion layer** — forbidden; contract keys stay snake_case end to end.
-- **Drafts in localStorage** — helps only people who leave and return; lowest impact per hour. Leaving the form drops answers. localStorage holds only the UI language (D3) and applied job ids (D29).
+- **Drafts in localStorage** — helps only people who leave and return; lowest impact per hour. Leaving the form drops answers. localStorage holds only applied job ids (D29).
 - **Reorder by effort** — the prefill step already puts the easiest answers first; open questions keep the recruiter's config order.
 - **Intro screen** — the step line ("Step X of Y") already sets expectations.
 - **Numeric display formatting (#21)** — formatting while typing moves the cursor; would format on blur only.

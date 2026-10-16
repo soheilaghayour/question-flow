@@ -14,7 +14,7 @@ const jobs = [...rawJobConfigsById].map(([id, config]) => ({ id, result: normali
 export function JobPage() {
   const { jobId } = useParams()
   const navigate = useNavigate()
-  const { t } = useI18n()
+  const { t, localizedPath } = useI18n()
   const selected = jobs.find((job) => job.id === jobId)
   const applied = jobId !== undefined && getAppliedJobIdsFromStorage().includes(jobId)
 
@@ -26,7 +26,7 @@ export function JobPage() {
           <Button
             key={job.id}
             aria-pressed={job.id === jobId}
-            onClick={() => navigate(`/jobs/${job.id}`)}
+            onClick={() => navigate(localizedPath(`/jobs/${job.id}`))}
           >
             {'job' in job.result ? job.result.job.title : t('invalid_job')}
           </Button>
@@ -38,7 +38,7 @@ export function JobPage() {
           <p>{t('job_description')}</p>
           {applied && <p className="text-muted">{t('applied_note')}</p>}
           <div>
-            <Button disabled={applied} onClick={() => navigate(`/jobs/${selected.id}/apply?step=1`)}>
+            <Button disabled={applied} onClick={() => navigate(localizedPath(`/jobs/${selected.id}/apply?step=1`))}>
               {t('apply')}
             </Button>
           </div>
