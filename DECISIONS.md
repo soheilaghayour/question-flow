@@ -5,7 +5,7 @@ Every judgment call, with its reason. Authority order: the contract (`docs/task-
 
 ## What I built
 
-The application is an end-to-end candidate application flow that normalizes raw job configs, prefills matching candidate profile fields, and guides the candidate through a multi-step wizard. Prefilled answers lead as an editable confirmation step, followed by open questions chunked three per step in config order, and conclude with a read-only review step. Submitting logs the contract-compliant JSON payload (including screening results) to the browser console and renders a candidate-facing confirmation screen with generic messaging if requirements are unmet. The interface supports English and German with a manual toggle falling back to browser language. Core domain logic (normalization, validation, prefill, screening, and payload generation) is pure and verified by 256 tests across 26 test files, automated via GitHub Actions CI (typecheck, lint, test, build).
+The application is an end-to-end candidate application flow that normalizes raw job configs, prefills matching candidate profile fields, and guides the candidate through a multi-step wizard. Prefilled answers lead as an editable confirmation step, followed by open questions chunked three per step in config order, and conclude with a read-only review step. Submitting logs the contract-compliant JSON payload (including screening results) to the browser console and renders a candidate-facing confirmation screen with generic messaging if requirements are unmet. The interface supports English and German with a manual toggle falling back to browser language. Core domain logic (normalization, validation, prefill, screening, and payload generation) is pure and verified by 257 tests across 26 test files, automated via GitHub Actions CI (typecheck, lint, test, build).
 
 ## Decisions
 
@@ -86,7 +86,8 @@ D24. **Candidates see the same neutral confirmation whatever the screening resul
 
 D1. **Answers are one `useState<Answers>` in `ApplyFlow`; the step lives in the URL.**
     react-hook-form would be a second validation brain beside `domain/`. The only other state
-    is the step whose Next failed, so its errors show and a fresh step opens clean.
+    is the step whose Next failed, so its errors show and a fresh step opens clean, and the
+    step the form opened on, so a fresh load can restart at step 1.
 
 D2. **Context only for the i18n language, never for form state.** Props are one level deep
     (`ApplyFlow` → question component); context would hide data flow and couple components
@@ -151,8 +152,9 @@ D31. **Next and Back are icon buttons; Submit keeps its text.** Next/Back carry
 
 D35. **Every screen has a URL (react-router)** (#41). `/jobs/:jobId`,
      `/jobs/:jobId/apply?step=N`, `/jobs/:jobId/confirmation`; pages read the job from the URL.
-     Next pushes a step, Back is browser Back. A step behind an unfinished step (refresh, edited
-     URL) restarts at step 1, since answers live only in memory. Submit replaces the step with
+     Next pushes a step, Back is browser Back. A fresh load (refresh, shared link) restarts at
+     step 1, since answers live only in memory; Submit with a required answer missing goes to
+     that step and shows its errors. Submit replaces the step with
      the confirmation; the form of an applied job redirects to its job page. Trade-off: Back
      after submitting passes through the old steps, each redirecting to the job page.
 

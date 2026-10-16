@@ -98,13 +98,12 @@ describe('ApplyFlow wizard steps (#36)', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Enter a whole number')
   })
 
-  it('sends a step URL past an unfinished step back to step 1', async () => {
+  it('sends a step URL outside the wizard back to step 1', async () => {
     const user = userEvent.setup()
     const router = renderApplyFlow(longJson)
     await user.click(screen.getByRole('button', { name: 'Next' }))
-    expect(screen.getByRole('progressbar', { name: 'Step 2 of 4' })).toBeInTheDocument()
 
-    await act(() => router.navigate('/jobs/job-long/apply?step=4'))
+    await act(() => router.navigate('/jobs/job-long/apply?step=9'))
     expect(await screen.findByRole('progressbar', { name: 'Step 1 of 4' })).toBeInTheDocument()
   })
 
@@ -397,18 +396,22 @@ describe('ApplyFlow with short.json', () => {
     expect(log).not.toHaveBeenCalled()
   })
 
-  it('sends the summary back to step 1 when an earlier required answer goes missing', async () => {
+  it('sends Submit to the unfinished step, with its errors, when an earlier answer went missing', async () => {
+    const user = userEvent.setup()
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
     renderApplyFlow(shortJson)
     await clickNext()
     await clickNext()
 
-    // Clearing the (hidden but mounted) required salary leaves step 1 unfinished.
+    // Reachable by Back, clearing an answer, then browser Forward; the hidden
+    // but mounted salary field simulates it.
     fireEvent.change(screen.getByLabelText('What is your yearly salary expectation in EUR?'), {
       target: { value: '' },
     })
+    await user.click(screen.getByRole('button', { name: 'Submit application' }))
 
-    expect(await screen.findByRole('progressbar', { name: 'Step 1 of 3' })).toBeInTheDocument()
+    expect(screen.getByRole('progressbar', { name: 'Step 1 of 3' })).toBeInTheDocument()
+    expect(screen.getByText('This field is required')).toBeInTheDocument()
     expect(log).not.toHaveBeenCalled()
   })
 
