@@ -154,14 +154,8 @@ export function ApplyFlow() {
             {t('back')}
           </Button>
           <Button type="submit">
-            {onSummary ? (
-              t('submit')
-            ) : (
-              <>
-                {t('next')}
-                <ArrowRightIcon />
-              </>
-            )}
+            {onSummary ? t('submit') : t('next')}
+            {!onSummary && <ArrowRightIcon />}
           </Button>
         </div>
       </form>
