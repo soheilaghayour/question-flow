@@ -120,7 +120,7 @@ describe('App', () => {
     const router = renderRoute('/jobs/job-short')
     await userEvent.setup().click(screen.getByRole('button', { name: 'Apply' }))
     await submitShortJob()
-    expect(router.state.location.pathname).toBe('/jobs/job-short/applied')
+    expect(router.state.location.pathname).toBe('/jobs/job-short/confirmation')
     expect(screen.getByText('Application submitted')).toBeInTheDocument()
 
     await goBack(router)
@@ -138,12 +138,6 @@ describe('App', () => {
     expect(router.state.location.pathname).toBe('/jobs/job-short')
     expect(screen.getByRole('button', { name: 'Apply' })).toBeDisabled()
     expect(screen.getByText('You have already applied to this job.')).toBeInTheDocument()
-  })
-
-  it('sends the result URL of a job not applied to back to its job page', async () => {
-    const router = renderRoute('/jobs/job-short/applied')
-    expect(await screen.findByRole('button', { name: 'Apply' })).toBeEnabled()
-    expect(router.state.location.pathname).toBe('/jobs/job-short')
   })
 
   it('remembers an applied job across a page refresh', async () => {

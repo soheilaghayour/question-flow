@@ -27,7 +27,7 @@ src/
   pages/
     JobPage.tsx         # job info + Apply button (job switcher for the 3 configs)
     ApplyFlow.tsx       # the wizard, step in ?step=N
-    AppliedPage.tsx     # confirmation after submit
+    ApplyConfirmation.tsx # confirmation after submit
   i18n/                 # en.ts, de.ts (UI text only)
   utils/                # generic helpers (fileToBase64, parseLocaleNumber)
 ```

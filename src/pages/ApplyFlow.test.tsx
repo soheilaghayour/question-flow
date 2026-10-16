@@ -288,7 +288,7 @@ describe('ApplyFlow result screen on failed screening (#16)', () => {
     ],
   }
 
-  it('tells the candidate only a generic note — never the rule, threshold, or question', async () => {
+  it('shows the same confirmation as a passed screening — no screening detail at all', async () => {
     const user = userEvent.setup()
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
     renderApplyFlow(failingJob)
@@ -304,19 +304,14 @@ describe('ApplyFlow result screen on failed screening (#16)', () => {
       screening: { passed: false, failed: ['salary_expectation'] },
     })
 
-    // Candidate sees the confirmation plus one generic sentence.
-    const status = screen.getByRole('status')
-    expect(status).toHaveTextContent('Application submitted')
-    expect(status).toHaveTextContent('may not match')
-
-    // No screening detail is reachable anywhere in the UI (acceptance criterion):
-    // not the threshold, not the rule name, not which question failed.
+    expect(screen.getByRole('status')).toHaveTextContent('Application submitted')
     const page = document.body.textContent ?? ''
     expect(page).not.toContain('90000')
     expect(page).not.toContain('95000')
     expect(page).not.toContain('must_be_below')
     expect(page).not.toContain('salary')
     expect(page).not.toContain('failed')
+    expect(page).not.toContain('may not match')
   })
 })
 
@@ -460,8 +455,6 @@ describe('ApplyFlow with short.json', () => {
     const status = screen.getByRole('status')
     expect(status).toHaveTextContent('Application submitted')
     expect(status.textContent).not.toContain('job_id')
-    // Passing screening shows no note at all — only failing adds one.
-    expect(status.textContent).not.toContain('may not match')
     expect(submittedPayload(log)).toEqual(expectedShortPayload)
   })
 

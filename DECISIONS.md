@@ -78,15 +78,9 @@ D23. **The task contract moved verbatim from `README.md` to `docs/task-contract.
      meant the contract (CLAUDE.md, this file, PRD.md, code comments) now say "contract"
      or name `docs/task-contract.md` explicitly.
 
-D24. **Screening result messaging: candidates get a confirmation; a failed screening adds
-     exactly one generic sentence** ("your profile may not match some of the requirements"),
-     never which rule, threshold, or question — and screening still never blocks submission
-     (D8). This resolves the open PM question "should candidates learn they failed at all":
-     yes, generically. A soft heads-up sets honest expectations (silence followed by a fast
-     rejection reads as ghosting), while naming the rule would leak recruiter thresholds and
-     invite gaming via resubmission. The payload (with full screening detail) stays
-     `console.log`-only as the dev deliverable; tests assert no threshold, rule name, or
-     failed-question id is reachable in the rendered UI on the failing path.
+D24. **Candidates see the same neutral confirmation whatever the screening result.** Telling
+     them they failed helps nobody and hints at recruiter thresholds. Screening never blocks
+     submission (D8); its result goes only into the payload (`console.log`).
 
 ### Form & state
 
@@ -198,10 +192,10 @@ D33. **History entries are session-stamped; stale ones are walked, never obeyed.
      caught by the summary safety net (D31). *Superseded by D35.*
 
 D35. **Every screen has a URL (react-router)** (#41, supersedes D25, D33 and D31's history
-     part). `/jobs/:jobId`, `/jobs/:jobId/apply?step=N`, `/jobs/:jobId/applied`; pages read
+     part). `/jobs/:jobId`, `/jobs/:jobId/apply?step=N`, `/jobs/:jobId/confirmation`; pages read
      the job from the URL. Next pushes a step, Back is browser Back. A step past the furthest
      one reached in this mount (refresh, shared link) restarts at step 1, since answers live
-     only in memory. Submit replaces the step with `/applied`, and opening the form of an
+     only in memory. Submit replaces the step with the confirmation, and opening the form of an
      applied job redirects to its job page. Trade-off: Back after submitting passes through
      the old steps, each redirecting to the job page.
 
