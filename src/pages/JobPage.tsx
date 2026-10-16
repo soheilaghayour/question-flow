@@ -38,16 +38,17 @@ export function JobPage() {
       </nav>
       {selected && 'job' in selected.result ? (
         <Card>
-          {appliedJobIds.includes(selected.id) && <AppliedBadge />}
           <JobSummary title={selected.result.job.title} company={selected.result.job.company} />
           <p>{t('job_description')}</p>
-          {!appliedJobIds.includes(selected.id) && (
-            <div>
+          <div>
+            {appliedJobIds.includes(selected.id) ? (
+              <AppliedBadge />
+            ) : (
               <Button onClick={() => navigate(localizedPath(`/jobs/${selected.id}/apply?step=1`))}>
                 {t('apply')}
               </Button>
-            </div>
-          )}
+            )}
+          </div>
         </Card>
       ) : (
         <ErrorText>{t('error_job_invalid')}</ErrorText>
