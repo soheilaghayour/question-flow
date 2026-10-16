@@ -7,7 +7,7 @@ import {
   type FileRejection,
 } from '@/domain/fileConstraints'
 import { Button } from '@/components/atoms/Button'
-import { Input } from '@/components/atoms/Input'
+import { FileInput } from '@/components/atoms/FileInput'
 import { Text } from '@/components/atoms/Text'
 import type { FieldInputProps } from './Field'
 
@@ -55,13 +55,10 @@ export function FileDrop({ inputProps, chooseLabel, fileName, onSelect }: FileDr
       onDragOver={(event) => event.preventDefault()}
       onDrop={handleDrop}
     >
-      <Input
+      <FileInput
         {...inputProps}
         ref={inputRef}
-        type="file"
         accept={ACCEPTED_CONTENT_TYPES.join(',')}
-        className="sr-only"
-        tabIndex={-1}
         onChange={handleChange}
       />
       <Button
