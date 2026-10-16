@@ -10,6 +10,8 @@ export type Language = (typeof LANGUAGES)[number]
 export interface LanguageContextValue {
   language: Language
   t: (key: TranslationKey) => string
+  /** `path` under the current language's URL prefix — for every absolute navigation. */
+  localizedPath: (path: string) => string
 }
 
 /** null until a LanguageProvider mounts — useI18n turns that into a loud error. */

@@ -1,7 +1,8 @@
 import { useEffect, useMemo, type ReactNode } from 'react'
 import { LanguageContext, type Language } from './context'
 import { de } from './de'
-import { en } from './en'
+import { en, type TranslationKey } from './en'
+import { pathInLanguage } from './languagePath'
 
 const DICTIONARIES = { en, de }
 
@@ -13,7 +14,11 @@ export function LanguageProvider({ language = 'en', children }: { language?: Lan
   }, [language])
 
   const value = useMemo(
-    () => ({ language, t: (key: keyof typeof en) => DICTIONARIES[language][key] }),
+    () => ({
+      language,
+      t: (key: TranslationKey) => DICTIONARIES[language][key],
+      localizedPath: (path: string) => pathInLanguage(language, path),
+    }),
     [language],
   )
 
