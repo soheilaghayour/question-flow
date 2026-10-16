@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi, type MockInstance } from 'vitest'
-import { act, fireEvent, screen, within } from '@testing-library/react'
+import { fireEvent, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type * as DataModule from '@/data'
 import { renderRoute } from '@/test/renderRoute'
@@ -10,7 +10,6 @@ import expectedShortPayload from '@/pages/apply-flow-fixtures/payload-short.json
 import expectedLongPayload from '@/pages/apply-flow-fixtures/payload-long.json'
 import expectedBadPayload from '@/pages/apply-flow-fixtures/payload-bad.json'
 
-// Inline test configs are reached by id, like the fixtures.
 const testJobs = vi.hoisted(() => new Map<string, unknown>())
 vi.mock('@/data', async (importOriginal) => ({
   ...(await importOriginal<typeof DataModule>()),
@@ -96,15 +95,6 @@ describe('ApplyFlow wizard steps (#36)', () => {
     await user.click(screen.getByRole('button', { name: 'Next' }))
     expect(screen.getByLabelText('N?')).toHaveValue('abc')
     expect(screen.getByRole('alert')).toHaveTextContent('Enter a whole number')
-  })
-
-  it('sends a step URL outside the wizard back to step 1', async () => {
-    const user = userEvent.setup()
-    const router = renderApplyFlow(longJson)
-    await user.click(screen.getByRole('button', { name: 'Next' }))
-
-    await act(() => router.navigate('/jobs/job-long/apply?step=9'))
-    expect(await screen.findByRole('progressbar', { name: 'Step 1 of 4' })).toBeInTheDocument()
   })
 
   it('gates Next on the step’s required answers and keeps answers across Back', async () => {

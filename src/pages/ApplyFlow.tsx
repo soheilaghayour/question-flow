@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useLayoutEffect, useState } from 'react'
 import { Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 import { evaluateScreening } from '@/domain/screening'
 import { buildPayload, type Answers } from '@/domain/payload'
@@ -26,9 +26,8 @@ export function ApplyFlow() {
   // The step whose Next failed shows its errors; a freshly entered step never
   // opens pre-littered with error text.
   const [failedStepIndex, setFailedStepIndex] = useState<number | null>(null)
-  // Answers live only in memory, so a fresh load (refresh, shared link) restarts at step 1.
   const [openedOnStep] = useState(() => searchParams.get('step'))
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (openedOnStep !== '1') navigate('?step=1', { replace: true })
   }, [openedOnStep, navigate])
   const { t, language } = useI18n()
@@ -47,9 +46,6 @@ export function ApplyFlow() {
     return <Navigate to={`/jobs/${job.id}`} replace />
   }
   const stepIndex = Number(searchParams.get('step')) - 1
-  if (!Number.isInteger(stepIndex) || stepIndex < 0 || stepIndex > steps.length) {
-    return <Navigate to="?step=1" replace />
-  }
 
   const totalSteps = steps.length + 1 // the summary screen is the last step
   const onSummary = stepIndex === steps.length
