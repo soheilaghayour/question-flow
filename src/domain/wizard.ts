@@ -1,6 +1,6 @@
 import type { Question } from './schema'
 import type { Answers } from './payload'
-import { hasAnswer } from './formState'
+import { hasAnswer } from './answers'
 
 export const QUESTIONS_PER_STEP = 3
 
