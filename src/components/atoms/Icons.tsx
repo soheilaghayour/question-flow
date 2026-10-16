@@ -1,7 +1,5 @@
 import type { ComponentProps } from 'react'
 
-/** Decorative icons: always aria-hidden — the wrapping control carries the
- * accessible name (aria-label or visible text). */
 function Icon({ children, ...props }: ComponentProps<'svg'>) {
   return (
     <svg

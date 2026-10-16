@@ -16,8 +16,7 @@ import { NumericQuestion } from './NumericQuestion'
 import { SelectQuestion } from './SelectQuestion'
 import { TextQuestion } from './TextQuestion'
 
-/** The controlled seam every question component shares: config in, current
- * answer in, next answer (or null = no answer) out, flow-computed error in. */
+/** Props every question component takes; null means no answer. */
 export type QuestionComponent<Config, Value> = ComponentType<{
   question: Config
   value: Value | null
@@ -25,9 +24,7 @@ export type QuestionComponent<Config, Value> = ComponentType<{
   error?: string
 }>
 
-/** Type → component. The flow renders a Question via QuestionField (which owns
- * the one correlated-union cast this record needs) and never switches on type;
- * a new question type is one component + one entry. */
+/** Question type → component. */
 export const questionRegistry: {
   text: QuestionComponent<TextQuestionConfig, string>
   numeric: QuestionComponent<NumericQuestionConfig, number>
@@ -44,7 +41,6 @@ export const questionRegistry: {
   file: FileQuestion,
 }
 
-// A question type added to the schema must fail compilation here until it has
-// a component; an entry without a schema type can't exist in the shape above.
+// Fails to compile when a schema question type has no component.
 const registryCoversEveryType: Record<QuestionType, unknown> = questionRegistry
 void registryCoversEveryType
