@@ -9,7 +9,7 @@ export type Language = (typeof LANGUAGES)[number]
 
 export interface LanguageContextValue {
   language: Language
-  setLanguage: (language: Language) => void
+  chooseLanguage: (language: Language) => void
   t: (key: TranslationKey) => string
 }
 
