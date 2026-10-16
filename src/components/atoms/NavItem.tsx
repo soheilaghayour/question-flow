@@ -15,7 +15,7 @@ export function NavItem({ size = 'row', ...props }: NavItemProps) {
     <NavLink
       end
       {...props}
-      className={`rounded hover:bg-primary/5 aria-[current=page]:bg-primary/10 aria-[current=page]:text-primary focus-ring ${SIZE_CLASSES[size]}`}
+      className={`rounded border border-transparent hover:bg-primary/5 aria-[current=page]:border-primary/30 aria-[current=page]:bg-primary/10 aria-[current=page]:text-primary focus-ring ${SIZE_CLASSES[size]}`}
     />
   )
 }
