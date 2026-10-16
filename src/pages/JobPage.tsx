@@ -4,7 +4,7 @@ import { profile, rawJobConfigsById } from '@/data'
 import { Button } from '@/components/atoms/Button'
 import { ErrorText } from '@/components/atoms/ErrorText'
 import { Heading } from '@/components/atoms/Heading'
-import { Hint } from '@/components/atoms/Hint'
+import { Text } from '@/components/atoms/Text'
 import { JobSummary } from '@/components/molecules/JobSummary'
 import { ProfileCard } from '@/components/molecules/ProfileCard'
 import { useI18n } from '@/i18n/useI18n'
@@ -41,7 +41,7 @@ export function JobPage() {
         <section className="flex flex-col gap-4">
           <JobSummary title={selected.result.job.title} company={selected.result.job.company} />
           <p>{t('job_description')}</p>
-          {applied && <Hint>{t('applied_note')}</Hint>}
+          {applied && <Text tone="muted">{t('applied_note')}</Text>}
           <div>
             <Button disabled={applied} onClick={() => navigate(localizedPath(`/jobs/${selected.id}/apply?step=1`))}>
               {t('apply')}

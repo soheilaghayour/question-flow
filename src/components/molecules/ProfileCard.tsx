@@ -1,6 +1,6 @@
 import type { Profile } from '@/domain/schema'
 import { Heading } from '@/components/atoms/Heading'
-import { Hint } from '@/components/atoms/Hint'
+import { Text } from '@/components/atoms/Text'
 import { useI18n } from '@/i18n/useI18n'
 
 /** The profile that feeds prefill, made visible: the candidate should see
@@ -26,7 +26,7 @@ export function ProfileCard({ profile }: { profile: Profile }) {
         {t('profile_heading')}
       </Heading>
       {name && <p className="font-medium">{name}</p>}
-      {profile.headline && <Hint>{profile.headline}</Hint>}
+      {profile.headline && <Text tone="muted" size="sm">{profile.headline}</Text>}
       <dl className="flex flex-col gap-2 text-sm">
         {rows.map(([label, value]) => (
           <div key={label}>

@@ -1,4 +1,5 @@
 import { Heading } from '@/components/atoms/Heading'
+import { Text } from '@/components/atoms/Text'
 
 interface JobSummaryProps {
   title: string
@@ -12,7 +13,7 @@ export function JobSummary({ title, company }: JobSummaryProps) {
       <Heading level={2} size="md">
         {title}
       </Heading>
-      <p className="text-muted">{company}</p>
+      <Text tone="muted">{company}</Text>
     </div>
   )
 }
