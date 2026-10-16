@@ -2,6 +2,7 @@ import type { SelectQuestion as SelectQuestionConfig } from '@/domain/schema'
 import { Checkbox } from '@/components/atoms/Checkbox'
 import { Radio } from '@/components/atoms/Radio'
 import { OptionGroup } from '@/components/molecules/OptionGroup'
+import { OptionLabel } from '@/components/molecules/OptionLabel'
 
 interface SelectQuestionProps {
   question: SelectQuestionConfig
@@ -29,7 +30,7 @@ export function SelectQuestion({ question, value, onChange, error }: SelectQuest
       error={error}
     >
       {question.options.map((option) => (
-        <label key={option.value} className="flex cursor-pointer items-center gap-2">
+        <OptionLabel key={option.value}>
           {multi ? (
             <Checkbox
               checked={picked.includes(option.value)}
@@ -44,7 +45,7 @@ export function SelectQuestion({ question, value, onChange, error }: SelectQuest
             />
           )}
           {option.label}
-        </label>
+        </OptionLabel>
       ))}
     </OptionGroup>
   )
