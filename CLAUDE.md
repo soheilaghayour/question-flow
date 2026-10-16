@@ -89,6 +89,8 @@ edit them, not even to make a test pass. New test data goes into new files (e.g.
 ## Working agreements
 
 - A product decision is written to `DECISIONS.md` in the same commit as the code that implements it — never later.
+- `DECISIONS.md` lists only decisions in force: a replaced decision is deleted, never marked "superseded" — git keeps the history.
+- Comments and docs stay minimal: comment only what the code can't say, no README notes for implementation details, one plain sentence per decision, no defensive code for cases the app needn't survive.
 - For tasks with 3+ steps, keep a visible todo list.
 - Every diff is read by a human: explain why a change is needed, not only what changed.
 - Small commits, one issue each, with clear messages.
