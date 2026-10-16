@@ -91,6 +91,7 @@ edit them, not even to make a test pass. New test data goes into new files (e.g.
 - `DECISIONS.md` lists only decisions in force: a replaced decision is deleted, never marked "superseded" — git keeps the history.
 - Comments are one line, next to the code they explain, and only state a *why* the code can't show: a browser quirk, a bite, a guard a reader would otherwise "fix". Markup, ARIA attributes and DECISIONS entries speak for themselves. JSDoc is one sentence on what the function does.
 - Docs stay minimal: README covers usage only, one plain sentence per decision, no defensive code for cases the app needn't survive.
+- Pushback comes first: when a request has a flaw, a risk or a simpler alternative, state it with reasons and wait for the user's decision before implementing. With no pushback, implement right away.
 - For tasks with 3+ steps, keep a visible todo list.
 - Every diff is read by a human: explain why a change is needed, not only what changed.
 - Small commits, one issue each, with clear messages.
