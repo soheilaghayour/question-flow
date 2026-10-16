@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react'
 import { ErrorText } from '@/components/atoms/ErrorText'
+import { RequiredMark } from '@/components/atoms/RequiredMark'
+import { Text } from '@/components/atoms/Text'
 
 interface OptionGroupProps {
   id: string
@@ -18,14 +20,15 @@ export function OptionGroup({ id, label, required, error, children }: OptionGrou
   // the star plus the submit-time error are the affordances here.
   return (
     <fieldset aria-describedby={error ? errorId : undefined} className="flex flex-col gap-1">
-      <legend className="font-medium">
-        {label}
-        {/* aria-hidden for the same reason as Field: the group's accessible
-            name must not change under existing role queries. */}
+      <legend>
+        <Text as="span" weight="medium">
+          {label}
+        </Text>
         {required && (
-          <span aria-hidden="true" className="text-error">
-            {' *'}
-          </span>
+          <>
+            {' '}
+            <RequiredMark />
+          </>
         )}
       </legend>
       <div className="flex flex-col gap-2">{children}</div>

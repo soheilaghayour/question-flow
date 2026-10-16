@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { ErrorText } from '@/components/atoms/ErrorText'
+import { RequiredMark } from '@/components/atoms/RequiredMark'
 import { Text } from '@/components/atoms/Text'
 
 /** Props the caller must spread onto the rendered input so the label, hint and
@@ -34,14 +35,12 @@ export function Field({ id, label, required, description, error, children }: Fie
       {/* The star lives OUTSIDE the label element: label text is what accessible
           queries (and screen readers) read — they get aria-required instead. */}
       <div className="flex gap-1">
-        <label htmlFor={id} className="font-medium">
-          {label}
+        <label htmlFor={id}>
+          <Text as="span" weight="medium">
+            {label}
+          </Text>
         </label>
-        {required && (
-          <span aria-hidden="true" className="text-error">
-            *
-          </span>
-        )}
+        {required && <RequiredMark />}
       </div>
       {children({
         id,
