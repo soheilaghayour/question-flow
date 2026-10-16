@@ -4,15 +4,11 @@ import userEvent from '@testing-library/user-event'
 import { LanguageProvider } from './LanguageProvider'
 import { useI18n } from './useI18n'
 
-const RECRUITER_TEXT = 'Bitte ausschließlich als PDF einreichen.'
-
 function Probe() {
   const { t, setLanguage } = useI18n()
   return (
     <div>
       <p>{t('submit')}</p>
-      {/* Recruiter-authored text renders verbatim, never through t(). */}
-      <p>{RECRUITER_TEXT}</p>
       <button onClick={() => setLanguage('en')}>en</button>
       <button onClick={() => setLanguage('de')}>de</button>
     </div>
@@ -92,7 +88,7 @@ describe('LanguageProvider — document language (WCAG 3.1.1)', () => {
 })
 
 describe('LanguageProvider — setLanguage', () => {
-  it('switches UI strings, leaves recruiter text verbatim, persists the choice', async () => {
+  it('switches UI strings and persists the choice', async () => {
     const user = userEvent.setup()
     mockBrowserLanguage('en-US')
     renderProbe()
@@ -100,7 +96,6 @@ describe('LanguageProvider — setLanguage', () => {
     await user.click(screen.getByRole('button', { name: 'de' }))
 
     expect(screen.getByText('Bewerbung absenden')).toBeInTheDocument()
-    expect(screen.getByText(RECRUITER_TEXT)).toBeInTheDocument()
     expect(localStorage.getItem('ui-language')).toBe('de')
 
     await user.click(screen.getByRole('button', { name: 'en' }))

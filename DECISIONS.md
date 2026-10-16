@@ -5,7 +5,7 @@ Every judgment call, with its reason. Authority order: the contract (`docs/task-
 
 ## What I built
 
-The application is an end-to-end candidate application flow that normalizes raw job configs, prefills matching candidate profile fields, and guides the candidate through a multi-step wizard. Prefilled answers lead as an editable confirmation step, followed by open questions chunked three per step in config order, and conclude with a read-only review step. Submitting logs the contract-compliant JSON payload (including screening results) to the browser console and renders a candidate-facing confirmation screen with generic messaging if requirements are unmet. The interface supports English and German with a manual switch falling back to browser language. Core domain logic (normalization, validation, prefill, screening, and payload generation) is pure and verified by 258 tests across 26 test files, automated via GitHub Actions CI (typecheck, lint, test, build).
+The application is an end-to-end candidate application flow that normalizes raw job configs, prefills matching candidate profile fields, and guides the candidate through a multi-step wizard. Prefilled answers lead as an editable confirmation step, followed by open questions chunked three per step in config order, and conclude with a read-only review step. Submitting logs the contract-compliant JSON payload (including screening results) to the browser console and renders a candidate-facing confirmation screen with generic messaging if requirements are unmet. The interface supports English and German with a manual switch falling back to browser language. Core domain logic (normalization, validation, prefill, screening, and payload generation) is pure and verified by 259 tests across 27 test files, automated via GitHub Actions CI (typecheck, lint, test, build).
 
 ## Decisions
 
@@ -142,8 +142,7 @@ D30. **The apply form is a wizard: prefill confirm first, 3 questions per step, 
      answers preserved. Progress is a step line ("Step X of Y", including summary)
      animated under motion-safe only. Screening never blocks (D8).
 
-D31. **The wizard's Next and Back are the main call to action: text next to the arrow; the
-     language switch is a small EN | DE, the active language bold, not only colored.**
+D31. **The wizard's Next and Submit buttons are the main call to action.**
 
 D35. **Every screen has a URL (react-router)** (#41).
 

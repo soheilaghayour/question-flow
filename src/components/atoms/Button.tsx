@@ -1,8 +1,6 @@
 import type { ComponentProps } from 'react'
 
 const VARIANT_CLASSES = {
-  // Unselected toggles (aria-pressed=false) are an OUTLINE at full opacity,
-  // never a faded fill: faded is the disabled affordance (opacity-50).
   primary:
     'border-transparent bg-primary px-4 py-2 text-surface hover:opacity-90 aria-[pressed=false]:border-primary aria-[pressed=false]:bg-surface aria-[pressed=false]:text-primary',
   secondary: 'border-primary bg-surface px-4 py-2 text-primary hover:opacity-90',
