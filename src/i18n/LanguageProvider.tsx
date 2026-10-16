@@ -21,7 +21,7 @@ function storeLanguage(language: UiLanguage) {
   try {
     localStorage.setItem(STORAGE_KEY, language)
   } catch {
-    // Losing persistence is acceptable; losing the toggle is not.
+    // Losing persistence is acceptable; losing the switch is not.
   }
 }
 
