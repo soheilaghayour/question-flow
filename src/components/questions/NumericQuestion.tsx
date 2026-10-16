@@ -13,15 +13,9 @@ interface NumericQuestionProps {
 }
 
 export function NumericQuestion({ question, value, onChange, error }: NumericQuestionProps) {
-  // The raw text lives here, not in form state: "85." or "abc" has no number
-  // representation, and typing is never blocked (DECISIONS #5). Form state only
-  // ever receives a valid in-range integer, or null.
+  // Raw text stays local: "85." or "abc" has no number value.
   const [raw, setRaw] = useState(value === null ? '' : String(value))
-  // Render-time re-sync keeps the seam controlled: when the value prop CHANGES
-  // to something that is not the echo of our own last emit (external reset,
-  // post-mount prefill), it replaces the text. Both conditions matter — "not
-  // the echo" alone wipes half-typed text under parents that don't echo, and
-  // "changed" alone wipes it under parents that do.
+  // Replace the text only when the value prop changes to something we didn't emit.
   const [lastEmitted, setLastEmitted] = useState(value)
   const [prevValue, setPrevValue] = useState(value)
   if (value !== prevValue) {

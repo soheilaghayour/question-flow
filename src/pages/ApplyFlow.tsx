@@ -26,8 +26,6 @@ export function ApplyFlow() {
   const [answers, setAnswers] = useState<Answers>(() =>
     'job' in wizard ? wizard.initialAnswers : {},
   )
-  // The step whose Next failed shows its errors; a freshly entered step never
-  // opens pre-littered with error text.
   const [failedStepIndex, setFailedStepIndex] = useState<number | null>(null)
   const [openedOnStep] = useState(() => searchParams.get('step'))
   useLayoutEffect(() => {
@@ -40,7 +38,6 @@ export function ApplyFlow() {
   }
   const { job, steps } = wizard
 
-  // Back after submitting walks into this form's old steps.
   if (getAppliedJobIdsFromStorage().includes(job.id)) {
     return <Navigate to={localizedPath(`/jobs/${job.id}`)} replace />
   }
@@ -50,9 +47,6 @@ export function ApplyFlow() {
   const onSummary = stepIndex === steps.length
   const step = steps[stepIndex]
 
-  // Hard gate (DECISIONS #5): Next never advances past an unanswered required
-  // question on the current step — the errors appear on the fields in view.
-  // Back and typing are never gated.
   const stepMissing = step ? missingRequired(step.questions, answers) : []
 
   const handleNext = () => {
@@ -99,9 +93,6 @@ export function ApplyFlow() {
           {t('required_hint')}
         </Text>
       )}
-      {/* One submit path for click and Enter alike: on question steps it IS
-          the Next action (same gate), on the summary it sends — so the
-          button's type never has to swap under a click. */}
       <form
         noValidate
         onSubmit={(event) => {
@@ -111,9 +102,7 @@ export function ApplyFlow() {
         }}
         className="flex flex-col gap-6"
       >
-        {/* Inactive steps hide, they never unmount: a widget holding raw
-            not-yet-valid typing (DECISIONS #21) must survive Back/Next, not
-            be reset by a remount. */}
+        {/* Hidden, not unmounted, so half-typed answers survive Back/Next. */}
         {steps.map((wizardStep, index) => (
           <div key={wizardStep.questions[0].id} hidden={index !== stepIndex} className="flex flex-col gap-6">
             {wizardStep.prefilled && (
