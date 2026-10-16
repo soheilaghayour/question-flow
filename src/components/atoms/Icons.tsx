@@ -44,3 +44,11 @@ export function CheckCircleIcon() {
     </Icon>
   )
 }
+
+export function CheckIcon() {
+  return (
+    <Icon className="size-3.5">
+      <path d="M20 6 9 17l-5-5" />
+    </Icon>
+  )
+}

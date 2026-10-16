@@ -32,7 +32,7 @@ export const de: Record<TranslationKey, string> = {
   profile_languages: 'Sprachen',
   job_description:
     'Wir suchen Verstärkung für unser Team. Die Bewerbung dauert nur wenige Minuten — viele Antworten sind bereits aus Ihrem Profil vorausgefüllt, Sie müssen sie meist nur bestätigen.',
-  applied_note: 'Sie haben sich auf diese Stelle bereits beworben.',
+  applied_badge: 'Beworben',
   step_label: 'Schritt {current} von {total}',
   from_profile: 'Bereits aus Ihrem Profil ausgefüllt',
   next: 'Weiter',

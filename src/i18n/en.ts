@@ -30,7 +30,7 @@ export const en = {
   profile_languages: 'Languages',
   job_description:
     'We are looking for someone great to join the team. Applying only takes a few minutes — many answers are already prefilled from your profile, so you mostly just confirm them.',
-  applied_note: 'You have already applied to this job.',
+  applied_badge: 'Applied',
   step_label: 'Step {current} of {total}',
   from_profile: 'Already filled from your profile',
   next: 'Next',

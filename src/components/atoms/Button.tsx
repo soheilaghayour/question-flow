@@ -2,7 +2,7 @@ import type { ComponentProps } from 'react'
 
 const VARIANT_CLASSES = {
   primary:
-    'border-transparent bg-primary px-4 py-2 text-surface hover:opacity-90 aria-[pressed=false]:border-primary aria-[pressed=false]:bg-surface aria-[pressed=false]:text-primary',
+    'border-transparent bg-primary px-4 py-2 text-surface hover:opacity-90',
   secondary: 'border-primary bg-surface px-4 py-2 text-primary hover:opacity-90',
 }
 
