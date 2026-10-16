@@ -11,13 +11,9 @@ interface OptionGroupProps {
   children: ReactNode
 }
 
-/** Group counterpart of Field: radios/checkboxes have no single input a label
- * could point at, so association runs fieldset/legend + aria-describedby
- * (DECISIONS #12: a11y baseline). */
 export function OptionGroup({ id, label, required, error, children }: OptionGroupProps) {
   const errorId = `${id}-error`
-  // No aria-required on the fieldset: the `group` role doesn't support it —
-  // the star plus the submit-time error are the affordances here.
+  // No aria-required: the group role doesn't support it.
   return (
     <fieldset aria-describedby={error ? errorId : undefined} className="flex flex-col gap-1">
       <legend>

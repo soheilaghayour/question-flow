@@ -21,8 +21,7 @@ function pageRoutes(language: Language) {
   ]
 }
 
-// Both parents render the same element tree, so a language switch keeps the
-// page mounted — the wizard's answers survive it.
+// Same element tree under both parents, so a language switch keeps the wizard mounted.
 export const routes: RouteObject[] = [
   {
     path: '/',

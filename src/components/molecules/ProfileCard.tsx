@@ -3,9 +3,6 @@ import { Heading } from '@/components/atoms/Heading'
 import { Text } from '@/components/atoms/Text'
 import { useI18n } from '@/i18n/useI18n'
 
-/** The profile that feeds prefill, made visible: the candidate should see
- * WHERE prefilled answers come from before entering the form. Display only —
- * values render plain (no locale number formatting, see issue #21). */
 export function ProfileCard({ profile }: { profile: Profile }) {
   const { t } = useI18n()
   const name = [profile.first_name, profile.last_name].filter(Boolean).join(' ')

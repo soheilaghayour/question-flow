@@ -7,8 +7,6 @@ import { pathInLanguage } from './languagePath'
 const DICTIONARIES = { en, de }
 
 export function LanguageProvider({ language = 'en', children }: { language?: Language; children: ReactNode }) {
-  // Screen readers take pronunciation from the document language (WCAG 3.1.1);
-  // index.html's hardcoded lang="en" must follow the UI language.
   useEffect(() => {
     document.documentElement.lang = language
   }, [language])

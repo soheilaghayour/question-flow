@@ -10,8 +10,6 @@ import { ProfileCard } from '@/components/molecules/ProfileCard'
 import { useI18n } from '@/i18n/useI18n'
 import { getAppliedJobIdsFromStorage } from '@/utils/appliedJobs'
 
-// Normalized here only for the list and summary; ApplyFlow re-normalizes and
-// owns the error state for a config that can't be displayed.
 const jobs = [...rawJobConfigsById].map(([id, config]) => ({ id, result: normalizeJob(config) }))
 
 export function JobPage() {

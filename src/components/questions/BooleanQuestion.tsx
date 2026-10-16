@@ -12,8 +12,7 @@ interface BooleanQuestionProps {
 
 export function BooleanQuestion({ question, value, onChange, error }: BooleanQuestionProps) {
   const { t } = useI18n()
-  // Explicit Yes/No, no default: value === null leaves both unchecked, and
-  // false checks No — unanswered ≠ false (bite #4).
+  // null leaves both unchecked: unanswered ≠ false (bite #4).
   return (
     <OptionGroup
       id={question.id}

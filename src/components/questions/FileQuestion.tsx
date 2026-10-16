@@ -11,8 +11,6 @@ import type { TranslationKey } from '@/i18n/en'
 
 type FileIssue = FileRejection | 'read_failed'
 
-// Exhaustive by assertNever (same pattern as payload.ts): a new issue kind
-// must fail compilation here, not silently clear the answer with no message.
 function issueKey(issue: FileIssue): TranslationKey {
   switch (issue) {
     case 'rejected_type':
@@ -34,11 +32,9 @@ interface FileQuestionProps {
 }
 
 export function FileQuestion({ question, value, onChange, error }: FileQuestionProps) {
-  // The issue KIND is stored, not the message, so a language toggle
-  // re-translates a visible error.
+  // The kind, not the message, so a language switch re-translates it.
   const [issue, setIssue] = useState<FileIssue | null>(null)
-  // Latest-wins: a slow base64 read must not overwrite the outcome of a
-  // selection made after it.
+  // A slow read must not overwrite a newer selection.
   const selectionSeq = useRef(0)
   const { t } = useI18n()
 
