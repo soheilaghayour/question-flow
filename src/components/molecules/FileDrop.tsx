@@ -62,6 +62,8 @@ export function FileDrop({ inputProps, chooseLabel, fileName, onSelect }: FileDr
         onChange={handleChange}
       />
       <Button
+        variant="secondary"
+        invalid={inputProps['aria-invalid']}
         className="self-start"
         aria-describedby={inputProps['aria-describedby']}
         onClick={() => inputRef.current?.click()}
