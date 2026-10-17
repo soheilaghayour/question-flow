@@ -86,6 +86,16 @@ describe('FileQuestion', () => {
     expect(onChange).toHaveBeenCalledWith(null)
   })
 
+  it('marks the visible Choose file button invalid while the question has an error', () => {
+    render(<FileQuestion question={question} value={null} onChange={() => {}} />, { wrapper })
+    const button = screen.getByRole('button', { name: 'Choose file' })
+    expect(button).not.toHaveAttribute('data-invalid')
+    fireEvent.drop(button, {
+      dataTransfer: { files: [new File(['MZ'], 'virus.exe', { type: 'application/x-msdownload' })] },
+    })
+    expect(button).toHaveAttribute('data-invalid')
+  })
+
   it('rejects a disallowed type with a clear message and emits null', async () => {
     // applyAccept off: drag & drop and "All files" pickers bypass the accept filter.
     const user = userEvent.setup({ applyAccept: false })

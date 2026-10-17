@@ -8,7 +8,7 @@ const VARIANT_CLASSES = {
 
 interface ButtonProps extends ComponentProps<'button'> {
   variant?: keyof typeof VARIANT_CLASSES
-  /** Visual error state only: aria-invalid isn't supported on buttons, so the error stays linked via aria-describedby. */
+  /** Shows the error state. */
   invalid?: boolean
 }
 
@@ -17,6 +17,7 @@ export function Button({ variant = 'primary', invalid, className = '', type = 'b
     <button
       {...props}
       type={type}
+      // Not aria-invalid: buttons don't support it; the error is linked via aria-describedby.
       data-invalid={invalid || undefined}
       className={`inline-flex cursor-pointer items-center justify-center gap-2 rounded border font-medium disabled:cursor-default disabled:opacity-50 focus-ring data-invalid:border-error data-invalid:text-error ${VARIANT_CLASSES[variant]} ${className}`}
     />
