@@ -91,11 +91,6 @@ export function ApplyFlow() {
       <JobSummary title={job.title} company={job.company} />
       <ProgressBar label={progressLabel} fraction={(stepIndex + 1) / totalSteps} />
       <Card>
-        {step && step.questions.some((q) => q.required) && (
-          <Text tone="muted" size="sm">
-            {t('required_hint')}
-          </Text>
-        )}
         <form
           noValidate
           onSubmit={(event) => {
@@ -107,23 +102,30 @@ export function ApplyFlow() {
         >
           {/* Hidden, not unmounted, so half-typed answers survive Back/Next. */}
           {steps.map((wizardStep, index) => (
-            <div key={wizardStep.questions[0].id} hidden={index !== stepIndex} className="flex flex-col gap-1">
+            <div key={wizardStep.questions[0].id} hidden={index !== stepIndex} className="flex flex-col gap-4">
               {wizardStep.prefilled && (
                 <InfoCallout title={t('from_profile')} text={t('from_profile_hint')} />
               )}
-              {wizardStep.questions.map((question) => (
-                <QuestionField
-                  key={question.id}
-                  question={question}
-                  value={answers[question.id] ?? null}
-                  onChange={(value) => setAnswers((prev) => ({ ...prev, [question.id]: value }))}
-                  error={
-                    index === failedStepIndex && stepMissing.includes(question.id)
-                      ? t('error_required')
-                      : undefined
-                  }
-                />
-              ))}
+              {wizardStep.questions.some((q) => q.required) && (
+                <Text tone="muted" size="sm">
+                  {t('required_hint')}
+                </Text>
+              )}
+              <div className="flex flex-col gap-1">
+                {wizardStep.questions.map((question) => (
+                  <QuestionField
+                    key={question.id}
+                    question={question}
+                    value={answers[question.id] ?? null}
+                    onChange={(value) => setAnswers((prev) => ({ ...prev, [question.id]: value }))}
+                    error={
+                      index === failedStepIndex && stepMissing.includes(question.id)
+                        ? t('error_required')
+                        : undefined
+                    }
+                  />
+                ))}
+              </div>
             </div>
           ))}
           {onSummary && (
