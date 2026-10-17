@@ -5,23 +5,9 @@ import { JobOverviewPage } from '@/pages/JobOverviewPage'
 import { ApplyFlow } from '@/pages/ApplyFlow'
 import { SubmitConfirmation } from '@/pages/SubmitConfirmation'
 import { LanguageProvider } from '@/i18n/LanguageProvider'
-import type { Language } from '@/i18n/context'
-import { pathInLanguage } from '@/i18n/languagePath'
 
-const firstJobPath = `/jobs/${rawJobConfigsById.keys().next().value}`
+const firstJob = <Navigate to={`/jobs/${rawJobConfigsById.keys().next().value}`} replace />
 
-function pageRoutes(language: Language) {
-  const firstJob = <Navigate to={pathInLanguage(language, firstJobPath)} replace />
-  return [
-    { index: true, element: firstJob },
-    { path: 'jobs/:jobId', element: <JobOverviewPage /> },
-    { path: 'jobs/:jobId/apply', element: <ApplyFlow /> },
-    { path: 'jobs/:jobId/confirmation', element: <SubmitConfirmation /> },
-    { path: '*', element: firstJob },
-  ]
-}
-
-// Same element tree under both parents, so a language switch keeps the wizard mounted.
 export const routes: RouteObject[] = [
   {
     path: '/',
@@ -30,15 +16,12 @@ export const routes: RouteObject[] = [
         <App />
       </LanguageProvider>
     ),
-    children: pageRoutes('en'),
-  },
-  {
-    path: '/de',
-    element: (
-      <LanguageProvider language="de">
-        <App />
-      </LanguageProvider>
-    ),
-    children: pageRoutes('de'),
+    children: [
+      { index: true, element: firstJob },
+      { path: 'jobs/:jobId', element: <JobOverviewPage /> },
+      { path: 'jobs/:jobId/apply', element: <ApplyFlow /> },
+      { path: 'jobs/:jobId/confirmation', element: <SubmitConfirmation /> },
+      { path: '*', element: firstJob },
+    ],
   },
 ]

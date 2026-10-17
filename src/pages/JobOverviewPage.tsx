@@ -17,7 +17,7 @@ const jobs = [...rawJobConfigsById].map(([id, config]) => ({ id, result: normali
 export function JobOverviewPage() {
   const { jobId } = useParams()
   const navigate = useNavigate()
-  const { t, localizedPath } = useI18n()
+  const { t } = useI18n()
   const selected = jobs.find((job) => job.id === jobId)
   const appliedJobIds = getAppliedJobIdsFromStorage()
 
@@ -28,7 +28,7 @@ export function JobOverviewPage() {
         <ul className="flex flex-col gap-1">
           {jobs.map((job) => (
             <li key={job.id}>
-              <NavItem to={localizedPath(`/jobs/${job.id}`)}>
+              <NavItem to={`/jobs/${job.id}`}>
                 {'job' in job.result ? job.result.job.title : t('invalid_job')}
                 {appliedJobIds.includes(job.id) && <AppliedBadge />}
               </NavItem>
@@ -44,7 +44,7 @@ export function JobOverviewPage() {
             {appliedJobIds.includes(selected.id) ? (
               <AppliedBadge />
             ) : (
-              <Button onClick={() => navigate(localizedPath(`/jobs/${selected.id}/apply?step=1`))}>
+              <Button onClick={() => navigate(`/jobs/${selected.id}/apply?step=1`)}>
                 {t('apply')}
               </Button>
             )}
