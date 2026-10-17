@@ -11,7 +11,9 @@ import { Heading } from '@/components/atoms/Heading'
 import { Text } from '@/components/atoms/Text'
 import { ArrowLeftIcon, ArrowRightIcon } from '@/components/atoms/Icons'
 import { AnswerReview } from '@/components/molecules/AnswerReview'
+import { Card } from '@/components/molecules/Card'
 import { ErrorText } from '@/components/molecules/ErrorText'
+import { InfoCallout } from '@/components/molecules/InfoCallout'
 import { JobSummary } from '@/components/molecules/JobSummary'
 import { ProgressBar } from '@/components/molecules/ProgressBar'
 import { useI18n } from '@/i18n/useI18n'
@@ -88,73 +90,75 @@ export function ApplyFlow() {
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
       <JobSummary title={job.title} company={job.company} />
       <ProgressBar label={progressLabel} fraction={(stepIndex + 1) / totalSteps} />
-      {step && step.questions.some((q) => q.required) && (
-        <Text tone="muted" size="sm">
-          {t('required_hint')}
-        </Text>
-      )}
-      <form
-        noValidate
-        onSubmit={(event) => {
-          event.preventDefault()
-          if (onSummary) submitApplication()
-          else handleNext()
-        }}
-        className="flex flex-col gap-6"
-      >
-        {/* Hidden, not unmounted, so half-typed answers survive Back/Next. */}
-        {steps.map((wizardStep, index) => (
-          <div key={wizardStep.questions[0].id} hidden={index !== stepIndex} className="flex flex-col gap-6">
-            {wizardStep.prefilled && (
+      <Card>
+        <form
+          noValidate
+          onSubmit={(event) => {
+            event.preventDefault()
+            if (onSummary) submitApplication()
+            else handleNext()
+          }}
+          className="flex flex-col gap-6"
+        >
+          {/* Hidden, not unmounted, so half-typed answers survive Back/Next. */}
+          {steps.map((wizardStep, index) => (
+            <div key={wizardStep.questions[0].id} hidden={index !== stepIndex} className="flex flex-col gap-4">
+              {wizardStep.prefilled && (
+                <InfoCallout title={t('from_profile')} text={t('from_profile_hint')} />
+              )}
+              {wizardStep.questions.some((q) => q.required) && (
+                <Text tone="muted" size="sm">
+                  {t('required_hint')}
+                </Text>
+              )}
+              <div className="flex flex-col gap-1">
+                {wizardStep.questions.map((question) => (
+                  <QuestionField
+                    key={question.id}
+                    question={question}
+                    value={answers[question.id] ?? null}
+                    onChange={(value) => setAnswers((prev) => ({ ...prev, [question.id]: value }))}
+                    error={
+                      index === failedStepIndex && stepMissing.includes(question.id)
+                        ? t('error_required')
+                        : undefined
+                    }
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
+          {onSummary && (
+            <>
               <Heading level={2}>
-                {t('from_profile')}
+                {t('review_title')}
               </Heading>
-            )}
-            {wizardStep.questions.map((question) => (
-              <QuestionField
-                key={question.id}
-                question={question}
-                value={answers[question.id] ?? null}
-                onChange={(value) => setAnswers((prev) => ({ ...prev, [question.id]: value }))}
-                error={
-                  index === failedStepIndex && stepMissing.includes(question.id)
-                    ? t('error_required')
-                    : undefined
-                }
+              <AnswerReview
+                items={job.questions.map((question) => ({
+                  id: question.id,
+                  question: question.question,
+                  answer: answerText(question, answers[question.id], {
+                    yes: t('yes'),
+                    no: t('no'),
+                    missing: t('no_answer'),
+                    locale: language,
+                  }),
+                }))}
               />
-            ))}
+            </>
+          )}
+          <div className="flex justify-between gap-4">
+            <Button variant="secondary" onClick={handleBack}>
+              <ArrowLeftIcon />
+              {t('back')}
+            </Button>
+            <Button type="submit">
+              {onSummary ? t('submit') : t('next')}
+              {!onSummary && <ArrowRightIcon />}
+            </Button>
           </div>
-        ))}
-        {onSummary && (
-          <>
-            <Heading level={2}>
-              {t('review_title')}
-            </Heading>
-            <AnswerReview
-              items={job.questions.map((question) => ({
-                id: question.id,
-                question: question.question,
-                answer: answerText(question, answers[question.id], {
-                  yes: t('yes'),
-                  no: t('no'),
-                  missing: t('no_answer'),
-                  locale: language,
-                }),
-              }))}
-            />
-          </>
-        )}
-        <div className="flex justify-between gap-4">
-          <Button variant="secondary" onClick={handleBack}>
-            <ArrowLeftIcon />
-            {t('back')}
-          </Button>
-          <Button type="submit">
-            {onSummary ? t('submit') : t('next')}
-            {!onSummary && <ArrowRightIcon />}
-          </Button>
-        </div>
-      </form>
+        </form>
+      </Card>
     </div>
   )
 }
