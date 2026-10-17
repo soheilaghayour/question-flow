@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { act, screen, within } from '@testing-library/react'
+import { act, cleanup, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { renderRoute } from '@/test/renderRoute'
 
@@ -127,7 +127,7 @@ describe('App', () => {
     vi.spyOn(console, 'log').mockImplementation(() => {})
     renderRoute('/jobs/job-short/apply?step=1')
     await submitShortJob()
-    document.body.innerHTML = ''
+    cleanup()
 
     renderRoute('/jobs/job-short')
     expect(screen.queryByRole('button', { name: 'Apply' })).not.toBeInTheDocument()
@@ -184,17 +184,17 @@ describe('UI language (#66)', () => {
     expect(document.documentElement.lang).toBe('en')
 
     await userEvent.setup().click(screen.getByRole('button', { name: 'DE' }))
-    document.body.innerHTML = ''
+    cleanup()
     renderRoute('/jobs/job-short')
     expect(screen.getByRole('button', { name: 'Bewerben' })).toBeInTheDocument()
     expect(document.documentElement.lang).toBe('de')
   })
 
-  it('marks the active language as pressed', async () => {
+  it('marks the active language as current', () => {
     renderRoute('/jobs/job-short')
     const languages = within(screen.getByRole('group', { name: 'Language' }))
-    expect(languages.getByRole('button', { name: 'EN' })).toHaveAttribute('aria-pressed', 'true')
-    expect(languages.getByRole('button', { name: 'DE' })).toHaveAttribute('aria-pressed', 'false')
+    expect(languages.getByRole('button', { name: 'EN' })).toHaveAttribute('aria-current', 'true')
+    expect(languages.getByRole('button', { name: 'DE' })).not.toHaveAttribute('aria-current')
   })
 
   it('switches without a history entry, keeping the step and the answers', async () => {
@@ -212,6 +212,7 @@ describe('UI language (#66)', () => {
     expect(screen.getByRole('progressbar', { name: 'Schritt 2 von 3' })).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Zurück' }))
+    expect(router.state.location.search).toBe('?step=1')
     expect(screen.getByLabelText('What is your yearly salary expectation in EUR?')).toHaveValue('70000')
   })
 
