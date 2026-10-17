@@ -159,6 +159,9 @@ D38. **"Choose file" is a secondary button with a visual error state** (#63): a 
      button mid-step competed with Next (D31). `aria-invalid` isn't supported on buttons, so the
      red border and text are visual; the error stays linked via `aria-describedby`.
 
+D39. **Every field reserves one line for its error** (#63), so an error appearing after Next never
+     pushes the fields below it down. A message longer than one line still shifts the layout.
+
 ### Styling & i18n
 
 D3. **The URL decides the UI language: `/de/...` is German, no prefix is English** (#49).
