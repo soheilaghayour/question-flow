@@ -146,6 +146,9 @@ D31. **The wizard's Next and Submit buttons are the main call to action.**
 
 D35. **Every screen has a URL (react-router)** (#41).
 
+D36. **The app header is sticky** (#63): `position: sticky`, not `fixed`, so it stays in the flow
+     and no content offset has to track its height.
+
 ### Styling & i18n
 
 D3. **The URL decides the UI language: `/de/...` is German, no prefix is English** (#49).
