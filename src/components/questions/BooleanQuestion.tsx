@@ -1,6 +1,7 @@
 import type { BooleanQuestion as BooleanQuestionConfig } from '@/domain/schema'
 import { Radio } from '@/components/atoms/Radio'
 import { OptionGroup } from '@/components/molecules/OptionGroup'
+import { OptionLabel } from '@/components/molecules/OptionLabel'
 import { useI18n } from '@/i18n/useI18n'
 
 interface BooleanQuestionProps {
@@ -21,14 +22,14 @@ export function BooleanQuestion({ question, value, onChange, error }: BooleanQue
       error={error}
     >
       {[true, false].map((option) => (
-        <label key={String(option)} className="flex cursor-pointer items-center gap-2">
+        <OptionLabel key={String(option)}>
           <Radio
             name={question.id}
             checked={value === option}
             onChange={() => onChange(option)}
           />
           {t(option ? 'yes' : 'no')}
-        </label>
+        </OptionLabel>
       ))}
     </OptionGroup>
   )

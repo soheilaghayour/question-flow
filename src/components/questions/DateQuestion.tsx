@@ -24,7 +24,6 @@ export function DateQuestion({ question, value, onChange, error }: DateQuestionP
         <Input
           {...inputProps}
           type="date"
-          className="[&::-webkit-calendar-picker-indicator]:cursor-pointer"
           min={todayLocal()}
           value={value ?? ''}
           onChange={(event) => onChange(event.target.value === '' ? null : event.target.value)}

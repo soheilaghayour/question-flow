@@ -60,6 +60,7 @@ the snake_case keys exactly.
 - Every job config goes through `normalizeJob()` before use: raw configs lie.
 - Adding a question type = new component + one registry entry: the flow never switches on type.
 - Colors only by role (`text-error`, `bg-primary`); palette colors like `red-600` exist only inside `@theme`: design changes stay one-line.
+- Molecules and questions use atoms, never raw form controls (`<input>`, `<button>`, `<textarea>`, `<select>`); labels and fieldsets are structure and stay in molecules: a raw control in a molecule teaches that atoms are optional.
 - Raw styling lives in `atoms/` and `molecules/`; pages compose and add only layout classes (`flex`, `gap-4`, `grid`): the atom is the semantic layer.
 - Don't abstract until code is duplicated three times, and no wrapper component that only forwards props: wrong abstractions cost more than duplication.
 - Implement only what the current issue asks: scope creep hides review surface.
