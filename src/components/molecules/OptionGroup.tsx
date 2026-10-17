@@ -23,7 +23,8 @@ export function OptionGroup({ id, label, required, error, children }: OptionGrou
         {required && <> <RequiredMark /></>}
       </legend>
       <div className="flex flex-wrap gap-2">{children}</div>
-      {error && <ErrorText id={errorId}>{error}</ErrorText>}
+      {/* Reserves the error line, so an appearing error doesn't push the next field down. */}
+      <div className="min-h-5">{error && <ErrorText id={errorId}>{error}</ErrorText>}</div>
     </fieldset>
   )
 }
