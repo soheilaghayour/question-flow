@@ -42,13 +42,15 @@ function isNonEmptyString(value: unknown): value is string {
 
 type AddWarning = (questionId: string, reason: string) => void
 
-/** Deletes misplaced or invalid screening rules from the question, warning for each. */
+/** Returns a copy of the question without misplaced or invalid screening rules, warning for each. */
 function sanitizeScreeningRules(
-  candidateQuestion: Record<string, unknown>,
+  rawQuestion: Record<string, unknown>,
   type: QuestionType,
   questionId: string,
   addWarning: AddWarning,
 ) {
+  // Shallow copy: cleaning deletes keys, and the input is an imported JSON module.
+  const candidateQuestion = { ...rawQuestion }
   for (const [name, rule] of Object.entries(SCREENING_RULES)) {
     if (!(name in candidateQuestion)) continue
     if (rule.allowedOn !== type) {
@@ -59,6 +61,7 @@ function sanitizeScreeningRules(
       addWarning(questionId, `rule "${name}" has an invalid value — ignored`)
     }
   }
+  return candidateQuestion
 }
 
 /** Returns the valid select options with duplicate values removed, warning for each drop. */
@@ -115,11 +118,8 @@ function normalizeQuestion(
   }
   const type = rawQuestion.type as QuestionType
 
-  // Shallow copy: cleaning deletes keys, and the input is an imported JSON module.
-  const candidateQuestion: Record<string, unknown> = { ...rawQuestion }
-
-  // Clean rules before the strict parse: zod would drop or reject them without a warning (D10, D17).
-  sanitizeScreeningRules(candidateQuestion, type, questionId, addWarning)
+  // Clean rules before the strict parse: zod would silently strip a misplaced rule or reject the whole question over one bad value (D10).
+  const candidateQuestion = sanitizeScreeningRules(rawQuestion, type, questionId, addWarning)
 
   if (type === 'select' && Array.isArray(candidateQuestion.options)) {
     const options = sanitizeSelectOptions(candidateQuestion.options, questionId, addWarning)
