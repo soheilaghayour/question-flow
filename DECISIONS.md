@@ -5,7 +5,7 @@ Every judgment call, with its reason. Authority order: the contract (`docs/task-
 
 ## What I built
 
-The application is an end-to-end candidate application flow that normalizes raw job configs, prefills matching candidate profile fields, and guides the candidate through a multi-step wizard. Prefilled answers lead as an editable confirmation step, followed by open questions chunked three per step in config order, and conclude with a read-only review step. Submitting logs the contract-compliant JSON payload (including screening results) to the browser console and renders a candidate-facing confirmation screen with generic messaging if requirements are unmet. The interface supports English and German; the URL decides which (`/de/...` German, no prefix English). Core domain logic (normalization, validation, prefill, screening, and payload generation) is pure and verified by 260 tests across 26 test files, automated via GitHub Actions CI (typecheck, lint, test, build).
+The application is an end-to-end candidate application flow that normalizes raw job configs, prefills matching candidate profile fields, and guides the candidate through a multi-step wizard. Prefilled answers lead as an editable confirmation step, followed by open questions chunked three per step in config order, and conclude with a read-only review step. Submitting logs the contract-compliant JSON payload (including screening results) to the browser console and renders a candidate-facing confirmation screen with generic messaging if requirements are unmet. The interface supports English and German; the choice is kept in this browser, and Back never changes it. Core domain logic (normalization, validation, prefill, screening, and payload generation) is pure and verified by 262 tests across 31 test files, automated via GitHub Actions CI (typecheck, lint, test, build).
 
 ## Decisions
 
@@ -164,11 +164,10 @@ D39. **Every field reserves one line for its error** (#63), so an error appearin
 
 ### Styling & i18n
 
-D3. **The URL decides the UI language: `/de/...` is German, no prefix is English** (#49).
-    A link carries its language, so no browser detection or storage is needed. The switch
-    replaces the history entry, so the wizard's Back never just undoes a language change.
-    Job `language` describes the recruiter's text, not the reader's preference. Only UI
-    chrome is translated; recruiter text renders verbatim.
+D3. **The UI language lives in React state, saved in localStorage; English on a first visit** (#66).
+    Switching adds no history entry, so Back and Forward never change the language, and the
+    wizard keeps its step and answers. Job `language` describes the recruiter's text, not the
+    reader's preference. Only UI chrome is translated; recruiter text renders verbatim.
 
 D12. **Accessibility baseline in V1:** label/input association, `aria-invalid`,
      `aria-describedby` for errors.
@@ -188,8 +187,9 @@ D32. **The job list is navigation and Apply is the page's only solid primary but
      Jobs are links with `aria-current="page"` and a tinted active state, so the selected job
      no longer competes with Apply. An applied job shows an "Applied" badge in the list and
      in Apply's place, never a disabled button: the badge says why, and the title stays put
-     when switching jobs. All navigation links share one `NavItem` atom and one current-page
-     style (primary text on a tint with a primary outline, so it doesn't rely on color alone); the job list uses full rows, the language switch compact pills.
+     when switching jobs. Job links use the `NavItem` atom, and the language switch's
+     `ToggleButton` shares its current style (primary text on a tint with a primary outline, so it
+     doesn't rely on color alone).
 
 ### Engineering
 
@@ -234,6 +234,9 @@ D20. **CI with GitHub Actions on push to `main` and every PR: typecheck, lint, t
   step instead of dimmed noise.
 - **Modal for the apply form** — a long multi-question form with file uploads inside a
   modal means scroll-in-scroll, focus-trap work, and an accidental backdrop click loses all answers.
+- **UI language in the URL (`/de/...`, #49)** — every history entry keeps the language it was
+  visited in, so Back after a switch returned to the previous page in the old language.
+  Shareable language links are worth little in an application wizard.
 - **Translating recruiter text on language switch** — would invent data; question/option
   texts are recruiter content (D3); payload carries original values.
 - **react-hook-form + zod resolver** — would generate a runtime schema per job and
