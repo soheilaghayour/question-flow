@@ -139,9 +139,10 @@ describe('App', () => {
     expect(screen.getByRole('link', { name: 'Senior Frontend Engineer' })).not.toHaveAttribute('aria-current')
   })
 
-  it('shows the Applied badge only on applied jobs, in German under /de', () => {
+  it('shows the Applied badge only on applied jobs, in the stored language', () => {
     localStorage.setItem('applied-job-ids', '["job-short"]')
-    renderRoute('/de/jobs/job-long')
+    localStorage.setItem('ui-language', 'de')
+    renderRoute('/jobs/job-long')
     expect(within(screen.getByRole('link', { name: /^Frontend Developer \(React\)/ })).getByText('Beworben')).toBeInTheDocument()
     expect(within(screen.getByRole('link', { name: 'Senior Frontend Engineer' })).queryByText('Beworben')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Bewerben' })).toBeEnabled()
@@ -162,7 +163,7 @@ describe('App', () => {
   it('translates the UI but never the recruiter text', async () => {
     const user = userEvent.setup()
     renderRoute('/jobs/job-short/apply?step=1')
-    await user.click(screen.getByRole('link', { name: 'DE' }))
+    await user.click(screen.getByRole('button', { name: 'DE' }))
     expect(screen.getByRole('button', { name: 'Weiter' })).toBeInTheDocument()
     expect(screen.getByText('What is your notice period?')).toBeInTheDocument()
   })
@@ -176,56 +177,27 @@ describe('App', () => {
   })
 })
 
-describe('UI language in the URL (#49)', () => {
-  it('shows German under /de and English without a prefix, whatever the browser or storage says', () => {
-    vi.spyOn(window.navigator, 'language', 'get').mockReturnValue('de-DE')
-    localStorage.setItem('ui-language', 'de')
+describe('UI language (#66)', () => {
+  it('starts in English with nothing stored and keeps a switch across a refresh', async () => {
     renderRoute('/jobs/job-short')
     expect(screen.getByRole('button', { name: 'Apply' })).toBeInTheDocument()
     expect(document.documentElement.lang).toBe('en')
-    document.body.innerHTML = ''
 
-    vi.spyOn(window.navigator, 'language', 'get').mockReturnValue('en-US')
-    localStorage.setItem('ui-language', 'en')
-    renderRoute('/de/jobs/job-short')
+    await userEvent.setup().click(screen.getByRole('button', { name: 'DE' }))
+    document.body.innerHTML = ''
+    renderRoute('/jobs/job-short')
     expect(screen.getByRole('button', { name: 'Bewerben' })).toBeInTheDocument()
     expect(document.documentElement.lang).toBe('de')
   })
 
-  it('sends an unknown language prefix to the catch-all redirect', () => {
-    const router = renderRoute('/fr/jobs/job-long')
-    expect(router.state.location.pathname).toBe('/jobs/job-short')
-  })
-
-  it.each([
-    ['/de', '/de/jobs/job-short'],
-    ['/de/nothing-here', '/de/jobs/job-short'],
-  ])('keeps the prefix when redirecting %s', (path, target) => {
-    const router = renderRoute(path)
-    expect(router.state.location.pathname).toBe(target)
-  })
-
-  it('marks German as the active language under /de', () => {
-    renderRoute('/de/jobs/job-short')
-    const languages = within(screen.getByRole('group', { name: 'Sprache' }))
-    expect(languages.getByRole('link', { name: 'DE' })).toHaveAttribute('aria-current', 'page')
-    expect(languages.getByRole('link', { name: 'EN' })).not.toHaveAttribute('aria-current')
-  })
-
-  it('marks the active language and links the other to the same page and step', async () => {
-    const user = userEvent.setup()
-    renderRoute('/jobs/job-short/apply?step=1')
-    await user.click(screen.getByRole('button', { name: 'Next' }))
+  it('marks the active language as pressed', async () => {
+    renderRoute('/jobs/job-short')
     const languages = within(screen.getByRole('group', { name: 'Language' }))
-    expect(languages.getByRole('link', { name: 'EN' })).toHaveAttribute('aria-current', 'page')
-    expect(languages.getByRole('link', { name: 'DE' })).not.toHaveAttribute('aria-current')
-    expect(languages.getByRole('link', { name: 'DE' })).toHaveAttribute(
-      'href',
-      '/de/jobs/job-short/apply?step=2',
-    )
+    expect(languages.getByRole('button', { name: 'EN' })).toHaveAttribute('aria-pressed', 'true')
+    expect(languages.getByRole('button', { name: 'DE' })).toHaveAttribute('aria-pressed', 'false')
   })
 
-  it('keeps the step and the answers across a switch, and Back never undoes it', async () => {
+  it('switches without a history entry, keeping the step and the answers', async () => {
     const user = userEvent.setup()
     const router = renderRoute('/jobs/job-short')
     await user.click(screen.getByRole('button', { name: 'Apply' }))
@@ -233,46 +205,35 @@ describe('UI language in the URL (#49)', () => {
     await user.clear(salary)
     await user.type(salary, '70000')
     await user.click(screen.getByRole('button', { name: 'Next' }))
+    const entry = router.state.location.key
 
-    await user.click(screen.getByRole('link', { name: 'DE' }))
-    expect(router.state.location.pathname).toBe('/de/jobs/job-short/apply')
+    await user.click(screen.getByRole('button', { name: 'DE' }))
+    expect(router.state.location.key).toBe(entry)
     expect(screen.getByRole('progressbar', { name: 'Schritt 2 von 3' })).toBeInTheDocument()
 
-    // replace rewrites only the current entry: Back lands on the previous step
-    // as it was recorded, never on step 2 in English.
     await user.click(screen.getByRole('button', { name: 'Zurück' }))
-    expect(router.state.location.search).toBe('?step=1')
     expect(screen.getByLabelText('What is your yearly salary expectation in EUR?')).toHaveValue('70000')
   })
 
-  it('keeps the prefix through the job switcher, Apply, submit and back to main', async () => {
+  // The #49 bug: with the language in the URL, Back restored the entry's old language.
+  async function switchToGermanOnStep2() {
     const user = userEvent.setup()
-    vi.spyOn(console, 'log').mockImplementation(() => {})
-    const router = renderRoute('/de/jobs/job-long')
-    await user.click(screen.getByRole('link', { name: 'Frontend Developer (React)' }))
-    expect(router.state.location.pathname).toBe('/de/jobs/job-short')
+    const router = renderRoute('/jobs/job-short')
+    await user.click(screen.getByRole('button', { name: 'Apply' }))
+    await user.click(screen.getByRole('button', { name: 'Next' }))
+    await user.click(screen.getByRole('button', { name: 'DE' }))
+    return { user, router }
+  }
 
-    await user.click(screen.getByRole('button', { name: 'Bewerben' }))
-    expect(router.state.location.pathname).toBe('/de/jobs/job-short/apply')
-    await user.click(screen.getByRole('button', { name: 'Weiter' }))
-    await user.click(screen.getByRole('button', { name: 'Weiter' }))
-    await user.click(screen.getByRole('button', { name: 'Bewerbung absenden' }))
-    expect(router.state.location.pathname).toBe('/de/jobs/job-short/confirmation')
-
-    await user.click(screen.getByRole('button', { name: 'Zurück zur Hauptseite' }))
-    expect(router.state.location.pathname).toBe('/de/jobs/job-short')
-  })
-
-  it('keeps the prefix when an applied job leaves its form', async () => {
-    localStorage.setItem('applied-job-ids', '["job-short"]')
-    const router = renderRoute('/de/jobs/job-short/apply?step=1')
-    expect(router.state.location.pathname).toBe('/de/jobs/job-short')
-  })
-
-  it('keeps the prefix when step 1 Back leaves a freshly opened form', async () => {
-    const user = userEvent.setup()
-    const router = renderRoute('/de/jobs/job-short/apply?step=1')
+  it('keeps the switched language on the wizard Back', async () => {
+    const { user } = await switchToGermanOnStep2()
     await user.click(screen.getByRole('button', { name: 'Zurück' }))
-    expect(router.state.location.pathname).toBe('/de/jobs/job-short')
+    expect(screen.getByRole('progressbar', { name: 'Schritt 1 von 3' })).toBeInTheDocument()
+  })
+
+  it('keeps the switched language on browser Back', async () => {
+    const { router } = await switchToGermanOnStep2()
+    await goBack(router)
+    expect(screen.getByRole('progressbar', { name: 'Schritt 1 von 3' })).toBeInTheDocument()
   })
 })

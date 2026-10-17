@@ -1,12 +1,14 @@
-import { useEffect, useMemo, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { LanguageContext, type Language } from './context'
 import { de } from './de'
 import { en, type TranslationKey } from './en'
-import { pathInLanguage } from './languagePath'
+import { getStoredLanguage, storeLanguage } from './storedLanguage'
 
 const DICTIONARIES = { en, de }
 
-export function LanguageProvider({ language = 'en', children }: { language?: Language; children: ReactNode }) {
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  const [language, setLanguageState] = useState(getStoredLanguage)
+
   useEffect(() => {
     document.documentElement.lang = language
   }, [language])
@@ -15,7 +17,10 @@ export function LanguageProvider({ language = 'en', children }: { language?: Lan
     () => ({
       language,
       t: (key: TranslationKey) => DICTIONARIES[language][key],
-      localizedPath: (path: string) => pathInLanguage(language, path),
+      setLanguage: (next: Language) => {
+        storeLanguage(next)
+        setLanguageState(next)
+      },
     }),
     [language],
   )
