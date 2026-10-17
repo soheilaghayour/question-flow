@@ -146,6 +146,22 @@ D31. **The wizard's Next and Submit buttons are the main call to action.**
 
 D35. **Every screen has a URL (react-router)** (#41).
 
+D36. **The app header is sticky and sits outside `<main>`** (#63): `position: sticky`, not `fixed`,
+     so it stays in the flow and needs no layout offset; outside `<main>` it is the page's banner
+     landmark. `scroll-padding-top` (6rem, enough for a title wrapped on phones) keeps fields scrolled into view (Tab) clear of it.
+
+D37. **A wizard step sits in the overview's `Card`; options are wrapping pills** (#63). Pills keep
+     the visible radio or checkbox, so "pick one" and "pick several" still look different; the
+     7-level German question fits one row. The prefill step opens with an info callout that is
+     still the step's heading.
+
+D38. **"Choose file" is a secondary button with a visual error state** (#63): a solid primary
+     button mid-step competed with Next (D31). `aria-invalid` isn't supported on buttons, so the
+     red border and text are visual; the error stays linked via `aria-describedby`.
+
+D39. **Every field reserves one line for its error** (#63), so an error appearing after Next never
+     pushes the fields below it down. A message longer than one line still shifts the layout.
+
 ### Styling & i18n
 
 D3. **The URL decides the UI language: `/de/...` is German, no prefix is English** (#49).

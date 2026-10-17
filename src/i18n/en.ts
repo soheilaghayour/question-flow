@@ -33,6 +33,7 @@ export const en = {
   applied_badge: 'Applied',
   step_label: 'Step {current} of {total}',
   from_profile: 'Already filled from your profile',
+  from_profile_hint: 'Check these answers and change anything that is out of date.',
   next: 'Next',
   back: 'Back',
   review_title: 'Review your answers',

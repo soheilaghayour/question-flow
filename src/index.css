@@ -9,6 +9,10 @@
   --color-muted: oklch(0.551 0.027 264.364);
 }
 
+html {
+  scroll-padding-top: 6rem;
+}
+
 /* Single owner of the keyboard focus ring — every atom uses `focus-ring`,
    so a ring change is a one-line edit and controls can't drift apart.
    :focus-visible, not :focus: a mouse click must not paint the ring

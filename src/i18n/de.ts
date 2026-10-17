@@ -35,6 +35,7 @@ export const de: Record<TranslationKey, string> = {
   applied_badge: 'Beworben',
   step_label: 'Schritt {current} von {total}',
   from_profile: 'Bereits aus Ihrem Profil ausgefüllt',
+  from_profile_hint: 'Prüfen Sie diese Antworten und ändern Sie, was nicht mehr stimmt.',
   next: 'Weiter',
   back: 'Zurück',
   review_title: 'Überprüfen Sie Ihre Antworten',
