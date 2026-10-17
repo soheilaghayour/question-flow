@@ -5,7 +5,7 @@ Every judgment call, with its reason. Authority order: the contract (`docs/task-
 
 ## What I built
 
-The application is an end-to-end candidate application flow that normalizes raw job configs, prefills matching candidate profile fields, and guides the candidate through a multi-step wizard. Prefilled answers lead as an editable confirmation step, followed by open questions chunked three per step in config order, and conclude with a read-only review step. Submitting logs the contract-compliant JSON payload (including screening results) to the browser console and renders a candidate-facing confirmation screen with generic messaging if requirements are unmet. The interface supports English and German; the choice is saved in this browser, and Back never changes it. Core domain logic (normalization, validation, prefill, screening, and payload generation) is pure, covered by tests and run in GitHub Actions CI (typecheck, lint, test, build).
+The application is an end-to-end candidate application flow that normalizes raw job configs, prefills matching candidate profile fields, and guides the candidate through a multi-step wizard. Prefilled answers lead as an editable confirmation step, followed by open questions chunked three per step in config order, and conclude with a read-only review step. Submitting logs the contract-compliant JSON payload (including screening results) to the browser console and renders a candidate-facing confirmation screen with generic messaging if requirements are unmet. The interface supports English and German; the choice is saved in this browser, and Back never changes it. Core domain logic (normalization, validation, prefill, screening, and payload generation) is pure and covered by tests; CI (GitHub Actions) runs typecheck, lint, test and build.
 
 ## Decisions
 
@@ -70,8 +70,8 @@ D19. **Payload omission policy: a value with no substance is "no answer", and a 
      problems are the recruiter's bug to hear about; form-state problems are ours, caught
      by tests.
 
-D23. **The task contract moved verbatim from `README.md` to `docs/task-contract.md`** (via
-     `git mv`, byte-identical — it stays a frozen fixture). Only its path changed, never its
+D23. **The task contract moved verbatim from `README.md` to `docs/task-contract.md`** via
+     `git mv`, byte-identical; it stays a frozen fixture. Only its path changed, never its
      content or authority: it remains the top of the authority order. This frees `README.md`
      to be a real project README (what this is, how to run it, CI badge, doc links) — the
      first file a reviewer opens should not be mock-data documentation. All references that
@@ -202,7 +202,7 @@ D16. **TypeScript pinned to the 6.x line (not 7.x).** npm resolves `typescript` 
 D20. **CI with GitHub Actions on push to `main` and every PR: typecheck, lint, test, build.**
      Single job, no matrix: one Node version is enough for a browser app. Superseded runs
      are cancelled on PRs only, never on `main`, so every main commit gets a full run.
-     Deployment is a separate step after v1.
+     Deployment is a separate, later step.
 
 ## Open PM questions
 
