@@ -33,7 +33,7 @@ export function ApplyFlow() {
   useLayoutEffect(() => {
     if (openedOnStep !== '1') navigate('?step=1', { replace: true })
   }, [openedOnStep, navigate])
-  const { t, language, localizedPath } = useI18n()
+  const { t, language } = useI18n()
 
   if ('error' in wizard) {
     return <ErrorText>{t('error_job_invalid')}</ErrorText>
@@ -41,7 +41,7 @@ export function ApplyFlow() {
   const { job, steps } = wizard
 
   if (getAppliedJobIdsFromStorage().includes(job.id)) {
-    return <Navigate to={localizedPath(`/jobs/${job.id}`)} replace />
+    return <Navigate to={`/jobs/${job.id}`} replace />
   }
   const stepIndex = Number(searchParams.get('step')) - 1
 
@@ -62,7 +62,7 @@ export function ApplyFlow() {
 
   const handleBack = () => {
     // A form opened directly (shared link) has no app entry behind it to go back to.
-    if (stepIndex === 0 && location.key === 'default') navigate(localizedPath(`/jobs/${job.id}`), { replace: true })
+    if (stepIndex === 0 && location.key === 'default') navigate(`/jobs/${job.id}`, { replace: true })
     else navigate(-1)
   }
 
@@ -79,7 +79,7 @@ export function ApplyFlow() {
     const screening = evaluateScreening(job.questions, answers)
     console.log(buildPayload(job, answers, screening))
     addAppliedJobIdToStorage(job.id)
-    navigate(localizedPath(`/jobs/${job.id}/confirmation`), { replace: true })
+    navigate(`/jobs/${job.id}/confirmation`, { replace: true })
   }
 
   const progressLabel = t('step_label')
