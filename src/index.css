@@ -9,7 +9,6 @@
   --color-muted: oklch(0.551 0.027 264.364);
 }
 
-/* Keeps fields scrolled into view (Tab, Shift+Tab) clear of the sticky header. */
 html {
   scroll-padding-top: 5rem;
 }

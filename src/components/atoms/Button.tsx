@@ -8,7 +8,6 @@ const VARIANT_CLASSES = {
 
 interface ButtonProps extends ComponentProps<'button'> {
   variant?: keyof typeof VARIANT_CLASSES
-  /** Shows the error state. */
   invalid?: boolean
 }
 
