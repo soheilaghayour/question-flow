@@ -5,7 +5,7 @@ Every judgment call, with its reason. Authority order: the contract (`docs/task-
 
 ## What I built
 
-The application is an end-to-end candidate application flow that normalizes raw job configs, prefills matching candidate profile fields, and guides the candidate through a multi-step wizard. Prefilled answers lead as an editable confirmation step, followed by open questions chunked three per step in config order, and conclude with a read-only review step. Submitting logs the contract-compliant JSON payload (including screening results) to the browser console and renders a candidate-facing confirmation screen with generic messaging if requirements are unmet. The interface supports English and German; the choice is saved in this browser, and Back never changes it. Core domain logic (normalization, validation, prefill, screening, and payload generation) is pure and verified by 262 tests across 31 test files, automated via GitHub Actions CI (typecheck, lint, test, build).
+The application is an end-to-end candidate application flow that normalizes raw job configs, prefills matching candidate profile fields, and guides the candidate through a multi-step wizard. Prefilled answers lead as an editable confirmation step, followed by open questions chunked three per step in config order, and conclude with a read-only review step. Submitting logs the contract-compliant JSON payload (including screening results) to the browser console and renders a candidate-facing confirmation screen with generic messaging if requirements are unmet. The interface supports English and German; the choice is saved in this browser, and Back never changes it. Core domain logic (normalization, validation, prefill, screening, and payload generation) is pure and covered by tests; CI (GitHub Actions) runs typecheck, lint, test and build.
 
 ## Decisions
 
@@ -70,8 +70,8 @@ D19. **Payload omission policy: a value with no substance is "no answer", and a 
      problems are the recruiter's bug to hear about; form-state problems are ours, caught
      by tests.
 
-D23. **The task contract moved verbatim from `README.md` to `docs/task-contract.md`** (#28,
-     `git mv`, byte-identical — it stays a frozen fixture). Only its path changed, never its
+D23. **The task contract moved verbatim from `README.md` to `docs/task-contract.md`** via
+     `git mv`, byte-identical; it stays a frozen fixture. Only its path changed, never its
      content or authority: it remains the top of the authority order. This frees `README.md`
      to be a real project README (what this is, how to run it, CI badge, doc links) — the
      first file a reviewer opens should not be mock-data documentation. All references that
@@ -134,7 +134,7 @@ D29. **The job page has three columns; a job can be applied to once.** Clicking 
      localStorage to survive a refresh.
 
 D30. **The apply form is a wizard: prefill confirm first, 3 questions per step, light
-     summary before submit** (#36). The lesson from rejected focus mode (see
+     summary before submit**. The lesson from rejected focus mode (see
      Rejected approaches): prefilled answers lead as one editable confirm step so they read as
      completed work. Open questions follow in config order (3 per step), ending in a read-only
      review step with the sole Submit button. "Next" gates on the current step's required answers
@@ -144,27 +144,27 @@ D30. **The apply form is a wizard: prefill confirm first, 3 questions per step, 
 
 D31. **The wizard's Next and Submit buttons are the main call to action.**
 
-D35. **Every screen has a URL (react-router)** (#41).
+D35. **Every screen has a URL (react-router)**.
 
-D36. **The app header is sticky and sits outside `<main>`** (#63): `position: sticky`, not `fixed`,
+D36. **The app header is sticky and sits outside `<main>`**: `position: sticky`, not `fixed`,
      so it stays in the flow and needs no layout offset; outside `<main>` it is the page's banner
      landmark. `scroll-padding-top` (6rem, enough for a title wrapped on phones) keeps fields scrolled into view (Tab) clear of it.
 
-D37. **A wizard step sits in the overview's `Card`; options are wrapping pills** (#63). Pills keep
+D37. **A wizard step sits in the overview's `Card`; options are wrapping pills**. Pills keep
      the visible radio or checkbox, so "pick one" and "pick several" still look different; the
      7-level German question fits one row. The prefill step opens with an info callout that is
      still the step's heading.
 
-D38. **"Choose file" is a secondary button with a visual error state** (#63): a solid primary
+D38. **"Choose file" is a secondary button with a visual error state**: a solid primary
      button mid-step competed with Next (D31). `aria-invalid` isn't supported on buttons, so the
      red border and text are visual; the error stays linked via `aria-describedby`.
 
-D39. **Every field reserves one line for its error** (#63), so an error appearing after Next never
+D39. **Every field reserves one line for its error**, so an error appearing after Next never
      pushes the fields below it down. A message longer than one line still shifts the layout.
 
 ### Styling & i18n
 
-D3. **The UI language lives in React state, saved in localStorage; English on a first visit** (#66).
+D3. **The UI language lives in React state, saved in localStorage; English on a first visit**.
     Switching adds no history entry, so Back and Forward never change the language, and the
     wizard keeps its step and answers. Job `language` describes the recruiter's text, not the
     reader's preference. Only UI chrome is translated; recruiter text renders verbatim.
@@ -176,14 +176,14 @@ D13. **Styling: Tailwind v4 + semantic color tokens in `@theme`; atoms are the r
      `Input.tsx` is the single place input styling lives, so role-level changes are
      one-file edits. Discipline rules in `CLAUDE.md`: colors only by role; raw styling only
      in `atoms/`/`molecules/`, pages add layout classes only.
-     Text roles are atoms too: `Text` (element, tone, size and weight props, never caller color classes) and `Heading`; `ErrorText` and `RequiredMark` are molecules on `Text`. Error messages always go through `ErrorText`, so they keep `role="alert"`. Molecules and pages add only layout and box styling. Tests check behavior and semantics, never class names: asserting exact CSS class names in unit tests is widely recognized as an anti-pattern (#51).
+     Text roles are atoms too: `Text` (element, tone, size and weight props, never caller color classes) and `Heading`; `ErrorText` and `RequiredMark` are molecules on `Text`. Error messages always go through `ErrorText`, so they keep `role="alert"`. Molecules and pages add only layout and box styling. Tests check behavior and semantics, never class names: asserting exact CSS class names in unit tests is widely recognized as an anti-pattern.
 
 D14. **i18n: hand-rolled typed `t(key)` + React context.** ~30 UI strings don't justify i18next.
 
 D28. **Focus rings fire on `:focus-visible` only**, so mouse clicks don't paint stray borders
      on radios and checkboxes.
 
-D32. **The job list is navigation and Apply is the page's only solid primary button** (#55).
+D32. **The job list is navigation and Apply is the page's only solid primary button**.
      Jobs are links with `aria-current="page"` and a tinted active state, so the selected job
      no longer competes with Apply. An applied job shows an "Applied" badge in the list and
      in Apply's place, never a disabled button: the badge says why, and the title stays put
@@ -199,14 +199,10 @@ D16. **TypeScript pinned to the 6.x line (not 7.x).** npm resolves `typescript` 
      *Revisit:* unpin when typescript-eslint ships TS ≥ 7.1 support
      (typescript-eslint/typescript-eslint#10940).
 
-D18. **GitHub issue tracking:** 10 V1 issues (`v1`, `ready-for-agent`) followed by 7 V2 issues
-     (`v2`, `needs-triage`), ordered by title prefix.
-
 D20. **CI with GitHub Actions on push to `main` and every PR: typecheck, lint, test, build.**
      Single job, no matrix: one Node version is enough for a browser app. Superseded runs
      are cancelled on PRs only, never on `main`, so every main commit gets a full run.
-     The CI badge landed with #28, once `README.md` stopped being the frozen template
-     fixture (see D23). Deployment is a separate step after v1.
+     Deployment is a separate, later step.
 
 ## Open PM questions
 
@@ -227,14 +223,14 @@ D20. **CI with GitHub Actions on push to `main` and every PR: typecheck, lint, t
 
 ## Rejected approaches
 
-- **Focus mode: spotlight the active question, dim the rest to ~45%** (#33–#35) — built,
+- **Focus mode: spotlight the active question, dim the rest to ~45%** — built,
   trialed live, discarded. Dimming fights prefill: exactly the questions the profile
   already answered rendered de-emphasized, so the top of the form read as disabled
   rather than done. Replaced by the wizard (D30), which frames prefill as a completed
   step instead of dimmed noise.
 - **Modal for the apply form** — a long multi-question form with file uploads inside a
   modal means scroll-in-scroll, focus-trap work, and an accidental backdrop click loses all answers.
-- **UI language in the URL (`/de/...`, #49)** — every history entry keeps the language it was
+- **UI language in the URL (`/de/...`)** — every history entry keeps the language it was
   visited in, so Back after a switch returned to the previous page in the old language.
   Shareable language links are worth little in an application wizard.
 - **Translating recruiter text on language switch** — would invent data; question/option
@@ -263,6 +259,8 @@ D20. **CI with GitHub Actions on push to `main` and every PR: typecheck, lint, t
 - **Drafts in localStorage** — helps only people who leave and return; lowest impact per hour. Leaving the form drops answers. localStorage holds only applied job ids (D29).
 - **Reorder by effort** — the prefill step already puts the easiest answers first; open questions keep the recruiter's config order.
 - **Intro screen** — the step line ("Step X of Y") already sets expectations.
-- **Numeric display formatting (#21)** — formatting while typing moves the cursor; would format on blur only.
+- **Numeric display formatting** — formatting while typing moves the cursor; would format on blur only.
+- **SVG icons as files via svgr** — a few inline icons in `Icons.tsx` don't need a build plugin.
+- **React Query** — job and profile are imported fixtures; there is nothing to fetch.
 - **Profile editing** — the profile is a read-only fixture.
 - **Quieter error announcements** — switching language re-announces the visible errors (each is a `role="alert"`); a minor screen-reader annoyance, not worth an announcement system here.
