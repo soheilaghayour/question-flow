@@ -46,7 +46,8 @@ describe('ApplyFlow wizard steps (#36)', () => {
     renderApplyFlow(longJson)
 
     // long.json: 4 prefilled + 4 open questions → prefill step, 3+1, summary.
-    expect(screen.getByText('Already filled from your profile')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Already filled from your profile' })).toBeInTheDocument()
+    expect(screen.getByText('Check these answers and change anything that is out of date.')).toBeInTheDocument()
     expect(screen.getByRole('progressbar', { name: 'Step 1 of 4' })).toBeInTheDocument()
 
     // The prefilled questions are here, filled in and editable.
