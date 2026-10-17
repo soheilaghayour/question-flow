@@ -10,7 +10,7 @@
 }
 
 html {
-  scroll-padding-top: 5rem;
+  scroll-padding-top: 6rem;
 }
 
 /* Single owner of the keyboard focus ring — every atom uses `focus-ring`,
