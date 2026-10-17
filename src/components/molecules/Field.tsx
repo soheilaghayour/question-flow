@@ -46,7 +46,6 @@ export function Field({ id, label, required, description, error, children }: Fie
           {description}
         </Text>
       )}
-      {/* Reserves the error line, so an appearing error doesn't push the next field down. */}
       <div className="min-h-5">{error && <ErrorText id={errorId}>{error}</ErrorText>}</div>
     </div>
   )
