@@ -94,7 +94,7 @@ describe('ApplyFlow wizard steps (#36)', () => {
     await screen.findByRole('progressbar', { name: 'Step 1 of 3' })
     await user.click(screen.getByRole('button', { name: 'Next' }))
     expect(screen.getByLabelText('N?')).toHaveValue('abc')
-    expect(screen.getByRole('alert')).toHaveTextContent('Enter a whole number')
+    expect(screen.getByRole('alert')).toHaveTextContent('Enter a number without decimals')
   })
 
   it('gates Next on the step’s required answers and keeps answers across Back', async () => {
@@ -460,6 +460,6 @@ describe('ApplyFlow with short.json', () => {
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
     expect(log).not.toHaveBeenCalled()
     expect(salary).toHaveAttribute('aria-invalid', 'true')
-    expect(screen.getByRole('alert')).toHaveTextContent('Enter a whole number')
+    expect(screen.getByRole('alert')).toHaveTextContent('Enter a number without decimals')
   })
 })

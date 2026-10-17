@@ -56,7 +56,7 @@ describe('NumericQuestion', () => {
 
   // A parse failure must not name the bounds: on questions without a
   // configured range they are schema defaults (0–100000000) the job never set.
-  it('shows a plain whole-number error for unparseable input, without bounds', async () => {
+  it('shows a plain no-decimals error for unparseable input, without bounds', async () => {
     const user = userEvent.setup()
     render(
       <NumericQuestion question={build.numeric()} value={null} onChange={() => {}} />,
@@ -64,7 +64,7 @@ describe('NumericQuestion', () => {
     )
     await user.type(screen.getByRole('textbox'), '85,5')
     const alert = screen.getByRole('alert')
-    expect(alert).toHaveTextContent('Enter a whole number')
+    expect(alert).toHaveTextContent('Enter a number without decimals')
     expect(alert).not.toHaveTextContent('100000000')
   })
 
@@ -82,7 +82,7 @@ describe('NumericQuestion', () => {
     await user.type(screen.getByRole('textbox'), '200')
     expect(onChange).toHaveBeenLastCalledWith(null)
     expect(screen.getByRole('alert')).toHaveTextContent(
-      'Enter a whole number between 0 and 100',
+      'Enter a number from 0 to 100',
     )
   })
 
