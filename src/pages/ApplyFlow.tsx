@@ -107,7 +107,7 @@ export function ApplyFlow() {
         >
           {/* Hidden, not unmounted, so half-typed answers survive Back/Next. */}
           {steps.map((wizardStep, index) => (
-            <div key={wizardStep.questions[0].id} hidden={index !== stepIndex} className="flex flex-col gap-3">
+            <div key={wizardStep.questions[0].id} hidden={index !== stepIndex} className="flex flex-col gap-1">
               {wizardStep.prefilled && (
                 <InfoCallout title={t('from_profile')} text={t('from_profile_hint')} />
               )}
