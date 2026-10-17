@@ -1,6 +1,5 @@
 import type { ComponentProps } from 'react'
 
-/** A button in a choose-one set; the chosen one is `aria-current`, not a toggle. */
 export function CurrentButton({ current, ...props }: Omit<ComponentProps<'button'>, 'className' | 'type' | 'aria-current'> & { current: boolean }) {
   return (
     <button

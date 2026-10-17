@@ -216,7 +216,6 @@ describe('UI language (#66)', () => {
     expect(screen.getByLabelText('What is your yearly salary expectation in EUR?')).toHaveValue('70000')
   })
 
-  // The #49 bug: with the language in the URL, Back restored the entry's old language.
   async function switchToGermanOnStep2() {
     const user = userEvent.setup()
     const router = renderRoute('/jobs/job-short')
