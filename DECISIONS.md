@@ -154,6 +154,10 @@ D37. **A wizard step sits in the overview's `Card`; options are wrapping pills**
      7-level German question fits one row. The prefill step opens with an info callout that is
      still the step's heading.
 
+D38. **"Choose file" is a secondary button with a visual error state** (#63): a solid primary
+     button mid-step competed with Next (D31). `aria-invalid` isn't supported on buttons, so the
+     red outline is visual; the error stays linked via `aria-describedby`.
+
 ### Styling & i18n
 
 D3. **The URL decides the UI language: `/de/...` is German, no prefix is English** (#49).
