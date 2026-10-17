@@ -149,6 +149,11 @@ D35. **Every screen has a URL (react-router)** (#41).
 D36. **The app header is sticky** (#63): `position: sticky`, not `fixed`, so it stays in the flow
      and no content offset has to track its height.
 
+D37. **A wizard step sits in the overview's `Card`; options are wrapping pills** (#63). Pills keep
+     the visible radio or checkbox, so "pick one" and "pick several" still look different; the
+     7-level German question fits one row. The prefill step opens with an info callout that is
+     still the step's heading.
+
 ### Styling & i18n
 
 D3. **The URL decides the UI language: `/de/...` is German, no prefix is English** (#49).

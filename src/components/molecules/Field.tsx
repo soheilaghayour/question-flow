@@ -27,13 +27,13 @@ export function Field({ id, label, required, description, error, children }: Fie
     [description && descriptionId, error && errorId].filter(Boolean).join(' ') || undefined
   return (
     <div className="flex flex-col gap-1">
-      <div className="flex gap-1">
+      <div>
         <label htmlFor={id}>
           <Text as="span" weight="medium">
             {label}
           </Text>
         </label>
-        {required && <RequiredMark />}
+        {required && <> <RequiredMark /></>}
       </div>
       {children({
         id,
