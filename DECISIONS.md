@@ -146,8 +146,9 @@ D31. **The wizard's Next and Submit buttons are the main call to action.**
 
 D35. **Every screen has a URL (react-router)** (#41).
 
-D36. **The app header is sticky** (#63): `position: sticky`, not `fixed`, so it stays in the flow
-     and no content offset has to track its height.
+D36. **The app header is sticky and sits outside `<main>`** (#63): `position: sticky`, not `fixed`,
+     so it stays in the flow and needs no layout offset; outside `<main>` it is the page's banner
+     landmark. `scroll-padding-top` keeps fields scrolled into view (Tab) clear of it.
 
 D37. **A wizard step sits in the overview's `Card`; options are wrapping pills** (#63). Pills keep
      the visible radio or checkbox, so "pick one" and "pick several" still look different; the
@@ -156,7 +157,7 @@ D37. **A wizard step sits in the overview's `Card`; options are wrapping pills**
 
 D38. **"Choose file" is a secondary button with a visual error state** (#63): a solid primary
      button mid-step competed with Next (D31). `aria-invalid` isn't supported on buttons, so the
-     red outline is visual; the error stays linked via `aria-describedby`.
+     red border and text are visual; the error stays linked via `aria-describedby`.
 
 ### Styling & i18n
 
