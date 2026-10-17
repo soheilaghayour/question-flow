@@ -68,6 +68,9 @@ the snake_case keys exactly.
 - TypeScript strict, no `any`: the contract types are the safety net.
 - Let TypeScript infer; annotate only where it checks something — contract shapes, discriminated results, empty containers, nullable state, `unknown` at trust boundaries: redundant annotations are noise that drifts.
 - Prefer flat lookup tables with `satisfies` over generic helpers and conditional types: a reader sees the mapping, the compiler still checks coverage.
+- A function doing several jobs is split into named helpers behind one public function; tests go through the public function: each step reads on its own, and tests stay on the seam callers use.
+- JSX stays declarative: side effects and multi-line handlers are named functions outside the returned JSX: the markup reads as structure, the behavior has a name.
+- State variants are discriminated unions, not several optional flags: impossible combinations can't be represented.
 
 ## Things that will bite you (each has at least one test)
 
