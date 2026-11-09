@@ -71,8 +71,9 @@ D19. **Payload omission policy: a value with no substance is "no answer", and a 
      by tests.
 
 D23. **The task contract moved verbatim from `README.md` to `docs/task-contract.md`** via
-     `git mv`, byte-identical; it stays a frozen fixture. Only its path changed, never its
-     content or authority: it remains the top of the authority order. This frees `README.md`
+     `git mv`; it stays a frozen fixture. Its rules and authority never changed: it remains
+     the top of the authority order. The only content edit removed the original task
+     provider's name and brief link, as agreed with them for publishing. This frees `README.md`
      to be a real project README (what this is, how to run it, CI badge, doc links) — the
      first file a reviewer opens should not be mock-data documentation. All references that
      meant the contract (CLAUDE.md, this file, PRD.md, code comments) now say "contract"
