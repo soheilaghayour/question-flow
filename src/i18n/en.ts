@@ -1,6 +1,6 @@
 /** UI chrome only — recruiter-authored text renders verbatim (DECISIONS #3). */
 export const en = {
-  app_title: 'Instaffo Question Flow',
+  app_title: 'Question Flow',
   language: 'Language',
   apply: 'Apply',
   submit: 'Submit application',

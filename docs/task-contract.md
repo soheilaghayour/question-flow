@@ -1,6 +1,6 @@
-# Instaffo Product Engineer: Test Task
+# Application Question Flow: Contract
 
-Mock data for the test task. The brief: https://docs.google.com/document/d/1CUutjBNYOUaEl6AXpywD1CZgS4dxOserZX3KwuOSMV8/edit
+Mock data for the application question flow.
 
 ## Job config
 

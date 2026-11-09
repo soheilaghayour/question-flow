@@ -1,4 +1,4 @@
-# PRD — Instaffo Application Question Flow
+# PRD — Application Question Flow
 
 ## Problem
 

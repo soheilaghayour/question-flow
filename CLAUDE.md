@@ -1,4 +1,4 @@
-# instaffo-question-flow
+# question-flow
 
 Read order: this file → `docs/task-contract.md` → `DECISIONS.md`.
 Authority: `docs/task-contract.md` (the contract) > `DECISIONS.md` > `CLAUDE.md` — the
@@ -107,7 +107,7 @@ edit them, not even to make a test pass. New test data goes into new files (e.g.
 
 ### Issue tracker
 
-Issues are tracked as GitHub Issues on `soheilaghayour/instaffo-question-flow`, via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+Issues are tracked as GitHub Issues on `soheilaghayour/question-flow`, via the `gh` CLI. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 
