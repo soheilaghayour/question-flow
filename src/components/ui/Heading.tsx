@@ -9,9 +9,11 @@ const SIZE_CLASSES = {
 interface HeadingProps extends ComponentPropsWithoutRef<'h1'> {
   level: 1 | 2 | 3 | 4 | 5 | 6
   size?: keyof typeof SIZE_CLASSES
+  align?: 'center'
 }
 
-export function Heading({ level, size = 'sm', className = '', ...props }: HeadingProps) {
+export function Heading({ level, size = 'sm', align, className = '', ...props }: HeadingProps) {
   const Tag = `h${level}` as const
-  return <Tag {...props} className={`font-semibold ${SIZE_CLASSES[size]} ${className}`} />
+  const alignClass = align === 'center' ? 'text-center' : ''
+  return <Tag {...props} className={`font-semibold ${SIZE_CLASSES[size]} ${alignClass} ${className}`} />
 }
