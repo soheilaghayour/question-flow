@@ -12,7 +12,7 @@ export function AnswerReview({ items }: AnswerReviewProps) {
           <Text as="dt" tone="muted" size="sm">
             {item.question}
           </Text>
-          <Text as="dd" weight="medium" className="break-words">
+          <Text as="dd" weight="medium" wrap="break-words">
             {item.answer}
           </Text>
         </div>

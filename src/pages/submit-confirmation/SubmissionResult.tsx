@@ -1,5 +1,6 @@
 import { Heading } from '@/components/ui/Heading'
 import { CheckCircleIcon } from '@/components/ui/Icons'
+import { Text } from '@/components/ui/Text'
 
 interface SubmissionResultProps {
   title: string
@@ -8,14 +9,14 @@ interface SubmissionResultProps {
 
 export function SubmissionResult({ title, body }: SubmissionResultProps) {
   return (
-    <output className="flex flex-col items-center gap-3 text-center">
-      <span className="text-primary">
+    <output className="flex flex-col items-center gap-3">
+      <Text as="span" tone="primary">
         <CheckCircleIcon />
-      </span>
-      <Heading level={2} size="lg">
+      </Text>
+      <Heading level={2} size="lg" align="center">
         {title}
       </Heading>
-      <p>{body}</p>
+      <Text align="center">{body}</Text>
     </output>
   )
 }
