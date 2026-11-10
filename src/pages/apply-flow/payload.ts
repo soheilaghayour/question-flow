@@ -1,4 +1,5 @@
 import { assertNever } from './assertNever'
+import { hasAnswer } from './answers'
 import type { Job, Question } from '@/data/schema'
 import type { ScreeningResult } from './screening'
 
@@ -34,21 +35,18 @@ function toPayloadEntry(question: Question, value: AnswerValue): PayloadEntry | 
     case 'select':
       // Shape follows max_choices, never the picked count (bite #1).
       if (question.max_choices > 1)
-        return Array.isArray(value) && value.length > 0
+        return Array.isArray(value) && hasAnswer(value)
           ? { id: question.id, values: value }
           : undefined
-      // '' is how an unselected single-select may sit in form state — no answer.
-      return typeof value === 'string' && value !== ''
+      return typeof value === 'string' && hasAnswer(value)
         ? { id: question.id, value }
         : undefined
     case 'text':
-    case 'date': {
-      if (typeof value !== 'string') return undefined
-      // Whitespace-only is "no answer" (contract: leave out unanswered optionals),
-      // and padding never reaches the wire — dates must be exactly YYYY-MM-DD.
-      const trimmed = value.trim()
-      return trimmed !== '' ? { id: question.id, value: trimmed } : undefined
-    }
+    case 'date':
+      // Padding never reaches the wire — dates must be exactly YYYY-MM-DD.
+      return typeof value === 'string' && hasAnswer(value)
+        ? { id: question.id, value: value.trim() }
+        : undefined
     case 'numeric':
       // Integers only (contract) — and NaN would serialize to "value": null.
       return typeof value === 'number' && Number.isInteger(value)

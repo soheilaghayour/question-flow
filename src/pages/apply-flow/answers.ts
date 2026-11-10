@@ -2,10 +2,7 @@ import type { Question } from '@/data/schema'
 import type { Answers } from './payload'
 
 /** Whether a stored value counts as an answer. */
-// Mirrors payload's "no substance" rule (#19): whitespace-only text and a
-// zero-pick list would be omitted from the payload, so a required question
-// holding one is unanswered. false is an answer (bite #4). Exported so the
-// progress bar counts exactly what the submit gate and payload count.
+// false is an answer (bite #4).
 export function hasAnswer(value: Answers[string]) {
   if (value == null) return false
   if (typeof value === 'string') return value.trim() !== ''
