@@ -5,7 +5,7 @@ import profileJson from '@profile'
 import { profileSchema } from './schema'
 
 /** The single point where fixtures enter the app, keyed by job id. Configs stay
- * `unknown`: raw configs lie (bite #8), so nothing may render one that hasn't gone
+ * `unknown`: raw configs lie, so nothing may render one that hasn't gone
  * through normalizeJob(). */
 export const rawJobConfigsById: ReadonlyMap<string, unknown> = new Map<string, unknown>([
   [shortJson.id, shortJson],

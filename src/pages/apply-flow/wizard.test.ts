@@ -34,7 +34,7 @@ describe('buildSteps', () => {
   it('is a single prefill step when everything is prefilled', () => {
     const answers = {
       notice: '3_months',
-      permit: false, // false is an answer (bite #4)
+      permit: false, // false is an answer
       salary: 95000,
       start: '2027-01-01',
       why: 'x',

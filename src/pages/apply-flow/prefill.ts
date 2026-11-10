@@ -46,7 +46,7 @@ function validPrefill(question: Question, value: unknown): PrefillValue | undefi
         !question.options.some((option) => option.value === value)
       )
         return undefined
-      // Shape follows max_choices, not how many values are set (bite #1).
+      // Shape follows max_choices, not how many values are set.
       return question.max_choices > 1 ? [value] : value
     }
     case 'text':

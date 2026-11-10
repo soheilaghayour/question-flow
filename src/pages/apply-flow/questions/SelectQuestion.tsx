@@ -6,7 +6,7 @@ import { OptionLabel } from './OptionLabel'
 
 interface SelectQuestionProps {
   question: SelectQuestionConfig
-  // string when max_choices is 1, else string[], whatever the picked count (bite #1).
+  // string when max_choices is 1, else string[], whatever the picked count.
   value: string | string[] | null
   onChange: (value: string | string[] | null) => void
   error?: string

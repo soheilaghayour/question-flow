@@ -4,7 +4,7 @@ import { evaluateScreening } from './screening'
 import { boolean, numeric } from '@/test/testBuilders'
 
 describe('evaluateScreening — numeric boundaries', () => {
-  // contract: must_be_at_least passes on >= (bite #5: at_least is inclusive).
+  // contract: must_be_at_least is inclusive (>=).
   it.each([
     [3, true],
     [2, false],
@@ -13,7 +13,7 @@ describe('evaluateScreening — numeric boundaries', () => {
     expect(result).toEqual({ passed, failed: passed ? [] : ['q'] })
   })
 
-  // contract: must_be_below is strict < (bite #5: the threshold itself fails).
+  // contract: must_be_below is strict (<): the threshold itself fails.
   it.each([
     [89999, true],
     [90000, false],
