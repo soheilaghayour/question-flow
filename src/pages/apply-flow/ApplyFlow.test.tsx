@@ -40,7 +40,7 @@ function clickNext() {
   return userEvent.setup().click(screen.getByRole('button', { name: 'Next' }))
 }
 
-describe('ApplyFlow wizard steps (#36)', () => {
+describe('ApplyFlow wizard steps', () => {
   it('opens on the prefill confirm step and renders only its questions', () => {
     renderApplyFlow(longJson)
 
@@ -260,7 +260,7 @@ describe('ApplyFlow with bad.json', () => {
   })
 })
 
-describe('ApplyFlow result screen on failed screening (#16)', () => {
+describe('ApplyFlow result screen on failed screening', () => {
   // New test data, not a frozen fixture: one prefilled numeric whose untouched
   // profile value (95000) fails must_be_below 90000 at submit (DECISIONS #7/#8).
   const failingJob = {

@@ -246,7 +246,7 @@ describe('normalizeJob — question text over 255 chars', () => {
   })
 })
 
-describe('normalizeJob — bad.json acceptance (issue V1-03)', () => {
+describe('normalizeJob — bad.json acceptance', () => {
   const result = expectJob(normalizeJob(badJob))
 
   it('duplicate notice_period: the first (select) wins', () => {
