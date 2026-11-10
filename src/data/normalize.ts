@@ -30,7 +30,7 @@ const QUESTION_SCHEMAS = {
   file: fileQuestionSchema,
 } satisfies Record<QuestionType, z.ZodType<Question>>
 
-const jobShellSchema = jobSchema.omit({ questions: true })
+const jobFieldsSchema = jobSchema.omit({ questions: true })
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -165,8 +165,8 @@ function dedupeQuestions(questions: Question[], addWarning: AddWarning) {
 export function normalizeJob(rawJob: unknown): NormalizeResult {
   if (!isRecord(rawJob)) return { error: 'job config is not an object' }
 
-  const shell = jobShellSchema.safeParse(rawJob)
-  if (!shell.success) return { error: `invalid job: ${shell.error.message}` }
+  const parsedJobFields = jobFieldsSchema.safeParse(rawJob)
+  if (!parsedJobFields.success) return { error: `invalid job: ${parsedJobFields.error.message}` }
   if (!Array.isArray(rawJob.questions)) return { error: 'job has no questions array' }
 
   const warnings: NormalizeWarning[] = []
@@ -183,5 +183,5 @@ export function normalizeJob(rawJob: unknown): NormalizeResult {
 
   if (deduped.length === 0) return { error: 'job has no valid questions' }
 
-  return { job: { ...shell.data, questions: deduped }, warnings }
+  return { job: { ...parsedJobFields.data, questions: deduped }, warnings }
 }

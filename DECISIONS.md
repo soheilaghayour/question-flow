@@ -46,8 +46,9 @@ D10. **Normalization policy: drop the smallest broken thing, console-warn, never
      - **Order: drop invalid questions first, then dedupe IDs** — an ignored question must
        not shadow a valid later question with the same ID.
      - Job-level invalid (no id / zero valid questions) → error/empty state in the UI,
-       never a crash. The job shell (`title`, `company`, `language`) is held to the same
-       bar: a job we can't display honestly is an error result, never invented defaults.
+       never a crash. The job's own fields (`title`, `company`, `language`) are held to
+       the same bar: a job we can't display honestly is an error result, never invented
+       defaults.
 
 D17. **Two schema choices a later reader might "fix":** `profile_field` is a plain string,
      not `z.enum(PROFILE_FIELDS)` — an unknown value must keep its question and simply

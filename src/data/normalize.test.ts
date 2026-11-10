@@ -4,10 +4,10 @@ import edgeCasesJob from '@jobs/edge-cases.json'
 import { normalizeJob, type NormalizeResult } from './normalize'
 import type { Job } from './schema'
 
-const shell = { id: 'job-x', title: 'T', company: 'C', language: 'en' }
+const jobFields = { id: 'job-x', title: 'T', company: 'C', language: 'en' }
 
 function rawJob(questions: unknown[]): unknown {
-  return { ...shell, questions }
+  return { ...jobFields, questions }
 }
 
 // Throws on the error branch so each test asserts against the job directly.
@@ -219,7 +219,7 @@ describe('normalizeJob — job-level errors', () => {
   it.each([
     ['not an object', null],
     ['missing id', { title: 'T', company: 'C', language: 'en', questions: [] }],
-    ['no questions array', { ...shell }],
+    ['no questions array', { ...jobFields }],
   ])('returns an error result for a job with %s', (_name, raw) => {
     const result = normalizeJob(raw)
     expect('error' in result && result.error.length > 0).toBe(true)
