@@ -2,7 +2,7 @@ import type { Question } from '@/data/schema'
 import type { Answers } from './payload'
 
 /** Whether a stored value counts as an answer. */
-// Mirrors payload's "no substance" rule: whitespace-only text and a
+// Mirrors payload's "no substance" rule (DECISIONS #19): whitespace-only text and a
 // zero-pick list would be omitted from the payload, so a required question
 // holding one is unanswered. false is an answer. Exported so the
 // progress bar counts exactly what the submit gate and payload count.

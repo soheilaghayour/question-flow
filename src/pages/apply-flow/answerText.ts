@@ -14,7 +14,7 @@ export interface AnswerTextLabels {
 /** The candidate-readable text for one answer on the review step. */
 // Shows what the candidate SAID, not what the wire carries: option labels
 // instead of values, Yes/No instead of true/false, the file's name instead of
-// its base64. Cross-type values fall back to String — payload.ts is the
+// its base64. Cross-type values fall back to String — payload.ts (DECISIONS #19) is the
 // layer that drops them; the review must never crash on one.
 export function answerText(
   question: Question,
