@@ -2,7 +2,7 @@ import type { Question } from '@/data/schema'
 import type { Answers } from './payload'
 
 /** Whether a stored value counts as an answer. */
-// false is an answer (bite #4).
+// false is an answer.
 export function hasAnswer(value: Answers[string]) {
   if (value == null) return false
   if (typeof value === 'string') return value.trim() !== ''
