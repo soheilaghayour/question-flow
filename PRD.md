@@ -37,10 +37,10 @@ candidates. V1 solves correctness; V2 solves completion.
 6. Screening: `must_be_at_least` (>=), `must_be_below` (strict <), `must_be_true`
    (evaluated only when configured `true`); missing answer fails the rule; screening
    never blocks submission.
-7. On submit: payload as formatted JSON on screen + `console.log`.
+7. On submit: payload logged with `console.log`; the candidate sees a neutral confirmation.
 8. UI in German and English (browser default → English fallback, persisted toggle);
    recruiter text always shown as written.
-9. Questions in array order. Single-page form, no router.
+9. Questions in array order, in a wizard: prefilled answers first, then 3 per step. Every screen has a URL.
 10. Basic accessibility: label/input association, `aria-invalid`, `aria-describedby`.
 11. Works for `short.json`, `long.json`, `bad.json`; one integration test per config.
 
@@ -58,7 +58,7 @@ candidates. V1 solves correctness; V2 solves completion.
 
 ## Out of scope
 
-- Real submission, backend, auth — the payload on screen is the deliverable.
+- Real submission, backend, auth — the logged payload is the deliverable.
 - Recruiter config authoring/validation tooling (we only console-warn).
 - Profile editing (profile is a read-only fixture).
 - New question types (e.g. `rating` stays an ignored unknown type).
