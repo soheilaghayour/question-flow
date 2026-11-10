@@ -9,14 +9,14 @@ higher wins; the lower is corrected in the same commit.
 Every fact lives in one place; every other place links to it, never copies it. Code
 constants have one source.
 
-| Place                                  | Its one job                                                   |
-| :------------------------------------- | :------------------------------------------------------------ |
-| the contract (`docs/task-contract.md`) | the data and payload rules                                    |
-| `DECISIONS.md`                         | judgment calls, one sentence each                             |
-| `README.md`                            | what the app is, how it's built, how to run it and contribute |
-| `CLAUDE.md`                            | how to work in this repo                                      |
-| git commits, GitHub issues and PRs     | the history: what was done and why                            |
-| code comments                          | only a *why* the code can't show                              |
+| Place                                  | Its one job                                                                                                         |
+| :------------------------------------- | :------------------------------------------------------------------------------------------------------------------ |
+| the contract (`docs/task-contract.md`) | the data and payload rules                                                                                          |
+| `DECISIONS.md`                         | judgment calls (a one-sentence bold headline, then its reason), open PM questions, rejected and left-out approaches |
+| `README.md`                            | what the app is, how it's built, how to run it and contribute                                                       |
+| `CLAUDE.md`                            | how to work in this repo                                                                                            |
+| git commits, GitHub issues and PRs     | the history: what was done and why                                                                                  |
+| code comments                          | only a *why* the code can't show                                                                                    |
 
 ## Commands
 
@@ -86,7 +86,7 @@ a category name like `utils/` is its specific name.
 - Implement only what the current issue asks: scope creep hides review surface.
 - Prefer one principle to exceptions: if a case doesn't fit a rule, the rule is usually worded wrong — state the one principle that covers the case; an exception that can't be avoided gets its reason written next to it: exceptions multiply and hide the real rule.
 - Used code stays; unused code is deleted, together with every doc line that names it: a reader trusts that what the docs name exists.
-- The contract (`docs/task-contract.md`) is the source of truth; every rule in it has a test, and every fixed bug gets a regression test (one that fails if the bug comes back); code with no logic of its own, like a ui component that only styles a native control, needs no test: untested rules rot, fixed bugs return.
+- The contract (`docs/task-contract.md`) is the source of truth; every rule in it has a test, and every fixed bug gets a regression test (one that fails if the bug comes back); code with no logic of its own, like a ui component that only styles a native control, needs no test: untested rules rot, fixed bugs return, and a test of code with no logic only re-tests the browser.
 - TypeScript strict, no `any`: the contract types are the safety net.
 - Let TypeScript infer; annotate only where it checks something — contract shapes, discriminated results, empty containers, nullable state, `unknown` at trust boundaries: redundant annotations are noise that drifts.
 - Prefer flat lookup tables with `satisfies` over generic helpers and conditional types: a reader sees the mapping, the compiler still checks coverage.
@@ -116,13 +116,13 @@ edit them, not even to make a test pass. New test data goes into new files (e.g.
 ## Working agreements
 
 - A product decision is written to `DECISIONS.md` in the same commit as the code that implements it — never later.
-- `DECISIONS.md` lists only decisions in force: a replaced decision is deleted, never marked "superseded", and no doc points to commits or git history — the history has its own home (see the table above).
-- Comments are one line, next to the code they explain, and only state a *why* the code can't show: a browser quirk, a bite, a guard a reader would otherwise "fix". Markup, ARIA attributes and DECISIONS entries speak for themselves. JSDoc is one sentence on what the function does. Neither carries issue numbers, commits, dates or history: that belongs in git, the issue and the PR.
-- Docs stay minimal: each file does only its job from the table above, and every README claim links to its source; no defensive code for cases the app needn't survive.
+- `DECISIONS.md` lists only decisions in force: a replaced decision is deleted, never marked "superseded".
+- Comments are one line, next to the code they explain, and only state a *why* the code can't show: a browser quirk, a bite, a guard a reader would otherwise "fix". Markup, ARIA attributes and DECISIONS entries speak for themselves. JSDoc is one sentence on what the function does. Comments and JSDoc carry no issue numbers, commits, dates or history: that belongs in git, the issue and the PR.
+- Docs stay minimal: each file does only its job from the table above, every README claim links to its source, and no doc points to commits or git history — the history has its own home (see the table above); no defensive code for cases the app needn't survive.
 - Pushback comes first: when a request has a flaw, a risk or a simpler alternative, state it with reasons and wait for the user's decision before implementing. With no pushback, implement right away.
 - For tasks with 3+ steps, keep a visible todo list.
 - Every diff is read by a human: explain why a change is needed, not only what changed.
-- State facts plainly: count as a result only what is new — a check that confirms something already known is "already known", not a gain. Never pad.
+- State facts plainly: count as a result only what is new — a check that confirms something already known is "already known", not a gain. Never pad: padding hides the real result.
 - Small commits, one issue each, with clear messages.
 - Every PR must pass CI. Run `npm run typecheck && npm run lint && npm test` before committing.
 - Never write test counts into docs, issues or PR descriptions: CI shows whether the tests pass.
