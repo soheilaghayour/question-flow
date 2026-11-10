@@ -25,8 +25,7 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-// The payload left the screen with #16 — console.log is the dev channel now,
-// so the contract fixtures are checked against the last logged payload.
+// console.log is the payload's dev channel, so the contract fixtures are checked against the last logged payload.
 function submittedPayload(log: MockInstance): unknown {
   return log.mock.calls.at(-1)?.[0]
 }
@@ -41,7 +40,7 @@ function clickNext() {
   return userEvent.setup().click(screen.getByRole('button', { name: 'Next' }))
 }
 
-describe('ApplyFlow wizard steps (#36)', () => {
+describe('ApplyFlow wizard steps', () => {
   it('opens on the prefill confirm step and renders only its questions', () => {
     renderApplyFlow(longJson)
 
@@ -161,7 +160,7 @@ describe('ApplyFlow with long.json', () => {
     await user.click(screen.getByRole('button', { name: 'Next' }))
 
     // Optional boolean answered No: false is an answer and must land in the
-    // payload — unanswered ≠ false (bite #4).
+    // payload — unanswered ≠ false.
     await answerBoolean('Are you willing to relocate to Hamburg?', 'No')
     await user.click(screen.getByRole('button', { name: 'Next' }))
 
@@ -178,7 +177,7 @@ describe('ApplyFlow with long.json', () => {
     await user.click(screen.getByRole('button', { name: 'Submit application' }))
 
     // The fixture carries the contract expectations: value false for the No
-    // answer (bite #4) and failed screening on the untouched 95000 prefill
+    // answer and failed screening on the untouched 95000 prefill
     // (DECISIONS #8: screening never blocks submission).
     expect(submittedPayload(log)).toEqual(expectedLongPayload)
   })
@@ -190,7 +189,7 @@ describe('ApplyFlow with bad.json', () => {
     renderApplyFlow(badJson)
 
     // Dropped by normalize: the duplicate-id text question and the unknown
-    // rating type (bite #8). The kept select under the same id still renders —
+    // rating type. The kept select under the same id still renders —
     // prefilled from the profile's notice period, so it leads on step 1.
     expect(
       screen.queryByText('Wie lange ist Ihre aktuelle Kündigungsfrist (in Wochen/Monaten)?'),
@@ -254,14 +253,14 @@ describe('ApplyFlow with bad.json', () => {
     await user.click(screen.getByRole('button', { name: 'Submit application' }))
 
     // The fixture pins the contract: base64 without the data-URL prefix
-    // (bite #2, data is btoa('%PDF') — a worked example), one tech_stack pick
-    // still travelling as values (bite #1), and screening failing only on
+    // (data is btoa('%PDF') — a worked example), one tech_stack pick
+    // still travelling as values, and screening failing only on
     // salary — the stripped must_be_true on the text question must NOT screen.
     expect(submittedPayload(log)).toEqual(expectedBadPayload)
   })
 })
 
-describe('ApplyFlow result screen on failed screening (#16)', () => {
+describe('ApplyFlow result screen on failed screening', () => {
   // New test data, not a frozen fixture: one prefilled numeric whose untouched
   // profile value (95000) fails must_be_below 90000 at submit (DECISIONS #7/#8).
   const failingJob = {
@@ -431,7 +430,7 @@ describe('ApplyFlow with short.json', () => {
     expect(screen.queryByText('Fields marked with * are required')).not.toBeInTheDocument()
   })
 
-  // #16: the result screen is for candidates — the payload is dev-only (console).
+  // The result screen is for candidates — the payload is dev-only (console).
   it('shows a human confirmation instead of the raw payload after submitting', async () => {
     const user = userEvent.setup()
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})

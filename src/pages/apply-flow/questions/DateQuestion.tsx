@@ -9,7 +9,7 @@ interface DateQuestionProps {
   error?: string
 }
 
-// Not toISOString: near midnight the UTC date is a different day (bite #3).
+// Not toISOString: near midnight the UTC date is a different day.
 function todayLocal(): string {
   const now = new Date()
   const month = String(now.getMonth() + 1).padStart(2, '0')

@@ -14,7 +14,7 @@ export interface AnswerTextLabels {
 /** The candidate-readable text for one answer on the review step. */
 // Shows what the candidate SAID, not what the wire carries: option labels
 // instead of values, Yes/No instead of true/false, the file's name instead of
-// its base64. Cross-type values fall back to String — payload.ts (#19) is the
+// its base64. Cross-type values fall back to String — payload.ts (DECISIONS #19) is the
 // layer that drops them; the review must never crash on one.
 export function answerText(
   question: Question,
@@ -26,7 +26,7 @@ export function answerText(
     return value === true ? labels.yes : value === false ? labels.no : String(value)
   if (question.type === 'date' && typeof value === 'string') {
     // Local date parts, never Date-parsing the ISO string: UTC-midnight
-    // parsing shifts the day in negative-offset timezones (bite #3).
+    // parsing shifts the day in negative-offset timezones.
     const [year, month, day] = value.split('-').map(Number)
     if (year && month && day)
       return new Date(year, month - 1, day).toLocaleDateString(labels.locale)

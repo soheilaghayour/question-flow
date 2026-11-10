@@ -5,7 +5,7 @@ import { DateQuestion } from './DateQuestion'
 
 // TZ fixed for the whole file: the min-attribute test needs a timezone behind
 // UTC, where late-evening local time already IS tomorrow in UTC — exactly
-// where a toISOString() implementation shifts the date (bite #3).
+// where a toISOString() implementation shifts the date.
 beforeAll(() => {
   vi.stubEnv('TZ', 'America/New_York')
 })
