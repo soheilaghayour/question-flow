@@ -2,7 +2,7 @@ import shortJson from '@jobs/short.json'
 import longJson from '@jobs/long.json'
 import badJson from '@jobs/bad.json'
 import profileJson from '@profile'
-import { profileSchema } from '@/domain/schema'
+import { profileSchema } from './schema'
 
 /** The single point where fixtures enter the app, keyed by job id. Configs stay
  * `unknown`: raw configs lie (bite #8), so nothing may render one that hasn't gone

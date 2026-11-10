@@ -1,9 +1,9 @@
 import { Navigate, type RouteObject } from 'react-router'
 import { rawJobConfigsById } from '@/data'
-import { App } from '@/App'
-import { JobOverviewPage } from '@/pages/JobOverviewPage'
-import { ApplyFlow } from '@/pages/ApplyFlow'
-import { SubmitConfirmation } from '@/pages/SubmitConfirmation'
+import { App } from '@/layout/App'
+import { JobOverviewPage } from '@/pages/job-overview/JobOverviewPage'
+import { ApplyFlow } from '@/pages/apply-flow/ApplyFlow'
+import { SubmitConfirmation } from '@/pages/submit-confirmation/SubmitConfirmation'
 import { LanguageProvider } from '@/i18n/LanguageProvider'
 
 const firstJob = <Navigate to={`/jobs/${rawJobConfigsById.keys().next().value}`} replace />

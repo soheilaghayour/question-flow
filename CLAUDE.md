@@ -12,33 +12,33 @@ higher wins; the lower is corrected in the same commit.
 
 ```
 src/
+  routes.tsx            # URL → page (react-router)
+  layout/               # App: header + <main> around every page (AppHeader, LanguageSwitch)
+  pages/
+    job-overview/       # JobOverviewPage: job info + Apply button (job switcher for the 3 configs)
+    apply-flow/         # ApplyFlow: the wizard, step in ?step=N, with its components and logic
+      useJobWizard.ts   # job id → job, prefilled answers, wizard steps
+      prefill.ts        # profile_field → initial answers (only if valid for the question)
+      screening.ts      # evaluate rules → { passed, failed }
+      payload.ts        # answers → exact contract payload
+      questions/        # one component per question type + registry.ts, Field, OptionGroup, FileDrop
+    submit-confirmation/ # SubmitConfirmation: confirmation after submit
+  components/
+    ui/                 # design system: Button, Input, Radio, Checkbox, Text, Card, ErrorText, ...
+    JobSummary.tsx      # shared app component: job title + company
   data/                 # single import point: root fixtures (jobs/, profile.json) enter here
-  domain/               # pure business logic, no React, fully tested
     schema.ts           # zod schemas (job, question types, profile)
     normalize.ts        # per-question safeParse: drop invalid → dedupe IDs → + warnings
-    prefill.ts          # profile_field → initial answers (only if valid for the question)
-    screening.ts        # evaluate rules → { passed, failed }
-    payload.ts          # answers → exact contract payload
-  components/
-    atoms/              # Button, Input, Radio, Checkbox, ...
-    molecules/          # Field (label + input + error), OptionGroup, FileDrop, ...
-    questions/          # one component per question type + registry.ts
-  hooks/                # useJobWizard: job id → job, prefilled answers, wizard steps
-  routes.tsx            # URL → page (react-router)
-  pages/
-    JobOverviewPage.tsx # job info + Apply button (job switcher for the 3 configs)
-    ApplyFlow.tsx       # the wizard, step in ?step=N
-    SubmitConfirmation.tsx # confirmation after submit
   i18n/                 # en.ts, de.ts (UI text only)
-  utils/                # generic helpers (fileToBase64, parseLocaleNumber)
-  test/                 # test-only helpers (renderRoute: the app at a URL on a memory router)
+  utils/                # helpers shared across screens (appliedJobs)
+  test/                 # test-only helpers (renderRoute: the app at a URL on a memory router; testBuilders)
 ```
 
 ## Naming conventions
 
 | What                  | Style                         | Example                                      |
 | :-------------------- | :---------------------------- | :------------------------------------------- |
-| Folders               | lowercase / kebab-case        | `components/atoms`, `question-types`         |
+| Folders               | lowercase / kebab-case        | `components/ui`, `job-overview`              |
 | React component files | PascalCase (= component name) | `JobOverviewPage.tsx`, `NumericQuestion.tsx` |
 | Other TS files        | camelCase                     | `screening.ts`, `fileToBase64.ts`            |
 | Tests                 | next to the file, same name   | `screening.test.ts`                          |
@@ -56,12 +56,14 @@ the snake_case keys exactly.
 
 ## Rules that never change
 
-- `domain/` is pure TypeScript — no React, no DOM, no side effects: logic stays testable without rendering.
+- Code lives next to its only user, in the nearest folder all its users share; `pages/` holds only screens, so code used by several screens lives in the `src/` root folder for its kind (`components/`, `utils/`, `data/`). Tests don't count as users: a file's folder tells a reader who uses it.
+- Code that makes a decision (validating, prefilling, screening, building the payload, splitting steps) only takes data and returns data: no React, no DOM, no side effects. Code that talks to the browser or React lives in its own files: decisions stay testable without rendering.
 - Every job config goes through `normalizeJob()` before use: raw configs lie.
 - Adding a question type = new component + one registry entry: the flow never switches on type.
 - Colors only by role (`text-error`, `bg-primary`); palette colors like `red-600` exist only inside `@theme`: design changes stay one-line.
-- Molecules and questions use atoms, never raw form controls (`<input>`, `<button>`, `<textarea>`, `<select>`); labels and fieldsets are structure and stay in molecules: a raw control in a molecule teaches that atoms are optional.
-- Raw styling lives in `atoms/` and `molecules/`; pages compose and add only layout classes (`flex`, `gap-4`, `grid`): the atom is the semantic layer.
+- `components/ui/` is the design system: generic building blocks that know nothing about jobs or questions, so it is placed by kind, not by its users. Shared app-specific components sit directly in `components/`.
+- The screen component itself only adds layout classes (flex, grid, gap, spacing, width: `flex`, `gap-4`, `py-10`, `max-w-2xl`); every other component, shared or colocated, adds only layout and box styling (text styling goes through `Text`/`Heading`), builds on `ui/` components and never uses raw form controls (`<input>`, `<button>`, `<textarea>`, `<select>`); labels and fieldsets are structure, not controls: the `ui/` component is the semantic layer, and a raw control outside `ui/` teaches that `ui/` is optional.
+- Screen folders are kebab-case and flat by default; a subfolder only for a cohesive group (`apply-flow/questions/`): a reader scans one folder per screen.
 - Don't abstract until code is duplicated three times, and no wrapper component that only forwards props: wrong abstractions cost more than duplication.
 - Implement only what the current issue asks: scope creep hides review surface.
 - The contract (`docs/task-contract.md`) is the source of truth; every rule in it has a test: untested contract rules rot.
