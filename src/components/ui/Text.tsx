@@ -8,25 +8,25 @@ const TONES = {
 
 export interface TextProps extends HTMLAttributes<HTMLElement> {
   as?: 'p' | 'span' | 'dt' | 'dd'
-  tone?: keyof typeof TONES | 'default'
-  size?: 'sm' | 'md'
-  weight?: 'normal' | 'medium'
-  align?: 'start' | 'center'
-  wrap?: 'normal' | 'break-words'
+  tone?: keyof typeof TONES
+  size?: 'sm'
+  weight?: 'medium'
+  align?: 'center'
+  wrap?: 'break-words'
 }
 
 export function Text({
   as: Tag = 'p',
-  tone = 'default',
-  size = 'md',
-  weight = 'normal',
-  align = 'start',
-  wrap = 'normal',
+  tone,
+  size,
+  weight,
+  align,
+  wrap,
   className,
   ...props
 }: TextProps) {
   const classes = [
-    tone !== 'default' && TONES[tone],
+    tone && TONES[tone],
     size === 'sm' && 'text-sm',
     weight === 'medium' && 'font-medium',
     align === 'center' && 'text-center',
