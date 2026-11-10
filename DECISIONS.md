@@ -172,11 +172,11 @@ D3. **The UI language lives in React state, saved in localStorage; English on a 
 D12. **Accessibility baseline in V1:** label/input association, `aria-invalid`,
      `aria-describedby` for errors.
 
-D13. **Styling: Tailwind v4 + semantic color tokens in `@theme`; atoms are the role layer.**
+D13. **Styling: Tailwind v4 + semantic color tokens in `@theme`; `components/ui/` is the role layer.**
      `Input.tsx` is the single place input styling lives, so role-level changes are
-     one-file edits. Discipline rules in `CLAUDE.md`: colors only by role; raw styling only
-     in `atoms/`/`molecules/`, pages add layout classes only.
-     Text roles are atoms too: `Text` (element, tone, size and weight props, never caller color classes) and `Heading`; `ErrorText` and `RequiredMark` are molecules on `Text`. Error messages always go through `ErrorText`, so they keep `role="alert"`. Molecules and pages add only layout and box styling. Tests check behavior and semantics, never class names: asserting exact CSS class names in unit tests is widely recognized as an anti-pattern.
+     one-file edits. Discipline rules in `CLAUDE.md`: colors only by role; screen
+     components add layout classes only.
+     Text roles are `ui/` components too: `Text` (element, tone, size and weight props, never caller color classes) and `Heading`; `ErrorText` and `RequiredMark` build on `Text`. Error messages always go through `ErrorText`, so they keep `role="alert"`. Components outside `ui/` add only layout and box styling. Tests check behavior and semantics, never class names: asserting exact CSS class names in unit tests is widely recognized as an anti-pattern.
 
 D14. **i18n: hand-rolled typed `t(key)` + React context.** ~30 UI strings don't justify i18next.
 
@@ -187,7 +187,7 @@ D32. **The job list is navigation and Apply is the page's only solid primary but
      Jobs are links with `aria-current="page"` and a tinted active state, so the selected job
      no longer competes with Apply. An applied job shows an "Applied" badge in the list and
      in Apply's place, never a disabled button: the badge says why, and the title stays put
-     when switching jobs. Job links use the `NavItem` atom; the language switch's
+     when switching jobs. Job links use the `NavItem` ui component; the language switch's
      `CurrentButton` mirrors its current style (primary text on a tint with a primary outline, so it
      doesn't rely on color alone).
 
@@ -203,6 +203,9 @@ D20. **CI with GitHub Actions on push to `main` and every PR: typecheck, lint, t
      Single job, no matrix: one Node version is enough for a browser app. Superseded runs
      are cancelled on PRs only, never on `main`, so every main commit gets a full run.
      Deployment is a separate, later step.
+
+D40. **Code lives next to its only user and moves to the nearest common folder once shared;
+     `components/ui/` is the design system and always shared.**
 
 ## Open PM questions
 
@@ -236,7 +239,7 @@ D20. **CI with GitHub Actions on push to `main` and every PR: typecheck, lint, t
 - **Translating recruiter text on language switch** — would invent data; question/option
   texts are recruiter content (D3); payload carries original values.
 - **react-hook-form + zod resolver** — would generate a runtime schema per job and
-  duplicate `domain/` validation; two brains to keep in sync.
+  duplicate the validation in the pure logic files; two brains to keep in sync.
 - **React context for form state** — transport fix for a drilling problem that doesn't
   exist; hides data flow, forces provider wrappers in every test.
 - **One strict zod schema for the whole job** — one bad question would reject the entire
@@ -247,7 +250,7 @@ D20. **CI with GitHub Actions on push to `main` and every PR: typecheck, lint, t
   sniffing in two languages, untestable, wrong on "PDF bevorzugt".
 - **Locale-dependent number parsing** — English locale reads `85.000` as 85 EUR, silently.
 - **`<input type="number">`** — cross-browser separator behavior is untestable.
-- **CSS modules + tokens.css** — equivalent power, but atoms-as-role-layer + `@theme`
+- **CSS modules + tokens.css** — equivalent power, but `ui/`-as-role-layer + `@theme`
   semantic tokens give the same single-point changes with co-located styling.
 - **i18next** — library weight for ~30 strings.
 

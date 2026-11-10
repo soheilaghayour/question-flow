@@ -36,15 +36,17 @@ Raw Config ──▶ normalizeJob() ──▶ Wizard Flow (Confirm → 3/step �
 
 ### Architecture
 
-- **A pure domain layer.** [`src/domain/`](src/domain) holds all business logic as plain
-  TypeScript with no React: normalizing configs, prefill, screening, wizard steps and the
-  payload. It is tested without rendering anything.
-- **Component layers.** [`atoms/`](src/components/atoms) are the only place raw form
-  controls and styling live. [`molecules/`](src/components/molecules) compose atoms into
-  fields and groups. [`questions/`](src/components/questions) has one component per
-  question type. Colors are semantic tokens (`text-error`, `bg-primary`), so a design change
-  stays one line (D13).
-- **A question registry.** [`registry.ts`](src/components/questions/registry.ts) maps each
+- **Code lives next to where it is used.** Each screen has its own folder under
+  [`src/pages/`](src/pages) with its components and logic; code shared across screens sits
+  in the root folders (D40).
+- **Pure logic files.** Business logic is plain TypeScript with no React: normalizing
+  configs ([`src/data/`](src/data)), prefill, screening, wizard steps and the payload
+  ([`src/pages/apply-flow/`](src/pages/apply-flow)). It is tested without rendering anything.
+- **A design system.** [`components/ui/`](src/components/ui) holds the generic building
+  blocks and is the only place raw form controls live; every other component builds on it.
+  [`questions/`](src/pages/apply-flow/questions) has one component per question type. Colors
+  are semantic tokens (`text-error`, `bg-primary`), so a design change stays one line (D13).
+- **A question registry.** [`registry.ts`](src/pages/apply-flow/questions/registry.ts) maps each
   question type to its component, and the flow never switches on type. Adding a type means
   one new component and one registry entry; the compiler checks that every type is covered.
 - **Every screen has a URL** ([`routes.tsx`](src/routes.tsx), D35): the job page, the
@@ -55,28 +57,28 @@ Raw Config ──▶ normalizeJob() ──▶ Wizard Flow (Confirm → 3/step �
 
 - **Validation at the trust boundary.** Fixtures enter only through
   [`src/data/`](src/data/index.ts), and raw job configs stay `unknown` until
-  [`normalizeJob()`](src/domain/normalize.ts) parses them with the
-  [zod schemas](src/domain/schema.ts). Each question is parsed on its own: a broken question,
+  [`normalizeJob()`](src/data/normalize.ts) parses them with the
+  [zod schemas](src/data/schema.ts). Each question is parsed on its own: a broken question,
   option or rule is dropped with a console warning, and the rest of the job still works. A
   job that can't be shown honestly becomes an error state, never a crash (D10).
 - **Prefill only valid values.** A profile value is prefilled only if it is a valid answer
   to the question, e.g. an existing option or a number within range
-  ([`prefill.ts`](src/domain/prefill.ts), D7).
+  ([`prefill.ts`](src/pages/apply-flow/prefill.ts), D7).
 - **Form state holds real answers only.** `null` means "no answer", so `false` and `0` stay
   answers (D19, D21). The answers live in the flow; React context carries only the UI
   language (D2).
 - **Wizard steps are derived, not stored.** Prefilled answers come first as one confirm
-  step, then three questions per step in config order ([`wizard.ts`](src/domain/wizard.ts),
+  step, then three questions per step in config order ([`wizard.ts`](src/pages/apply-flow/wizard.ts),
   D30).
 
 ### Interfaces
 
 - **One interface for every question component:** `{ question, value, onChange, error? }`
-  (`QuestionComponent` in [`registry.ts`](src/components/questions/registry.ts), D21). All
+  (`QuestionComponent` in [`registry.ts`](src/pages/apply-flow/questions/registry.ts), D21). All
   question components are controlled.
 - **The answer payload** follows [the contract](docs/task-contract.md#answer-payload)
   exactly: `value` or `values` depending on `max_choices`, JSON numbers and booleans, plain
-  base64 for files ([`payload.ts`](src/domain/payload.ts)). Screening rules are evaluated
+  base64 for files ([`payload.ts`](src/pages/apply-flow/payload.ts)). Screening rules are evaluated
   into the payload and never block submission (D8); candidates see the same neutral
   confirmation either way (D24).
 
@@ -91,7 +93,7 @@ Raw Config ──▶ normalizeJob() ──▶ Wizard Flow (Confirm → 3/step �
 - The UI is in English and German with a typed `t(key)` ([`src/i18n/`](src/i18n), D14). The
   choice is saved in the browser; recruiter text is always shown as written (D3).
 - Numbers parse the same in every locale: `85.000`, `85,000` and `85 000` all mean 85000,
-  and decimals are rejected ([`parseLocaleNumber.ts`](src/utils/parseLocaleNumber.ts), D6).
+  and decimals are rejected ([`parseLocaleNumber.ts`](src/pages/apply-flow/parseLocaleNumber.ts), D6).
 
 The D-numbers refer to entries in [`DECISIONS.md`](DECISIONS.md).
 
