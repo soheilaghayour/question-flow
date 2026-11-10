@@ -239,7 +239,7 @@ D40. **Code lives next to its only user and moves to the nearest common folder o
 - **Translating recruiter text on language switch** — would invent data; question/option
   texts are recruiter content (D3); payload carries original values.
 - **react-hook-form + zod resolver** — would generate a runtime schema per job and
-  duplicate the validation in the pure logic files; two brains to keep in sync.
+  duplicate the validation in the pure decision logic; two brains to keep in sync.
 - **React context for form state** — transport fix for a drilling problem that doesn't
   exist; hides data flow, forces provider wrappers in every test.
 - **One strict zod schema for the whole job** — one bad question would reject the entire

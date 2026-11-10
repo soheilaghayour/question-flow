@@ -57,7 +57,7 @@ the snake_case keys exactly.
 ## Rules that never change
 
 - Code lives next to its only user; when a second place uses it, it moves to the nearest common folder (across screens: the root folders). Tests don't count as users: a file's folder tells a reader who uses it.
-- Logic files (`.ts`, other than hooks) are pure: no React, no DOM, no side effects: logic stays testable without rendering.
+- Code that makes a decision (validating, prefilling, screening, building the payload, splitting steps) only takes data and returns data: no React, no DOM, no side effects. Code that talks to the browser or React lives in its own files: decisions stay testable without rendering.
 - Every job config goes through `normalizeJob()` before use: raw configs lie.
 - Adding a question type = new component + one registry entry: the flow never switches on type.
 - Colors only by role (`text-error`, `bg-primary`); palette colors like `red-600` exist only inside `@theme`: design changes stay one-line.
