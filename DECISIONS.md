@@ -204,8 +204,8 @@ D20. **CI with GitHub Actions on push to `main` and every PR: typecheck, lint, t
      are cancelled on PRs only, never on `main`, so every main commit gets a full run.
      Deployment is a separate, later step.
 
-D40. **Code lives next to its only user and moves to the nearest common folder once shared;
-     `components/ui/` is the design system and always shared.**
+D40. **Code lives next to its only user and, once several screens use it, in the `src/` root
+     folder for its kind; `components/ui/` holds the design system.**
 
 ## Open PM questions
 

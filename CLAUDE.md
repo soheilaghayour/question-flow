@@ -56,13 +56,13 @@ the snake_case keys exactly.
 
 ## Rules that never change
 
-- Code lives next to its only user; when a second place uses it, it moves to the nearest common folder (across screens: the root folders). Tests don't count as users: a file's folder tells a reader who uses it.
+- Code lives next to its only user, in the nearest folder all its users share; `pages/` holds only screens, so code used by several screens lives in the `src/` root folder for its kind (`components/`, `utils/`, `data/`). Tests don't count as users: a file's folder tells a reader who uses it.
 - Code that makes a decision (validating, prefilling, screening, building the payload, splitting steps) only takes data and returns data: no React, no DOM, no side effects. Code that talks to the browser or React lives in its own files: decisions stay testable without rendering.
 - Every job config goes through `normalizeJob()` before use: raw configs lie.
 - Adding a question type = new component + one registry entry: the flow never switches on type.
 - Colors only by role (`text-error`, `bg-primary`); palette colors like `red-600` exist only inside `@theme`: design changes stay one-line.
-- `components/ui/` is the design system: generic building blocks. A design system is shared by definition, so a ui component lives there however many places use it. Shared app-specific components sit directly in `components/`.
-- The screen component itself only adds layout classes (`flex`, `gap-4`, `grid`); every other component, shared or colocated, adds only layout and box styling (text styling goes through `Text`/`Heading`), builds on `ui/` components and never uses raw form controls (`<input>`, `<button>`, `<textarea>`, `<select>`); labels and fieldsets are structure, not controls: the `ui/` component is the semantic layer, and a raw control outside `ui/` teaches that `ui/` is optional.
+- `components/ui/` is the design system: generic building blocks that know nothing about jobs or questions, so it is placed by kind, not by its users. Shared app-specific components sit directly in `components/`.
+- The screen component itself only adds layout classes (flex, grid, gap, spacing, width: `flex`, `gap-4`, `py-10`, `max-w-2xl`); every other component, shared or colocated, adds only layout and box styling (text styling goes through `Text`/`Heading`), builds on `ui/` components and never uses raw form controls (`<input>`, `<button>`, `<textarea>`, `<select>`); labels and fieldsets are structure, not controls: the `ui/` component is the semantic layer, and a raw control outside `ui/` teaches that `ui/` is optional.
 - Screen folders are kebab-case and flat by default; a subfolder only for a cohesive group (`apply-flow/questions/`): a reader scans one folder per screen.
 - Don't abstract until code is duplicated three times, and no wrapper component that only forwards props: wrong abstractions cost more than duplication.
 - Implement only what the current issue asks: scope creep hides review surface.
