@@ -38,7 +38,7 @@ src/
 
 | What                  | Style                         | Example                                      |
 | :-------------------- | :---------------------------- | :------------------------------------------- |
-| Folders               | lowercase / kebab-case        | `components/ui`, `question-types`            |
+| Folders               | lowercase / kebab-case        | `components/ui`, `job-overview`              |
 | React component files | PascalCase (= component name) | `JobOverviewPage.tsx`, `NumericQuestion.tsx` |
 | Other TS files        | camelCase                     | `screening.ts`, `fileToBase64.ts`            |
 | Tests                 | next to the file, same name   | `screening.test.ts`                          |
@@ -62,7 +62,8 @@ the snake_case keys exactly.
 - Adding a question type = new component + one registry entry: the flow never switches on type.
 - Colors only by role (`text-error`, `bg-primary`); palette colors like `red-600` exist only inside `@theme`: design changes stay one-line.
 - `components/ui/` is the design system: generic building blocks. A design system is shared by definition, so a ui component lives there however many places use it. Shared app-specific components sit directly in `components/`.
-- The screen component itself only adds layout classes (`flex`, `gap-4`, `grid`); every other component, shared or colocated, may style itself, builds on `ui/` components and never uses raw form controls (`<input>`, `<button>`, `<textarea>`, `<select>`); labels and fieldsets are structure, not controls: the `ui/` component is the semantic layer, and a raw control outside `ui/` teaches that it is optional.
+- The screen component itself only adds layout classes (`flex`, `gap-4`, `grid`); every other component, shared or colocated, adds only layout and box styling (text styling goes through `Text`/`Heading`), builds on `ui/` components and never uses raw form controls (`<input>`, `<button>`, `<textarea>`, `<select>`); labels and fieldsets are structure, not controls: the `ui/` component is the semantic layer, and a raw control outside `ui/` teaches that `ui/` is optional.
+- Screen folders are kebab-case and flat by default; a subfolder only for a cohesive group (`apply-flow/questions/`): a reader scans one folder per screen.
 - Don't abstract until code is duplicated three times, and no wrapper component that only forwards props: wrong abstractions cost more than duplication.
 - Implement only what the current issue asks: scope creep hides review surface.
 - The contract (`docs/task-contract.md`) is the source of truth; every rule in it has a test: untested contract rules rot.

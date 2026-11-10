@@ -30,8 +30,8 @@ npm run build      # typecheck + production build
 ```
 Raw Config ──▶ normalizeJob() ──▶ Wizard Flow (Confirm → 3/step → Review) ──▶ Submit
                       │                                                        │
-                 Pure Domain                                             console.log(payload)
-              (Zero React deps)                                          + Result Screen
+                 Pure logic                                              console.log(payload)
+                 (no React)                                              + Result Screen
 ```
 
 ### Architecture
