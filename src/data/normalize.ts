@@ -165,8 +165,8 @@ function dedupeQuestions(questions: Question[], addWarning: AddWarning) {
 export function normalizeJob(rawJob: unknown): NormalizeResult {
   if (!isRecord(rawJob)) return { error: 'job config is not an object' }
 
-  const jobFields = jobFieldsSchema.safeParse(rawJob)
-  if (!jobFields.success) return { error: `invalid job: ${jobFields.error.message}` }
+  const parsedJobFields = jobFieldsSchema.safeParse(rawJob)
+  if (!parsedJobFields.success) return { error: `invalid job: ${parsedJobFields.error.message}` }
   if (!Array.isArray(rawJob.questions)) return { error: 'job has no questions array' }
 
   const warnings: NormalizeWarning[] = []
@@ -183,5 +183,5 @@ export function normalizeJob(rawJob: unknown): NormalizeResult {
 
   if (deduped.length === 0) return { error: 'job has no valid questions' }
 
-  return { job: { ...jobFields.data, questions: deduped }, warnings }
+  return { job: { ...parsedJobFields.data, questions: deduped }, warnings }
 }
