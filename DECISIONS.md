@@ -33,7 +33,8 @@ D9. **File types: contract wins.** PDF/DOCX/PNG/JPG ≤ 5 MB everywhere; recruit
 D10. **Normalization policy: drop the smallest broken thing, console-warn, never invent data.**
      - Missing `id`/`question`/`type` → drop the question.
      - Malformed option → drop the option; duplicate option values → first wins, warn;
-       zero valid options left → drop the question.
+       zero valid options left → drop the question. A whitespace-only option value counts
+       as malformed, so a picked option is always an answer.
      - Rule value failing its documented type (`must_be_at_least: "five"`) → drop the rule,
        keep the question.
      - `must_be_true` is `z.boolean()`: `false` means "rule off" — legitimate semantics,

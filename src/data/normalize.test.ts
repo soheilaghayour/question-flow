@@ -131,6 +131,47 @@ describe('normalizeJob — option cleaning (keeps the question)', () => {
     expect(question.options).toEqual([{ label: 'Berlin', value: 'berlin' }])
     expect(result.warnings).toHaveLength(1)
   })
+
+  it('drops an option whose value is whitespace-only, with a warning', () => {
+    const result = expectJob(
+      normalizeJob(
+        rawJob([
+          {
+            type: 'select',
+            id: 'city',
+            question: 'City?',
+            options: [
+              { label: 'Berlin', value: 'berlin' },
+              { label: 'Blank', value: '  ' },
+            ],
+          },
+        ]),
+      ),
+    )
+    const question = result.job.questions[0]
+    if (question.type !== 'select') throw new Error('expected select')
+    expect(question.options).toEqual([{ label: 'Berlin', value: 'berlin' }])
+    expect(result.warnings).toEqual([{ questionId: 'city', reason: 'malformed option dropped' }])
+  })
+
+  it('keeps a padded option value exactly as written', () => {
+    const result = expectJob(
+      normalizeJob(
+        rawJob([
+          {
+            type: 'select',
+            id: 'city',
+            question: 'City?',
+            options: [{ label: 'Berlin', value: ' berlin ' }],
+          },
+        ]),
+      ),
+    )
+    const question = result.job.questions[0]
+    if (question.type !== 'select') throw new Error('expected select')
+    expect(question.options).toEqual([{ label: 'Berlin', value: ' berlin ' }])
+    expect(result.warnings).toEqual([])
+  })
 })
 
 describe('normalizeJob — screening rule cleaning (keeps the question)', () => {

@@ -63,7 +63,7 @@ export const numericQuestionSchema = z
 
 export const selectOptionSchema = z.object({
   label: z.string().min(1),
-  value: z.string().min(1),
+  value: z.string().regex(/\S/),
 })
 
 export const selectQuestionSchema = z.object({
