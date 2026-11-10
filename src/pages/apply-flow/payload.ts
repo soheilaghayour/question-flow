@@ -35,18 +35,12 @@ function toPayloadEntry(question: Question, value: AnswerValue): PayloadEntry | 
     case 'select':
       // Shape follows max_choices, never the picked count (bite #1).
       if (question.max_choices > 1)
-        return Array.isArray(value) && hasAnswer(value)
-          ? { id: question.id, values: value }
-          : undefined
-      return typeof value === 'string' && hasAnswer(value)
-        ? { id: question.id, value }
-        : undefined
+        return Array.isArray(value) ? { id: question.id, values: value } : undefined
+      return typeof value === 'string' ? { id: question.id, value } : undefined
     case 'text':
     case 'date':
       // Padding never reaches the wire — dates must be exactly YYYY-MM-DD.
-      return typeof value === 'string' && hasAnswer(value)
-        ? { id: question.id, value: value.trim() }
-        : undefined
+      return typeof value === 'string' ? { id: question.id, value: value.trim() } : undefined
     case 'numeric':
       // Integers only (contract) — and NaN would serialize to "value": null.
       return typeof value === 'number' && Number.isInteger(value)
@@ -73,7 +67,7 @@ export function buildPayload(
 ): ApplicationPayload {
   const payloadAnswers = job.questions.flatMap((question) => {
     const value = answers[question.id]
-    const entry = value == null ? undefined : toPayloadEntry(question, value)
+    const entry = value != null && hasAnswer(value) ? toPayloadEntry(question, value) : undefined
     return entry ? [entry] : []
   })
   return { job_id: job.id, answers: payloadAnswers, screening }
