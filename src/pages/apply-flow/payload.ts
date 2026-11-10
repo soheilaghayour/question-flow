@@ -3,7 +3,7 @@ import { hasAnswer } from './answers'
 import type { Job, Question } from '@/data/schema'
 import type { ScreeningResult } from './screening'
 
-/** A file already converted for the contract: plain base64 `data`, no data-URL prefix (bite #2). */
+/** A file already converted for the contract: plain base64 `data`, no data-URL prefix. */
 export interface FileAnswerValue {
   content_type: string
   data: string
@@ -33,7 +33,7 @@ export interface ApplicationPayload {
 function toPayloadEntry(question: Question, value: AnswerValue): PayloadEntry | undefined {
   switch (question.type) {
     case 'select':
-      // Shape follows max_choices, never the picked count (bite #1).
+      // Shape follows max_choices, never the picked count.
       if (question.max_choices > 1)
         return Array.isArray(value) ? { id: question.id, values: value } : undefined
       return typeof value === 'string' ? { id: question.id, value } : undefined

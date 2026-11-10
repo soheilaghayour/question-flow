@@ -12,9 +12,9 @@ export interface WizardStep {
 
 /** Splits questions into wizard steps from the prefill-aware initial answers. */
 // Prefilled questions lead as one confirm step — completed work shown as
-// completed, the lesson from the discarded focus mode (#33–#35). The rest
-// follows in config order, QUESTIONS_PER_STEP at a time. hasAnswer keeps
-// "prefilled" in lockstep with the submit gate and the progress count.
+// completed (DECISIONS #30). The rest follows in config order,
+// QUESTIONS_PER_STEP at a time. hasAnswer keeps "prefilled" in lockstep with
+// the submit gate and the progress count.
 export function buildSteps(questions: Question[], initialAnswers: Answers) {
   const prefilled = questions.filter((question) => hasAnswer(initialAnswers[question.id]))
   const open = questions.filter((question) => !hasAnswer(initialAnswers[question.id]))

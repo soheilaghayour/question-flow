@@ -177,7 +177,7 @@ describe('App', () => {
   })
 })
 
-describe('UI language (#66)', () => {
+describe('UI language', () => {
   it('starts in English with nothing stored and keeps a switch across a refresh', async () => {
     renderRoute('/jobs/job-short')
     expect(screen.getByRole('button', { name: 'Apply' })).toBeInTheDocument()

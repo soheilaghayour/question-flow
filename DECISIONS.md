@@ -47,8 +47,9 @@ D10. **Normalization policy: drop the smallest broken thing, console-warn, never
      - **Order: drop invalid questions first, then dedupe IDs** — an ignored question must
        not shadow a valid later question with the same ID.
      - Job-level invalid (no id / zero valid questions) → error/empty state in the UI,
-       never a crash. The job shell (`title`, `company`, `language`) is held to the same
-       bar: a job we can't display honestly is an error result, never invented defaults.
+       never a crash. The job's own fields (`title`, `company`, `language`) are held to
+       the same bar: a job we can't display honestly is an error result, never invented
+       defaults.
 
 D17. **Two schema choices a later reader might "fix":** `profile_field` is a plain string,
      not `z.enum(PROFILE_FIELDS)` — an unknown value must keep its question and simply
@@ -205,8 +206,8 @@ D20. **CI with GitHub Actions on push to `main` and every PR: typecheck, lint, t
      are cancelled on PRs only, never on `main`, so every main commit gets a full run.
      Deployment is a separate, later step.
 
-D40. **Code lives next to its only user and moves to the nearest common folder once shared;
-     `components/ui/` is the design system and always shared.**
+D40. **Code lives next to its only user and, once several screens use it, in the `src/` root
+     folder for its kind; `components/ui/` holds the design system.**
 
 ## Open PM questions
 
@@ -240,7 +241,7 @@ D40. **Code lives next to its only user and moves to the nearest common folder o
 - **Translating recruiter text on language switch** — would invent data; question/option
   texts are recruiter content (D3); payload carries original values.
 - **react-hook-form + zod resolver** — would generate a runtime schema per job and
-  duplicate the validation in the pure logic files; two brains to keep in sync.
+  duplicate the validation in the pure decision logic; two brains to keep in sync.
 - **React context for form state** — transport fix for a drilling problem that doesn't
   exist; hides data flow, forces provider wrappers in every test.
 - **One strict zod schema for the whole job** — one bad question would reject the entire

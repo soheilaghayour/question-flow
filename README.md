@@ -30,8 +30,8 @@ npm run build      # typecheck + production build
 ```
 Raw Config ──▶ normalizeJob() ──▶ Wizard Flow (Confirm → 3/step → Review) ──▶ Submit
                       │                                                        │
-                 Pure Domain                                             console.log(payload)
-              (Zero React deps)                                          + Result Screen
+                 Pure logic                                              console.log(payload)
+                 (no React)                                              + Result Screen
 ```
 
 ### Architecture
@@ -39,7 +39,7 @@ Raw Config ──▶ normalizeJob() ──▶ Wizard Flow (Confirm → 3/step �
 - **Code lives next to where it is used.** Each screen has its own folder under
   [`src/pages/`](src/pages) with its components and logic; code shared across screens sits
   in the root folders (D40).
-- **Pure logic files.** Business logic is plain TypeScript with no React: normalizing
+- **Pure decision logic.** Business logic is plain TypeScript with no React: normalizing
   configs ([`src/data/`](src/data)), prefill, screening, wizard steps and the payload
   ([`src/pages/apply-flow/`](src/pages/apply-flow)). It is tested without rendering anything.
 - **A design system.** [`components/ui/`](src/components/ui) holds the generic building

@@ -22,7 +22,7 @@ const EXTENSION_TO_TYPE: Record<string, AcceptedContentType> = {
   jpeg: 'image/jpeg',
 }
 
-/** Structural params, not DOM File: domain stays DOM-free. */
+/** Structural params, not DOM File: logic stays DOM-free. */
 export function resolveContentType(file: { name: string; type: string }) {
   const reported = ACCEPTED_CONTENT_TYPES.find((type) => type === file.type)
   if (reported) return reported

@@ -4,6 +4,20 @@ Read order: this file → `docs/task-contract.md` → `DECISIONS.md`.
 Authority: `docs/task-contract.md` (the contract) > `DECISIONS.md` > `CLAUDE.md` — the
 higher wins; the lower is corrected in the same commit.
 
+## One fact, one home
+
+Every fact lives in one place; every other place links to it, never copies it. Code
+constants have one source.
+
+| Place                                  | Its one job                                                                                                         |
+| :------------------------------------- | :------------------------------------------------------------------------------------------------------------------ |
+| the contract (`docs/task-contract.md`) | the data and payload rules                                                                                          |
+| `DECISIONS.md`                         | judgment calls (a one-sentence bold headline, then its reason), open PM questions, rejected and left-out approaches |
+| `README.md`                            | what the app is, how it's built, how to run it and contribute                                                       |
+| `CLAUDE.md`                            | how to work in this repo                                                                                            |
+| git commits, GitHub issues and PRs     | the history: what was done and why                                                                                  |
+| code comments                          | only a *why* the code can't show                                                                                    |
+
 ## Commands
 
 `npm run dev` · `npm test` · `npm run lint` · `npm run typecheck`
@@ -38,7 +52,7 @@ src/
 
 | What                  | Style                         | Example                                      |
 | :-------------------- | :---------------------------- | :------------------------------------------- |
-| Folders               | lowercase / kebab-case        | `components/ui`, `question-types`            |
+| Folders               | lowercase / kebab-case        | `components/ui`, `job-overview`              |
 | React component files | PascalCase (= component name) | `JobOverviewPage.tsx`, `NumericQuestion.tsx` |
 | Other TS files        | camelCase                     | `screening.ts`, `fileToBase64.ts`            |
 | Tests                 | next to the file, same name   | `screening.test.ts`                          |
@@ -54,18 +68,25 @@ imports only within the same folder.
 `3_months` are never renamed. No case-conversion layer. TS types for contract data use
 the snake_case keys exactly.
 
+**Names say what they hold or do, file names too.** No general name (`data`, `res`, `tmp`,
+`item`, `utils.ts`, `helpers.ts`) where a specific one exists. A folder holds a category, so
+a category name like `utils/` is its specific name.
+
 ## Rules that never change
 
-- Code lives next to its only user; when a second place uses it, it moves to the nearest common folder (across screens: the root folders). Tests don't count as users: a file's folder tells a reader who uses it.
-- Logic files (`.ts`, other than hooks) are pure: no React, no DOM, no side effects: logic stays testable without rendering.
+- Code lives next to its only user, in the nearest folder all its users share; `pages/` holds only screens, so code used by several screens lives in the `src/` root folder for its kind (`components/`, `utils/`, `data/`). Tests don't count as users: a file's folder tells a reader who uses it.
+- Code that makes a decision (validating, prefilling, screening, building the payload, splitting steps) only takes data and returns data: no React, no DOM, no side effects. Code that talks to the browser or React lives in its own files: decisions stay testable without rendering.
 - Every job config goes through `normalizeJob()` before use: raw configs lie.
 - Adding a question type = new component + one registry entry: the flow never switches on type.
 - Colors only by role (`text-error`, `bg-primary`); palette colors like `red-600` exist only inside `@theme`: design changes stay one-line.
-- `components/ui/` is the design system: generic building blocks. A design system is shared by definition, so a ui component lives there however many places use it. Shared app-specific components sit directly in `components/`.
-- The screen component itself only adds layout classes (`flex`, `gap-4`, `grid`); every other component, shared or colocated, may style itself, builds on `ui/` components and never uses raw form controls (`<input>`, `<button>`, `<textarea>`, `<select>`); labels and fieldsets are structure, not controls: the `ui/` component is the semantic layer, and a raw control outside `ui/` teaches that it is optional.
+- `components/ui/` is the design system: generic building blocks that know nothing about jobs or questions, so it is placed by kind, not by its users. Shared app-specific components sit directly in `components/`.
+- The screen component itself only adds layout classes (flex, grid, gap, spacing, width: `flex`, `gap-4`, `py-10`, `max-w-2xl`); every other component, shared or colocated, adds only layout and box styling (text styling goes through `Text`/`Heading`), builds on `ui/` components and never uses raw form controls (`<input>`, `<button>`, `<textarea>`, `<select>`); labels and fieldsets are structure, not controls: the `ui/` component is the semantic layer, and a raw control outside `ui/` teaches that `ui/` is optional.
+- Screen folders are kebab-case and flat by default; a subfolder only for a cohesive group (`apply-flow/questions/`): a reader scans one folder per screen.
 - Don't abstract until code is duplicated three times, and no wrapper component that only forwards props: wrong abstractions cost more than duplication.
 - Implement only what the current issue asks: scope creep hides review surface.
-- The contract (`docs/task-contract.md`) is the source of truth; every rule in it has a test: untested contract rules rot.
+- Prefer one principle to exceptions: if a case doesn't fit a rule, the rule is usually worded wrong — state the one principle that covers the case; an exception that can't be avoided gets its reason written next to it: exceptions multiply and hide the real rule.
+- Used code stays; unused code is deleted, together with every doc line that names it: a reader trusts that what the docs name exists.
+- The contract (`docs/task-contract.md`) is the source of truth; every rule in it has a test, and every fixed bug gets a regression test (one that fails if the bug comes back); code with no logic of its own, like a ui component that only styles a native control, needs no test: untested rules rot, fixed bugs return, and a test of code with no logic only re-tests the browser.
 - TypeScript strict, no `any`: the contract types are the safety net.
 - Let TypeScript infer; annotate only where it checks something — contract shapes, discriminated results, empty containers, nullable state, `unknown` at trust boundaries: redundant annotations are noise that drifts.
 - Prefer flat lookup tables with `satisfies` over generic helpers and conditional types: a reader sees the mapping, the compiler still checks coverage.
@@ -95,14 +116,16 @@ edit them, not even to make a test pass. New test data goes into new files (e.g.
 ## Working agreements
 
 - A product decision is written to `DECISIONS.md` in the same commit as the code that implements it — never later.
-- `DECISIONS.md` lists only decisions in force: a replaced decision is deleted, never marked "superseded" — git keeps the history.
-- Comments are one line, next to the code they explain, and only state a *why* the code can't show: a browser quirk, a bite, a guard a reader would otherwise "fix". Markup, ARIA attributes and DECISIONS entries speak for themselves. JSDoc is one sentence on what the function does.
-- Docs stay minimal: the README says what the app is, how it's built, how to run it and contribute, and every claim links to its source; one plain sentence per decision; no defensive code for cases the app needn't survive.
+- `DECISIONS.md` lists only decisions in force: a replaced decision is deleted, never marked "superseded".
+- Comments are one line, next to the code they explain, and only state a *why* the code can't show: a browser quirk, a bite, a guard a reader would otherwise "fix". Markup, ARIA attributes and DECISIONS entries speak for themselves. JSDoc is one sentence on what the function does. Comments and JSDoc carry no issue numbers, commits, dates or history: that belongs in git, the issue and the PR.
+- Docs stay minimal: each file does only its job from the table above, every README claim links to its source, and no doc points to commits or git history — the history has its own home (see the table above); no defensive code for cases the app needn't survive.
 - Pushback comes first: when a request has a flaw, a risk or a simpler alternative, state it with reasons and wait for the user's decision before implementing. With no pushback, implement right away.
 - For tasks with 3+ steps, keep a visible todo list.
 - Every diff is read by a human: explain why a change is needed, not only what changed.
+- State facts plainly: count as a result only what is new — a check that confirms something already known is "already known", not a gain. Never pad: padding hides the real result.
 - Small commits, one issue each, with clear messages.
 - Every PR must pass CI. Run `npm run typecheck && npm run lint && npm test` before committing.
+- Never write test counts into docs, issues or PR descriptions: CI shows whether the tests pass.
 
 ## Agent skills
 

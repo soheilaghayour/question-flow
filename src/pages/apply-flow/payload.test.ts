@@ -33,7 +33,7 @@ describe('buildPayload — envelope and scalar values (contract example)', () =>
     })
   })
 
-  // Bite #4: false is an answer, not an absence.
+  // false is an answer, not an absence.
   it.each([true, false])('includes a boolean %s as a JSON boolean', (answer) => {
     const payload = buildPayload(
       job([boolean({ id: 'eu_work_permit' })]),
@@ -139,7 +139,7 @@ describe('buildPayload — text, date and file values', () => {
   })
 
   // contract example: file answers nest { content_type, data, file_name } under value,
-  // with data already plain base64 (fileToBase64 strips the data-URL prefix, bite #2).
+  // with data already plain base64 (fileToBase64 strips the data-URL prefix).
   it('emits a file answer under value with the contract keys', () => {
     const fileValue = {
       content_type: 'application/pdf',
