@@ -111,7 +111,7 @@ D21. **Question components are controlled and share one seam:**
 
 D22. **The step gate is required-missing only.** Components hold invalid input as
      `null` (D21), so an invalid required field blocks through the same check as an
-     empty one (`missingRequired` in `answers.ts` mirrors D19's no-substance rule).
+     empty one (the gate and the payload both use `hasAnswer` in `answers.ts`, D19's no-substance rule).
      An optional field with unparseable input submits with that answer omitted: the
      widget's inline error already told the user, and the payload stays contract-safe.
 
