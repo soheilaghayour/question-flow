@@ -71,13 +71,10 @@ D19. **Payload omission policy: a value with no substance is "no answer", and a 
      problems are the recruiter's bug to hear about; form-state problems are ours, caught
      by tests.
 
-D23. **The task contract moved verbatim from `README.md` to `docs/task-contract.md`** via
-     `git mv`, byte-identical; it stays a frozen fixture. Only its path changed, never its
-     content or authority: it remains the top of the authority order. This frees `README.md`
-     to be a real project README (what this is, how to run it, CI badge, doc links) — the
-     first file a reviewer opens should not be mock-data documentation. All references that
-     meant the contract (CLAUDE.md, this file, PRD.md, code comments) now say "contract"
-     or name `docs/task-contract.md` explicitly.
+D23. **The contract lives in `docs/task-contract.md`, a frozen fixture at the top of the
+     authority order.** It has its own file so `README.md` can be a real project README
+     (what this is, how to run it, CI badge, doc links): the first file a reader opens
+     should not be mock-data documentation.
 
 D24. **Candidates see the same neutral confirmation whatever the screening result.** Telling
      them they failed helps nobody and hints at recruiter thresholds. Screening never blocks
