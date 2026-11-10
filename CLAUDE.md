@@ -84,7 +84,7 @@ a category name like `utils/` is its specific name.
 - Screen folders are kebab-case and flat by default; a subfolder only for a cohesive group (`apply-flow/questions/`): a reader scans one folder per screen.
 - Don't abstract until code is duplicated three times, and no wrapper component that only forwards props: wrong abstractions cost more than duplication.
 - Implement only what the current issue asks: scope creep hides review surface.
-- No exceptions in rules or code: if a case doesn't fit a rule, the rule is worded wrong — state the one principle that covers the case. An exception needs a written reason next to it.
+- Prefer one principle to exceptions: if a case doesn't fit a rule, the rule is usually worded wrong — state the one principle that covers the case; an exception that can't be avoided gets its reason written next to it: exceptions multiply and hide the real rule.
 - Used code stays; unused code is deleted, together with every doc line that names it: a reader trusts that what the docs name exists.
 - The contract (`docs/task-contract.md`) is the source of truth; every rule in it has a test, and every fixed bug gets a regression test (one that fails if the bug comes back); code with no logic of its own, like a ui component that only styles a native control, needs no test: untested rules rot, fixed bugs return.
 - TypeScript strict, no `any`: the contract types are the safety net.
