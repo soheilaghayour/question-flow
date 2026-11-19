@@ -99,26 +99,17 @@ The D-numbers refer to entries in [`DECISIONS.md`](DECISIONS.md).
 
 ## Where things live
 
-- [`docs/task-contract.md`](docs/task-contract.md) — the task contract (frozen fixture):
-  job config format, question types, screening rules, payload shape. The source of truth;
-  every rule in it has a test.
+- [`docs/task-contract.md`](docs/task-contract.md) — the task contract: job config format,
+  question types, screening rules, payload shape.
 - [`DECISIONS.md`](DECISIONS.md) — every judgment call the contract left open, with its
   reason. Includes rejected approaches and open PM questions.
 - [`PRD.md`](PRD.md) — the problem, the users, and what V1 and V2 cover.
 - [`CLAUDE.md`](CLAUDE.md) — project structure, naming conventions, and the working
   agreements under which this repo is built.
-- `jobs/*.json`, `profile.json` — mock data fixtures (frozen, including the deliberately
-  broken `bad.json`).
+- `jobs/*.json`, `profile.json` — mock data fixtures, including the deliberately broken
+  `bad.json`.
 
 ## Contributing
 
-- Work starts as a GitHub issue; each issue gets its own branch and pull request.
-- A product decision goes into [`DECISIONS.md`](DECISIONS.md) in the same commit as the code
-  that implements it.
-- Tests sit next to the file they test. Every contract rule has a test, and each job
-  config has an integration test.
-- Run `npm run typecheck && npm run lint && npm test` before committing. CI runs the same
-  checks plus the build on every pull request.
-- The fixtures and the contract are frozen; new test data goes into new files
-  (e.g. [`jobs/edge-cases.json`](jobs/edge-cases.json)).
-- Conventions and rules are in [`CLAUDE.md`](CLAUDE.md).
+Work starts as a GitHub issue; each issue gets its own branch and pull request. The
+conventions, rules and working agreements for a change are in [`CLAUDE.md`](CLAUDE.md).
