@@ -20,7 +20,7 @@ constants have one source.
 
 ## Commands
 
-`npm run dev` · `npm test` · `npm run lint` · `npm run typecheck`
+See [`README.md` → Running it](README.md#running-it).
 
 ## Structure
 
@@ -103,8 +103,8 @@ a category name like `utils/` is its specific name.
 5. **Strict vs inclusive.** `must_be_below` is `<` (90000 fails), `must_be_at_least` is `>=`.
 6. **Missing answer fails the rule** — matters for optional questions with rules.
 7. **German numbers.** `85.000` means 85000, not 85. Integers only.
-8. **Raw configs lie.** Duplicate IDs, unknown types and misplaced rules exist (bad.json). Never render a job config that hasn't gone through `normalizeJob()`.
-9. **Contract keys are snake_case.** Never rename them (see naming conventions).
+8. **Raw configs lie.** Duplicate IDs, unknown types and misplaced rules exist (bad.json); see the `normalizeJob()` rule above.
+9. **Contract keys are snake_case.** See naming conventions.
 10. **Prefill only valid values.** A profile value that is not a valid option (or out of min/max) is not prefilled.
 
 ## Frozen
