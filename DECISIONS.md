@@ -174,7 +174,7 @@ D13. **Styling: Tailwind v4 + semantic color tokens in `@theme`; `components/ui/
      `Input.tsx` is the single place input styling lives, so role-level changes are
      one-file edits. Discipline rules in `CLAUDE.md`: colors only by role; screen
      components add layout classes only.
-     Text roles are `ui/` components too: `Text` (element, tone, size and weight props, never caller color classes) and `Heading`; `ErrorText` and `RequiredMark` build on `Text`. Error messages always go through `ErrorText`, so they keep `role="alert"`. Components outside `ui/` add only layout and box styling. Tests check behavior and semantics, never class names: asserting exact CSS class names in unit tests is widely recognized as an anti-pattern.
+     Text roles are `ui/` components too: `Text` (element, tone, size, weight, align and wrap props; every value adds a class, so a left-out prop inherits from the parent; never caller color classes) and `Heading`; `ErrorText` and `RequiredMark` build on `Text`. Error messages always go through `ErrorText`, so they keep `role="alert"`. Components outside `ui/` add only layout and box styling. Tests check behavior and semantics, never class names: asserting exact CSS class names in unit tests is widely recognized as an anti-pattern.
 
 D14. **i18n: hand-rolled typed `t(key)` + React context.** ~30 UI strings don't justify i18next.
 

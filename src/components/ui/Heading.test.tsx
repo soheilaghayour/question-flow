@@ -10,12 +10,12 @@ describe('Heading', () => {
 
   it('forwards native props and a caller className', () => {
     render(
-      <Heading level={2} id="title" className="text-center">
+      <Heading level={2} id="title" className="self-start">
         Title
       </Heading>,
     )
     const heading = screen.getByRole('heading', { name: 'Title' })
     expect(heading).toHaveAttribute('id', 'title')
-    expect(heading).toHaveClass('text-center')
+    expect(heading).toHaveClass('self-start')
   })
 })
