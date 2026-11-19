@@ -86,7 +86,7 @@ a category name like `utils/` is its specific name.
 - Implement only what the current issue asks: scope creep hides review surface.
 - Prefer one principle to exceptions: if a case doesn't fit a rule, the rule is usually worded wrong — state the one principle that covers the case; an exception that can't be avoided gets its reason written next to it: exceptions multiply and hide the real rule.
 - Used code stays; unused code is deleted, together with every doc line that names it: a reader trusts that what the docs name exists.
-- The contract (`docs/task-contract.md`) is the source of truth; every rule in it has a test, and every fixed bug gets a regression test (one that fails if the bug comes back); code with no logic of its own, like a ui component that only styles a native control, needs no test: untested rules rot, fixed bugs return, and a test of code with no logic only re-tests the browser.
+- The contract (`docs/task-contract.md`) is the source of truth; every rule in it has a test, each job config has an integration test, and every fixed bug gets a regression test (one that fails if the bug comes back); code with no logic of its own, like a ui component that only styles a native control, needs no test: untested rules rot, fixed bugs return, and a test of code with no logic only re-tests the browser.
 - TypeScript strict, no `any`: the contract types are the safety net.
 - Let TypeScript infer; annotate only where it checks something — contract shapes, discriminated results, empty containers, nullable state, `unknown` at trust boundaries: redundant annotations are noise that drifts.
 - Prefer flat lookup tables with `satisfies` over generic helpers and conditional types: a reader sees the mapping, the compiler still checks coverage.
