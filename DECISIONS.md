@@ -1,7 +1,6 @@
 # DECISIONS
 
-Every judgment call, with its reason. How this file ranks against the contract and
-`CLAUDE.md`: see the authority order at the top of [`CLAUDE.md`](CLAUDE.md).
+Every judgment call, with its reason. Authority order: see the top of [`CLAUDE.md`](CLAUDE.md).
 
 ## What I built
 
@@ -204,8 +203,8 @@ D20. **CI with GitHub Actions on push to `main` and every PR: typecheck, lint, t
      Deployment is a separate, later step.
 
 D40. **Files are grouped by who uses them, not by component kind (atoms,
-     molecules, domain, hooks)** ([colocation rule](CLAUDE.md#rules-that-never-change)).
-     Those folders hid whether a file belongs to one screen or is shared.
+     molecules, domain, hooks).** Those folders hid whether a file belongs to one screen or
+     is shared; the [colocation rule](CLAUDE.md#rules-that-never-change) is the rule.
 
 ## Open PM questions
 
