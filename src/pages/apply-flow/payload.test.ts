@@ -82,6 +82,7 @@ describe('buildPayload — unanswered questions are left out (contract)', () => 
     ['whitespace-only text', text({ id: 'cover_note' }), { cover_note: '   \n\t' }],
     ['multi-select with nothing picked', focusAreas(3), { focus_areas: [] }],
     ['single-select stored as empty string', focusAreas(1), { focus_areas: '' }],
+    ['whitespace-only single-select', focusAreas(1), { focus_areas: '  ' }],
     // typeof null === 'object': a cleared file input must not ship "value": null.
     ['file input cleared to null', file({ id: 'cover_letter' }), { cover_letter: null }],
   ])('omits an optional question with %s', (_name, question, answers) => {
@@ -93,9 +94,11 @@ describe('buildPayload — unanswered questions are left out (contract)', () => 
 describe('buildPayload — wrong-shape answers are omitted, never coerced (DECISIONS #19)', () => {
   // Each arm accepts only its own value type: a wiring bug must not put a
   // boolean on the wire for a numeric question, or vice versa.
-  it.each<[string, Question, Record<string, number | boolean>]>([
+  it.each<[string, Question, Record<string, number | boolean | string | string[]>]>([
     ['a boolean under a numeric question', numeric({ id: 'salary_expectation' }), { salary_expectation: true }],
     ['a number under a boolean question', boolean({ id: 'eu_work_permit' }), { eu_work_permit: 42 }],
+    ['a string under a multi-select', focusAreas(3), { focus_areas: 'frontend' }],
+    ['an array under a single-select', focusAreas(1), { focus_areas: ['frontend'] }],
   ])('omits %s', (_name, question, answers) => {
     const payload = buildPayload(job([question]), answers, SCREENING_OK)
     expect(payload.answers).toEqual([])

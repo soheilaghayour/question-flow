@@ -1,4 +1,5 @@
 import { assertNever } from './assertNever'
+import { hasAnswer } from './answers'
 import type { Job, Question } from '@/data/schema'
 import type { ScreeningResult } from './screening'
 
@@ -34,21 +35,12 @@ function toPayloadEntry(question: Question, value: AnswerValue): PayloadEntry | 
     case 'select':
       // Shape follows max_choices, never the picked count.
       if (question.max_choices > 1)
-        return Array.isArray(value) && value.length > 0
-          ? { id: question.id, values: value }
-          : undefined
-      // '' is how an unselected single-select may sit in form state — no answer.
-      return typeof value === 'string' && value !== ''
-        ? { id: question.id, value }
-        : undefined
+        return Array.isArray(value) ? { id: question.id, values: value } : undefined
+      return typeof value === 'string' ? { id: question.id, value } : undefined
     case 'text':
-    case 'date': {
-      if (typeof value !== 'string') return undefined
-      // Whitespace-only is "no answer" (contract: leave out unanswered optionals),
-      // and padding never reaches the wire — dates must be exactly YYYY-MM-DD.
-      const trimmed = value.trim()
-      return trimmed !== '' ? { id: question.id, value: trimmed } : undefined
-    }
+    case 'date':
+      // Padding never reaches the wire — dates must be exactly YYYY-MM-DD.
+      return typeof value === 'string' ? { id: question.id, value: value.trim() } : undefined
     case 'numeric':
       // Integers only (contract) — and NaN would serialize to "value": null.
       return typeof value === 'number' && Number.isInteger(value)
@@ -75,7 +67,7 @@ export function buildPayload(
 ): ApplicationPayload {
   const payloadAnswers = job.questions.flatMap((question) => {
     const value = answers[question.id]
-    const entry = value == null ? undefined : toPayloadEntry(question, value)
+    const entry = value != null && hasAnswer(value) ? toPayloadEntry(question, value) : undefined
     return entry ? [entry] : []
   })
   return { job_id: job.id, answers: payloadAnswers, screening }
