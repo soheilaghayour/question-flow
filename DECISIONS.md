@@ -1,7 +1,7 @@
 # DECISIONS
 
-Every judgment call, with its reason. Authority order: the contract (`docs/task-contract.md`) > this file >
-`CLAUDE.md` — if they disagree, the higher wins and the lower is corrected in the same commit.
+Every judgment call, with its reason. How this file ranks against the contract and
+`CLAUDE.md`: see the authority order at the top of [`CLAUDE.md`](CLAUDE.md).
 
 ## What I built
 
@@ -27,8 +27,9 @@ D7. **Prefill validity = input validation only** (type, option membership, min/m
 D8. **Screening never blocks input, pages, or submission.** Evaluated at submit into the
     payload — the contract's own example is a submitted payload with `passed: false`.
 
-D9. **File types: contract wins.** PDF/DOCX/PNG/JPG ≤ 5 MB everywhere; recruiter prose
-    ("bitte ausschließlich als PDF") renders as written but is never parsed for intent.
+D9. **File types: the [contract's types and size limit](docs/task-contract.md#answer-payload)
+    apply to every file question.** Recruiter prose ("bitte ausschließlich als PDF") renders as written but is
+    never parsed for intent.
 
 D10. **Normalization policy: drop the smallest broken thing, console-warn, never invent data.**
      - Missing `id`/`question`/`type` → drop the question.
@@ -72,10 +73,9 @@ D19. **Payload omission policy: a value with no substance is "no answer", and a 
      problems are the recruiter's bug to hear about; form-state problems are ours, caught
      by tests.
 
-D23. **The contract lives in `docs/task-contract.md`, a frozen fixture at the top of the
-     authority order.** It has its own file so `README.md` can be a real project README
-     (what this is, how to run it, CI badge, doc links): the first file a reader opens
-     should not be mock-data documentation.
+D23. **The contract lives in its own file, `docs/task-contract.md`.** That way `README.md` can
+     be a real project README (what this is, how to run it, CI badge, doc links): the first
+     file a reader opens should not be mock-data documentation.
 
 D24. **Candidates see the same neutral confirmation whatever the screening result.** Telling
      them they failed helps nobody and hints at recruiter thresholds. Screening never blocks
@@ -173,9 +173,9 @@ D12. **Accessibility baseline in V1:** label/input association, `aria-invalid`,
 
 D13. **Styling: Tailwind v4 + semantic color tokens in `@theme`; `components/ui/` is the role layer.**
      `Input.tsx` is the single place input styling lives, so role-level changes are
-     one-file edits. Discipline rules in `CLAUDE.md`: colors only by role; screen
-     components add layout classes only.
-     Text roles are `ui/` components too: `Text` (element, tone, size, weight, align and wrap props; every value adds a class, so a left-out prop inherits from the parent; never caller color classes) and `Heading`; `ErrorText` and `RequiredMark` build on `Text`. Error messages always go through `ErrorText`, so they keep `role="alert"`. Components outside `ui/` add only layout and box styling. Tests check behavior and semantics, never class names: asserting exact CSS class names in unit tests is widely recognized as an anti-pattern.
+     one-file edits. The styling rules that follow from it (colors by role, which component adds
+     which classes) are in [`CLAUDE.md`](CLAUDE.md#rules-that-never-change).
+     Text roles are `ui/` components too: `Text` (element, tone, size, weight, align and wrap props; every value adds a class, so a left-out prop inherits from the parent; never caller color classes) and `Heading`; `ErrorText` and `RequiredMark` build on `Text`. Error messages always go through `ErrorText`, so they keep `role="alert"`. Tests check behavior and semantics, never class names: asserting exact CSS class names in unit tests is widely recognized as an anti-pattern.
 
 D14. **i18n: hand-rolled typed `t(key)` + React context.** ~30 UI strings don't justify i18next.
 
@@ -203,8 +203,9 @@ D20. **CI with GitHub Actions on push to `main` and every PR: typecheck, lint, t
      are cancelled on PRs only, never on `main`, so every main commit gets a full run.
      Deployment is a separate, later step.
 
-D40. **Code lives next to its only user and, once several screens use it, in the `src/` root
-     folder for its kind; `components/ui/` holds the design system.**
+D40. **Files are grouped by who uses them, not by kind** (the
+     [colocation rule](CLAUDE.md#rules-that-never-change)). Folders by kind (atoms, molecules,
+     domain, hooks) hid whether a file belongs to one screen or is shared.
 
 ## Open PM questions
 
@@ -257,7 +258,7 @@ D40. **Code lives next to its only user and, once several screens use it, in the
 
 - **Backend / real submission** — payload in console + candidate confirmation is the contract deliverable.
 - **`rating` question type** — unknown type per contract; dropped by normalize, by design.
-- **Case-conversion layer** — forbidden; contract keys stay snake_case end to end.
+- **Case-conversion layer** — ruled out by the [snake_case rule](CLAUDE.md#naming-conventions).
 - **Drafts in localStorage** — helps only people who leave and return; lowest impact per hour. Leaving the form drops answers. localStorage holds only applied job ids (D29).
 - **Reorder by effort** — the prefill step already puts the easiest answers first; open questions keep the recruiter's config order.
 - **Intro screen** — the step line ("Step X of Y") already sets expectations.
