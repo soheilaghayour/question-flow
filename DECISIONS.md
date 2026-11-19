@@ -203,9 +203,9 @@ D20. **CI with GitHub Actions on push to `main` and every PR: typecheck, lint, t
      are cancelled on PRs only, never on `main`, so every main commit gets a full run.
      Deployment is a separate, later step.
 
-D40. **Files are grouped by who uses them, not by kind** (the
-     [colocation rule](CLAUDE.md#rules-that-never-change)). Folders by kind (atoms, molecules,
-     domain, hooks) hid whether a file belongs to one screen or is shared.
+D40. **Files are grouped by who uses them, not by component kind (atoms,
+     molecules, domain, hooks)** ([colocation rule](CLAUDE.md#rules-that-never-change)).
+     Those folders hid whether a file belongs to one screen or is shared.
 
 ## Open PM questions
 
